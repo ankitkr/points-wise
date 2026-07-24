@@ -65,12 +65,12 @@ pnpm wrangler secret put DISCORD_STANDALONE_ROLE_ID
 Add the deployed callback URL to your Discord app's OAuth2 redirects:
 `https://<worker-subdomain>.workers.dev/api/auth/callback/discord`.
 
-**Automated deploys — GitHub Actions** (`.github/workflows/deploy.yml`): pushes to `main` build and deploy automatically. wrangler authenticates from env, not `wrangler login`, so add two repo **Actions secrets**:
+**Automated deploys — GitHub Actions** (`.github/workflows/deploy.yml`): pushes to `main` build and deploy automatically. wrangler authenticates from env, not `wrangler login`. Secrets live in a GitHub **Environment** named `cloudflare` (the deploy job declares `environment: cloudflare`); add these two there:
 
 - `CLOUDFLARE_API_TOKEN` — token with *Workers Scripts: Edit* + *D1: Edit*
 - `CLOUDFLARE_ACCOUNT_ID`
 
-These are encrypted, write-only, and never exposed to fork pull requests (the workflow runs only on `push`/`workflow_dispatch`). Never commit secrets to files — only `database_id` (a non-secret identifier) lives in `wrangler.jsonc`.
+These are encrypted, write-only, and never exposed to fork pull requests (the workflow runs only on `push`/`workflow_dispatch`). Using an Environment also lets you add protection rules (e.g. required reviewers) to the deploy. Never commit secrets to files — only `database_id` (a non-secret identifier) lives in `wrangler.jsonc`.
 
 ## License
 
