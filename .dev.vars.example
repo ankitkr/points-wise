@@ -1,0 +1,15 @@
+# Copy to `.dev.vars` for local dev (git-ignored). In production these are
+# Cloudflare Worker secrets (`wrangler secret put <NAME>`), not committed.
+
+# next-auth signing/encryption secret — generate with: openssl rand -base64 32
+AUTH_SECRET=""
+
+# Discord OAuth app (Discord Developer Portal → your app → OAuth2)
+AUTH_DISCORD_ID=""
+AUTH_DISCORD_SECRET=""
+
+# Your Discord server (guild) and the tier role IDs within it.
+# Enable Developer Mode in Discord, then right-click → Copy ID.
+DISCORD_GUILD_ID=""
+DISCORD_FAMILY_ROLE_ID=""
+DISCORD_STANDALONE_ROLE_ID=""
