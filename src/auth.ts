@@ -61,6 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.ulid = identity.ulid
         token.householdId = identity.householdId
         token.tier = identity.tier
+        token.discordId = p.id
         token.name = discordName(p) ?? token.name
         token.email = p.email ?? token.email
         token.picture = discordAvatarUrl(p) ?? token.picture
@@ -70,9 +71,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     // Expose ONLY non-sensitive fields to the client. Never `token.ulid`.
     async session({ session, token }) {
-      const t = token as { tier?: Tier; householdId?: string }
+      const t = token as { tier?: Tier; householdId?: string; discordId?: string }
       session.user.tier = t.tier ?? 'readonly'
       session.user.householdId = t.householdId ?? ''
+      session.user.discordId = t.discordId ?? ''
       return session
     },
   },

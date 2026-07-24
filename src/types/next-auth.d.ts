@@ -8,6 +8,7 @@ declare module 'next-auth' {
     user: DefaultSession['user'] & {
       tier: Tier
       householdId: string
+      discordId: string
     }
   }
 }
@@ -18,5 +19,6 @@ declare module 'next-auth/jwt' {
     ulid?: string
     tier?: Tier
     householdId?: string
+    discordId?: string
   }
 }
