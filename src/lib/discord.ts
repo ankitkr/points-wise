@@ -4,13 +4,19 @@ export type GuildCheck =
   | { ok: true; tier: Tier; roles: string[] }
   | { ok: false; reason: 'not_in_guild' | 'unauthorized' | 'rate_limited' | 'outage' }
 
+// Only the guild/role ids are needed — narrowing keeps the function easy to test.
+type GuildEnv = Pick<
+  CloudflareEnv,
+  'DISCORD_GUILD_ID' | 'DISCORD_FAMILY_ROLE_ID' | 'DISCORD_STANDALONE_ROLE_ID'
+>
+
 // Reads the signer's member object in OUR guild and maps their roles to a tier.
 // Discord roles are the source of truth. Failure modes are distinguished so an
 // outage can't masquerade as "not in guild" (callers must not downgrade tier on
 // a non-404 failure).
 export async function checkGuildMembership(
   accessToken: string,
-  env: CloudflareEnv,
+  env: GuildEnv,
 ): Promise<GuildCheck> {
   let res: Response
   try {

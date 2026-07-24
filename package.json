@@ -11,6 +11,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "generate:types": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply points-wise --local",
@@ -39,6 +41,7 @@
     "@types/node": "22.19.9",
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
+    "@cloudflare/vitest-pool-workers": "0.8.71",
     "@cloudflare/workers-types": "^4.20250110.0",
     "autoprefixer": "^10.5.0",
     "drizzle-kit": "^0.31.0",
@@ -47,6 +50,7 @@
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
     "typescript": "5.7.3",
+    "vitest": "3.2.4",
     "wrangler": "~4.88.0"
   },
   "engines": {
