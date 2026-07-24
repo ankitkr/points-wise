@@ -1,0 +1,37 @@
+name: Deploy
+
+# Runs only on pushes to main (and manual dispatch) — never on pull requests,
+# so the Cloudflare token is never exposed to fork PRs.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      # wrangler / OpenNext authenticate from these env vars — no `wrangler login`.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Apply any new D1 migrations to the remote database before deploying.
+      - run: pnpm db:migrate:remote
+
+      # OpenNext build + deploy to Cloudflare Workers.
+      - run: pnpm run deploy

@@ -40,6 +40,38 @@ pnpm dev
 
 Useful scripts: `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm db:generate` (regenerate migrations after editing `src/db/schema.ts`).
 
+## Deploy (Cloudflare Workers)
+
+**First deploy — manual (once):**
+
+```bash
+pnpm wrangler login
+pnpm wrangler d1 create points-wise      # paste the id into wrangler.jsonc
+pnpm db:migrate:remote                    # apply migrations to remote D1
+pnpm run deploy                           # OpenNext build + deploy (creates the Worker)
+```
+
+Then set the runtime secrets on the Worker (they persist across deploys):
+
+```bash
+pnpm wrangler secret put AUTH_SECRET      # openssl rand -base64 32
+pnpm wrangler secret put AUTH_DISCORD_ID
+pnpm wrangler secret put AUTH_DISCORD_SECRET
+pnpm wrangler secret put DISCORD_GUILD_ID
+pnpm wrangler secret put DISCORD_FAMILY_ROLE_ID
+pnpm wrangler secret put DISCORD_STANDALONE_ROLE_ID
+```
+
+Add the deployed callback URL to your Discord app's OAuth2 redirects:
+`https://<worker-subdomain>.workers.dev/api/auth/callback/discord`.
+
+**Automated deploys — GitHub Actions** (`.github/workflows/deploy.yml`): pushes to `main` build and deploy automatically. wrangler authenticates from env, not `wrangler login`, so add two repo **Actions secrets**:
+
+- `CLOUDFLARE_API_TOKEN` — token with *Workers Scripts: Edit* + *D1: Edit*
+- `CLOUDFLARE_ACCOUNT_ID`
+
+These are encrypted, write-only, and never exposed to fork pull requests (the workflow runs only on `push`/`workflow_dispatch`). Never commit secrets to files — only `database_id` (a non-secret identifier) lives in `wrangler.jsonc`.
+
 ## License
 
 PointsWise is **source-available, not open source**. It is licensed under the
