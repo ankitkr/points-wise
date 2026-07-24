@@ -12,8 +12,7 @@
     {
       "binding": "D1",
       "database_name": "points-wise",
-      // Run `wrangler d1 create points-wise` and paste the returned id here.
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "31195df8-3465-4f74-a412-d233a97f524f",
       "migrations_dir": "drizzle"
     }
   ],
