@@ -218,3 +218,19 @@ tables. Freshness without corrupting earn math.
 Rule of thumb: if a new capability can be a **library behind an interface**, it is one.
 It graduates to a Worker/DO only when it needs its own lifecycle, entrypoint
 (email/webhook/cron), or isolation.
+
+## Size budget (owner constraint — no one Worker grows too large)
+
+Cloudflare caps a Worker's **gzipped server bundle at 3 MB on the free plan** (10 MB
+paid). Static assets ship separately (Workers Assets) and don't count. Current app
+Worker: **~1.26 MB gzipped** (`wrangler deploy --dry-run` prints it) — ~2.4x headroom.
+
+Rules:
+- **Watch the number on every deploy**; treat ~2.5 MB as the alarm line.
+- **Prefer lean dependencies** — no heavy parser/AI/charting libs in the app Worker
+  (that's what pushed milesvault onto the paid plan). LLM work goes through Workers AI
+  bindings (no SDK weight) or the separate ingest/kb-updater Workers.
+- **When something big must exist, it gets its own Worker** along the seams already
+  drawn (ingest, kb-updater) — never grow the app Worker past the budget.
+- Also protects the other free-tier limits: 10 ms CPU/request (keep SSR light),
+  100k requests/day.
