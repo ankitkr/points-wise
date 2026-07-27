@@ -27,15 +27,28 @@ export type ValidateContext = {
 }
 
 // Fiat = a 3-letter uppercase ISO-style code (INR, USD, …) or an explicit
-// extra. Points tickers are barred from that shape by the KB schema, so they
-// can never pass as fiat on an Expenses/Income leg.
+// extra. The shape rule (not an allowlist) is deliberate: forex legs need
+// arbitrary ISO codes, and the KB ticker schema bars reward tickers from the
+// 3-letter shape, so points can never pass as fiat on an Expenses/Income leg.
+// Accepted residual risk (Codex review — kept by design): a caller can invent
+// a nonsense "ABC" commodity in their OWN ledger; self-inflicted, no
+// cross-user or points-integrity impact.
 export function isFiat(commodity: string, ctx: ValidateContext): boolean {
   return /^[A-Z]{3}$/.test(commodity) || ctx.fiatCurrencies.has(commodity)
 }
 
+// Strict calendar check — Date.parse alone normalizes impossible dates
+// (2026-02-31 → Mar 3), so round-trip the components through a UTC date.
+export function isValidDate(date: string): boolean {
+  if (!DATE_RE.test(date)) return false
+  const [y, mo, d] = date.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, mo - 1, d))
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d
+}
+
 export function validateEntry(entry: Entry, ctx: ValidateContext): string[] {
   const errors: string[] = []
-  if (!DATE_RE.test(entry.date) || Number.isNaN(Date.parse(entry.date))) {
+  if (!isValidDate(entry.date)) {
     errors.push(`invalid date: ${entry.date}`)
   }
 
@@ -85,6 +98,22 @@ function validateTxn(txn: TxnEntry, ctx: ValidateContext): string[] {
     }
     if (p.amount.scaled === 0) errors.push(`posting ${i + 1}: zero amount`)
     if (!p.amount.commodity) errors.push(`posting ${i + 1}: commodity required`)
+
+    // @@ price sanity (Codex review): a total price converts INTO another
+    // commodity and is stated positive. Same-commodity or non-positive prices
+    // could otherwise cancel each other while raw postings stay unbalanced.
+    if (p.priceTotal) {
+      if (p.priceTotal.commodity === p.amount.commodity) {
+        errors.push(
+          `posting ${i + 1}: @@ price must be in a different commodity than the amount (${p.amount.commodity})`,
+        )
+        continue
+      }
+      if (!Number.isSafeInteger(p.priceTotal.scaled) || p.priceTotal.scaled <= 0) {
+        errors.push(`posting ${i + 1}: @@ price must be a positive amount`)
+        continue
+      }
+    }
 
     let weight
     try {

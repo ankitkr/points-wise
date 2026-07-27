@@ -1,6 +1,6 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
@@ -103,14 +103,29 @@ export async function approveProposal(formData: FormData) {
   try {
     const { db, adminUserId } = await adminCtx()
     const proposal = await db.query.kbProposals.findFirst({ where: eq(kbProposals.id, id) })
-    if (!proposal || proposal.status !== 'pending') throw new Error('proposal not found or not pending')
+    if (!proposal) throw new Error('proposal not found')
     // Re-validate the stored payload before applying — never trust old JSON.
     const payload = proposalPayloadSchema.parse(JSON.parse(proposal.payloadJson))
-    await applyProposal(db, payload)
-    await db
+
+    // CLAIM first (guarded on status=pending) so concurrent reviews / double
+    // submits cannot both act on the same proposal.
+    const claimed = await db
       .update(kbProposals)
       .set({ status: 'approved', reviewedBy: adminUserId, reviewedAt: Date.now() })
-      .where(eq(kbProposals.id, id))
+      .where(and(eq(kbProposals.id, id), eq(kbProposals.status, 'pending')))
+      .returning({ id: kbProposals.id })
+    if (claimed.length === 0) throw new Error('proposal is no longer pending')
+
+    try {
+      await applyProposal(db, payload)
+    } catch (applyErr) {
+      // Applying failed — release the claim so the proposal can be retried.
+      await db
+        .update(kbProposals)
+        .set({ status: 'pending', reviewedBy: null, reviewedAt: null })
+        .where(eq(kbProposals.id, id))
+      throw applyErr
+    }
   } catch (e) {
     backWithError('/admin/kb/proposals', e)
   }
@@ -119,11 +134,11 @@ export async function approveProposal(formData: FormData) {
 }
 
 export async function rejectProposal(formData: FormData) {
-  const id = String(formData.get('id') ?? '')
   try {
     const { db, adminUserId } = await adminCtx()
+    const id = String(formData.get('id') ?? '')
     const reason = String(formData.get('reason') ?? '').trim()
-    const res = await db
+    const updated = await db
       .update(kbProposals)
       .set({
         status: 'rejected',
@@ -131,8 +146,10 @@ export async function rejectProposal(formData: FormData) {
         reviewedAt: Date.now(),
         rejectionReason: reason || null,
       })
-      .where(eq(kbProposals.id, id))
-    void res
+      // Guarded: an already-approved/rejected proposal cannot be overwritten.
+      .where(and(eq(kbProposals.id, id), eq(kbProposals.status, 'pending')))
+      .returning({ id: kbProposals.id })
+    if (updated.length === 0) throw new Error('proposal is no longer pending')
   } catch (e) {
     backWithError('/admin/kb/proposals', e)
   }

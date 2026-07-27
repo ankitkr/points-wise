@@ -131,8 +131,21 @@ export class LedgerDO extends DurableObject<CloudflareEnv> {
       this.insertAccount(input.account, 'card', input.openedDate, ['INR'], input.meta)
       // The card's reward pool (shared per issuer) and the payment clearing
       // account come along for free so later milestones can post to them.
-      if (!this.getAccountRow(input.meta.poolAccount)) {
+      // An issuer pool holds one commodity PER PROGRAMME — a second card from
+      // the same bank with a different ticker WIDENS the constraint (Codex
+      // review: the first card must not fix the pool's commodity forever).
+      const pool = this.getAccountRow(input.meta.poolAccount)
+      if (!pool) {
         this.insertAccount(input.meta.poolAccount, 'rewards', input.openedDate, [input.meta.poolTicker], null)
+      } else {
+        const currencies = JSON.parse(pool.currencies) as string[]
+        if (!currencies.includes(input.meta.poolTicker)) {
+          this.ctx.storage.sql.exec(
+            `UPDATE accounts SET currencies = ? WHERE name = ?`,
+            JSON.stringify([...currencies, input.meta.poolTicker]),
+            input.meta.poolAccount,
+          )
+        }
       }
       if (!this.getAccountRow(CLEARING_ACCOUNT)) {
         this.insertAccount(CLEARING_ACCOUNT, 'clearing', input.openedDate, ['INR'], null)
@@ -147,12 +160,22 @@ export class LedgerDO extends DurableObject<CloudflareEnv> {
       .exec(`SELECT name, opened_date, card_meta FROM accounts WHERE kind = 'card' ORDER BY created_at`)
       .toArray() as Array<{ name: string; opened_date: string; card_meta: string | null }>
     const balances = await this.balances()
-    return rows.map((r) => ({
-      account: r.name,
-      openedDate: r.opened_date,
-      meta: JSON.parse(r.card_meta ?? '{}') as CardMeta,
-      balances: balances.filter((b) => b.account === r.name || b.account === (JSON.parse(r.card_meta ?? '{}') as CardMeta).poolAccount),
-    }))
+    return rows.map((r) => {
+      const meta = JSON.parse(r.card_meta ?? '{}') as CardMeta
+      return {
+        account: r.name,
+        openedDate: r.opened_date,
+        meta,
+        // Pool balances are matched by account AND the card's own ticker —
+        // same-bank cards share one issuer wallet but earn different
+        // programmes (Codex review: account-only matching mislabelled pools).
+        balances: balances.filter(
+          (b) =>
+            b.account === r.name ||
+            (b.account === meta.poolAccount && b.currency === meta.poolTicker),
+        ),
+      }
+    })
   }
 
   // --- entries ---------------------------------------------------------------
@@ -169,7 +192,10 @@ export class LedgerDO extends DurableObject<CloudflareEnv> {
     } catch (e) {
       return { ok: false, errors: [e instanceof Error ? e.message : String(e)] }
     }
-    const normalized: TxnEntry = { ...entry, id: entry.id || ulid(), postings }
+    // The id is ALWAYS minted here — caller-supplied ids are ignored (Codex
+    // review: a duplicate caller id would surface as an unhandled constraint
+    // error; minting at the trusted boundary removes the class entirely).
+    const normalized: TxnEntry = { ...entry, id: ulid(), postings }
 
     const errors = validateEntry(normalized, this.validateCtx())
     if (errors.length) return { ok: false, errors }

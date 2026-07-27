@@ -89,6 +89,32 @@ describe('validateEntry — zero-sum', () => {
     expect(validateEntry(e, ctx)).toEqual([])
   })
 
+  it('rejects same-commodity @@ prices (cancellation bypass)', () => {
+    // Codex finding: +1 INR @@ 500 INR and -1000 INR @@ 500 INR would
+    // contribute +500/−500 and "balance" while raw postings are off by −999.
+    const e = txn([
+      { account: 'Expenses:Misc', amount: inr('1'), priceTotal: inr('500') },
+      {
+        account: 'Liabilities:CreditCards:Axis:Magnus',
+        amount: inr('-1000'),
+        priceTotal: inr('500'),
+      },
+    ])
+    expect(validateEntry(e, ctx).join()).toContain('@@ price must be in a different commodity')
+  })
+
+  it('rejects non-positive @@ prices', () => {
+    const e = txn([
+      {
+        account: 'Expenses:Shopping:Online',
+        amount: { ...parseAmount('10'), commodity: 'USD' },
+        priceTotal: { scaled: -8400000, scale: 4, commodity: 'INR' },
+      },
+      { account: 'Liabilities:CreditCards:Axis:Magnus', amount: inr('-840') },
+    ])
+    expect(validateEntry(e, ctx).join()).toContain('@@ price must be a positive amount')
+  })
+
   it('rejects single-posting and zero-amount entries', () => {
     expect(validateEntry(txn([{ account: 'Expenses:Misc', amount: inr('1') }]), ctx).join()).toContain(
       'at least 2 postings',
@@ -150,11 +176,14 @@ describe('validateEntry — commodity constraints', () => {
     expect(validateEntry(closed, ctx).join()).toContain('closed')
   })
 
-  it('rejects invalid dates', () => {
+  it('rejects invalid dates, including calendar-impossible ones', () => {
     const e = txn([
       { account: 'Expenses:Misc', amount: inr('10') },
       { account: 'Liabilities:CreditCards:Axis:Magnus', amount: inr('-10') },
     ])
     expect(validateEntry({ ...e, date: '2026-13-99' }, ctx).join()).toContain('invalid date')
+    // Date.parse would normalize this to March 3 — the validator must not.
+    expect(validateEntry({ ...e, date: '2026-02-31' }, ctx).join()).toContain('invalid date')
+    expect(validateEntry({ ...e, date: '2024-02-29' }, ctx)).toEqual([]) // real leap day
   })
 })

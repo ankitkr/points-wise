@@ -1,6 +1,6 @@
 import { ulid } from 'ulid'
 import { parseAmount } from '@/lib/beancount/decimal'
-import { CLEARING_ACCOUNT, type TxnEntry } from '@/lib/beancount/types'
+import { CC_ACCOUNT_RE, CLEARING_ACCOUNT, type TxnEntry } from '@/lib/beancount/types'
 
 export type ManualEntryInput = {
   type: 'purchase' | 'refund' | 'payment'
@@ -20,10 +20,19 @@ export type ManualEntryInput = {
 // clearing −; the bank side settles the clearing leg via its own statement).
 // M3's earn engine appends the reward legs to purchases/refunds.
 export function buildManualEntry(input: ManualEntryInput): TxnEntry {
+  // The card leg must actually be a card account (Codex review: otherwise a
+  // caller could pass any account — e.g. Expenses:Adjustments — as the "card"
+  // and mint non-card transactions through this builder). The DO additionally
+  // requires the account to be opened.
+  if (!CC_ACCOUNT_RE.test(input.cardAccount)) {
+    throw new Error('cardAccount must be a card account (Liabilities:CreditCards:<Issuer>:<Card>)')
+  }
+
   const amount = parseAmount(input.amount)
   if (amount.scaled <= 0) throw new Error('amount must be positive')
   const inr = (scaled: number) => ({ scaled, scale: amount.scale, commodity: 'INR' })
 
+  const isPayment = input.type === 'payment'
   const base = {
     kind: 'txn' as const,
     id: ulid(),
@@ -31,9 +40,11 @@ export function buildManualEntry(input: ManualEntryInput): TxnEntry {
     flag: '*' as const,
     payee: input.payee.trim(),
     narration: input.narration?.trim() ?? '',
+    // Payments carry no category/MCC — those describe the purchase, not the
+    // settlement (Codex review: a defaulted category was leaking onto payments).
     meta: {
-      ...(input.mcc ? { mcc: input.mcc } : {}),
-      ...(input.categorySlug ? { category: input.categorySlug } : {}),
+      ...(!isPayment && input.mcc ? { mcc: input.mcc } : {}),
+      ...(!isPayment && input.categorySlug ? { category: input.categorySlug } : {}),
       source: 'manual' as const,
     },
   }

@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     const db = await getDb()
     const card = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, input.kbSlug) })
     if (!card) throw new Error(`unknown card: ${input.kbSlug}`)
+    if (card.active !== 1) throw new Error(`card is not active in the KB: ${input.kbSlug}`)
     const bank = await db.query.kbBanks.findFirst({ where: eq(kbBanks.slug, card.bankSlug) })
     if (!bank) throw new Error(`unknown bank for card: ${input.kbSlug}`)
 

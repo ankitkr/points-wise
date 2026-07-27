@@ -21,3 +21,9 @@ export async function requireAdmin(db: Db, discordId: string): Promise<string> {
   if (!row || row.isAdmin !== 1) throw new Error('forbidden: admin role required')
   return row.id
 }
+
+// Non-throwing variant for READ gates (admin layout).
+export async function isAdminFresh(db: Db, discordId: string): Promise<boolean> {
+  const row = await db.query.users.findFirst({ where: eq(users.discordId, discordId) })
+  return row?.isAdmin === 1
+}

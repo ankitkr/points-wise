@@ -132,6 +132,14 @@ export const cardSchema = z.object({
 })
 export type Card = z.infer<typeof cardSchema>
 
+// Partial update shape for admin edit-card — the ONLY fields updateCardFields
+// may touch, schema-enforced (Codex review: casts are not validation).
+export const cardPatchSchema = cardSchema
+  .pick({ name: true, network: true, active: true })
+  .partial()
+  .extend({ poolProgramme: z.string().min(1).optional() })
+export type CardPatch = z.infer<typeof cardPatchSchema>
+
 // Canonical account paths, derived — never hand-assembled elsewhere.
 export function cardAccount(bank: Pick<Bank, 'beancountName'>, card: Pick<Card, 'beancountName'>): string {
   return `Liabilities:CreditCards:${bank.beancountName}:${card.beancountName}`
@@ -167,32 +175,41 @@ export type Offer = z.infer<typeof offerSchema>
 // member suggestions now, the auto-updater later. Approving applies the
 // (re-validated) payload to the kb_* tables.
 
-export const proposalPayloadSchema = z.discriminatedUnion('kind', [
-  z.object({
-    kind: z.literal('new-card'),
-    bank: bankSchema, // upserted if missing
-    card: cardSchema,
-    rule: earnRuleSchema,
-  }),
-  z.object({
-    kind: z.literal('new-rule'),
-    cardSlug: slugSchema,
-    rule: earnRuleSchema,
-  }),
-  z.object({
-    kind: z.literal('edit-card'),
-    cardSlug: slugSchema,
-    patch: cardSchema
-      .pick({ name: true, network: true, active: true })
-      .partial()
-      .extend({ poolProgramme: z.string().min(1).optional() }),
-  }),
-  z.object({
-    kind: z.literal('correction'),
-    cardSlug: slugSchema.optional(),
-    note: z.string().min(3).max(2000),
-  }),
-])
+export const proposalPayloadSchema = z
+  .discriminatedUnion('kind', [
+    z.object({
+      kind: z.literal('new-card'),
+      bank: bankSchema, // upserted if missing
+      card: cardSchema,
+      rule: earnRuleSchema,
+    }),
+    z.object({
+      kind: z.literal('new-rule'),
+      cardSlug: slugSchema,
+      rule: earnRuleSchema,
+    }),
+    z.object({
+      kind: z.literal('edit-card'),
+      cardSlug: slugSchema,
+      patch: cardPatchSchema,
+    }),
+    z.object({
+      kind: z.literal('correction'),
+      cardSlug: slugSchema.optional(),
+      note: z.string().min(3).max(2000),
+    }),
+  ])
+  // A new-card proposal must be internally consistent: the card belongs to the
+  // bank it ships with (otherwise approval could upsert one bank and file the
+  // card under another).
+  .superRefine((p, ctx) => {
+    if (p.kind === 'new-card' && p.card.bankSlug !== p.bank.slug) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `card.bankSlug (${p.card.bankSlug}) must match bank.slug (${p.bank.slug})`,
+      })
+    }
+  })
 export type ProposalPayload = z.infer<typeof proposalPayloadSchema>
 
 export const PROPOSAL_KINDS = ['new-card', 'new-rule', 'edit-card', 'correction'] as const
