@@ -1,9 +1,18 @@
 # PointsWise — High-Level Architecture
 
-Deliberately small: **two Workers, one Durable Object class, shared libraries, one D1.**
-We split by *data ownership and trust boundary*, not by feature. A component becomes a
-separate service only when a platform constraint forces it (e.g. inbound email must land
-on an Email Worker) — never for organizational neatness.
+Deliberately small: **three small Workers, one Durable Object class, shared libraries,
+one D1.** We split by *data ownership and trust boundary*, not by feature. A component
+becomes a separate service only when a platform constraint forces it (an email handler,
+a webhook, a cron) — never for organizational neatness.
+
+## The four product components
+
+| # | Component (product view)                                        | Implementation |
+|---|-----------------------------------------------------------------|----------------|
+| 1 | **Authentication** — users, roles/tiers                         | Module inside the app Worker (next-auth + Discord role→tier) + the D1 directory. Not a separate deployable. **Built (M1).** |
+| 2 | **Knowledge Base** — card data, offers, accelerated RPs, MCCs, categories · **+ KB updater** | KB = schemas library + repo seed data → D1 serving tables. Updater = cron Worker that scans X / asks an LLM for card news and **proposes** review-gated changes — never writes serving data directly. |
+| 3 | **Ledger DO** — card expenses, reward points, per-txn MCC/description/category | One `LedgerDO` per user (ULID-keyed). Postings hold the money/points; MCC, description, category ride as entry metadata. |
+| 4 | **Input Workers** — Telegram / Email                            | ONE ingest Worker with two channel adapters (email handler + telegram webhook). |
 
 ## Components
 
@@ -40,6 +49,14 @@ on an Email Worker) — never for organizational neatness.
                   │    ULID lookup (D1)      │   email/PDF → fields); its
                   │  • normalize → Capture   │   output always re-validated
                   └──────────────────────────┘   by the deterministic engine
+
+  KB freshness (scout, not writer — later):
+                  ┌──────────────────────────┐         schema-validated PR
+   cron ──────────▶  points-wise-kb-updater  │──────▶  against data/banks/*
+                  │  scan X / ask LLM for    │         → CI validates (Zod)
+                  │  rate changes, offers,   │         → human merges
+                  │  devaluations → DRAFT    │         → deploy loads D1
+                  └──────────────────────────┘
 ```
 
 ### 1. `points-wise` — the app Worker (exists today)
@@ -91,16 +108,28 @@ Stateless adapters only — **no business logic**:
 Captures land in the user's inbox (in their DO) as drafts; the user reviews/approves in
 the app; approval posts them through the same validated write path.
 
-### 4. Shared libraries (same repo — seams, not services)
+### 4. `points-wise-kb-updater` — KB freshness Worker (later)
+
+A cron-triggered Worker that keeps the Knowledge Base current: scans X / asks an LLM
+(e.g. Grok) for credit-card news — rate changes, devaluations, new cards, time-bound
+offers — and drafts KB updates.
+
+**Design rule: the updater is a scout, never a writer.** The deterministic earn engine
+is only as correct as the KB, so scraped/LLM-sourced data must not flow into serving
+tables directly. The updater emits **schema-validated proposals as PRs against
+`data/banks/*`** (or a proposals table reviewed in-app); CI validates against the Zod
+schemas; a human merges; the deploy loads D1. Freshness without corrupting earn math.
+
+### 5. Shared libraries (same repo — seams, not services)
 
 | Library           | Responsibility                                                              |
 | ----------------- | --------------------------------------------------------------------------- |
 | `beancount-core`  | Entry/posting model, serialization, validators (zero-sum per commodity, account shapes, commodity constraints) |
 | `earn-engine`     | Pure function: (txn, card rules, period state) → points/cashback legs + surcharge split. Deterministic, fully unit-tested |
-| `catalog`         | Zod schemas (`Card`, `RewardPool`, `EarnRule` — versioned `effectiveFrom`) + repo seed data (`data/banks/*`) + loader into D1; CI-validated |
+| `kb` (catalog)    | Zod schemas (`Card`, `RewardPool`, `EarnRule` — versioned `effectiveFrom` — plus `Offer` with validity windows, and the MCC→category taxonomy) + repo seed data (`data/banks/*`) + loader into D1; CI-validated |
 | `db`              | Drizzle schema/queries for the directory (exists today)                     |
 
-### 5. Platform pieces
+### 6. Platform pieces
 
 | Piece        | Use                                                            | When |
 | ------------ | -------------------------------------------------------------- | ---- |
@@ -115,7 +144,7 @@ the app; approval posts them through the same validated write path.
 | Data                                   | Owner (sole writer)      | Readers                          |
 | -------------------------------------- | ------------------------ | -------------------------------- |
 | `users` / `households` / `memberships` | app Worker               | app, ingest (identity lookup)    |
-| `catalog_*` reference tables           | seed loader (via deploy) | app, ingest                      |
+| `catalog_*` (KB) reference tables      | seed loader (via deploy) — kb-updater only via reviewed PRs | app, ingest |
 | Ledger (txns/postings/balances)        | that user's LedgerDO     | app (self + authorized family)   |
 | Captures inbox                         | that user's LedgerDO     | app (review UI)                  |
 | Statement artifacts (R2)               | ingest/app on upload     | that user's flows                |
@@ -123,19 +152,23 @@ the app; approval posts them through the same validated write path.
 ## Milestone → component map
 
 - **M1 (done)**: app Worker + D1 directory + Discord auth/tiers.
-- **M2**: `LedgerDO` + `beancount-core` + `catalog` (schemas, seed, loader) + manual entry UI.
+- **M2**: `LedgerDO` + `beancount-core` + `kb` (schemas, seed, loader) + manual entry UI.
 - **M3**: `earn-engine` in the DO write path (accelerators, caps, surcharge, actual-rate).
 - **M4**: `points-wise-ingest` Worker (email + telegram → captures).
 - **M5**: R2 + statement reconciliation in the DO (balance assertions; pad = discrepancy).
 - **M6**: family invite/accept + assume-role reads (app Worker paths; DO untouched).
+- **M7**: `points-wise-kb-updater` cron Worker (X/LLM scan → review-gated KB proposals).
 
 ## Explicit non-goals (keeping it simple)
 
 - **No microservice per feature** — earn engine, validators, catalog are libraries.
 - **No queues yet** — the captures inbox in the DO is the buffer; email/telegram both
   retry delivery. Add Cloudflare Queues only if ingest volume ever demands it.
-- **No separate KB/catalog service** (milesvault has one; we don't) — catalog is
-  versioned data in this repo, loaded into D1.
+- **No separate KB/catalog service** (milesvault has one; we don't) — the KB is
+  versioned data in this repo, loaded into D1. The kb-updater proposes; it never
+  publishes: no scraped/LLM data reaches serving tables without schema validation
+  and human review.
+- **No two ingest Workers** — email and telegram are two adapters in one Worker.
 - **No cross-user/global DO singletons** — anything shared lives in D1.
 - **No second datastore** — no KV/Postgres until a concrete need appears.
 
