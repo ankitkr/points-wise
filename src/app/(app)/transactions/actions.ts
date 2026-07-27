@@ -15,7 +15,10 @@ export async function addEntryAction(formData: FormData) {
     await requireEditableTier(identity.ulid)
 
     const type = String(formData.get('type') ?? 'purchase') as 'purchase' | 'refund' | 'payment'
-    const categorySlug = String(formData.get('categorySlug') ?? '').trim() || undefined
+    // Payments carry no category — the form's defaulted select must not leak
+    // one onto a payment (buildManualEntry also drops it; belt and braces).
+    const categorySlug =
+      type === 'payment' ? undefined : String(formData.get('categorySlug') ?? '').trim() || undefined
 
     let categoryAccount: string | undefined
     if (type !== 'payment') {

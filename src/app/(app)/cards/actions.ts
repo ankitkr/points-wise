@@ -38,6 +38,9 @@ export async function openCardAction(formData: FormData) {
     const db = await getDb()
     const card = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, input.kbSlug) })
     if (!card) throw new Error(`unknown card: ${input.kbSlug}`)
+    // The picker lists only active cards; enforce server-side too (Codex
+    // review: a forged form post must not open a KB-inactive card).
+    if (card.active !== 1) throw new Error(`card is not active in the KB: ${input.kbSlug}`)
     const bank = await db.query.kbBanks.findFirst({ where: eq(kbBanks.slug, card.bankSlug) })
     if (!bank) throw new Error(`unknown bank for card: ${input.kbSlug}`)
 
