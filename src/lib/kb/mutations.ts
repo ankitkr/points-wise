@@ -5,6 +5,7 @@ import { kbBanks, kbCards, kbEarnRules } from '@/db/schema'
 import {
   bankSchema,
   cardSchema,
+  cardPatchSchema,
   earnRuleSchema,
   cardAccount,
   poolAccount,
@@ -12,6 +13,7 @@ import {
   REWARDS_ACCOUNT_RE,
   type Bank,
   type Card,
+  type CardPatch,
   type EarnRule,
   type ProposalPayload,
 } from './schema'
@@ -43,15 +45,16 @@ export async function insertCardWithRule(db: Db, cardInput: Card, ruleInput: Ear
   const existing = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, card.slug) })
   if (existing) throw new Error(`card already exists: ${card.slug}`)
 
-  await db.insert(kbCards).values(toCardRow(card))
-  await db.insert(kbEarnRules).values(toRuleRow(card.slug, rule))
+  // Atomic: a card can never exist without its initial earn rule.
+  await db.batch([
+    db.insert(kbCards).values(toCardRow(card)),
+    db.insert(kbEarnRules).values(toRuleRow(card.slug, rule)),
+  ])
 }
 
-export type CardPatch = Partial<Pick<Card, 'name' | 'network' | 'active'>> & {
-  poolProgramme?: string
-}
-
-export async function updateCardFields(db: Db, slug: string, patch: CardPatch): Promise<void> {
+export async function updateCardFields(db: Db, slug: string, patchInput: CardPatch): Promise<void> {
+  // Schema-validate the patch — casts are not validation (Codex review).
+  const patch = cardPatchSchema.parse(patchInput)
   const existing = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, slug) })
   if (!existing) throw new Error(`unknown card: ${slug}`)
   await db
