@@ -1,7 +1,7 @@
 # PointsWise — High-Level Architecture
 
-Deliberately small: **three small Workers, one Durable Object class, shared libraries,
-one D1.** We split by *data ownership and trust boundary*, not by feature. A component
+Deliberately small: **three small Workers, two per-user Durable Object classes
+(LedgerDO now, ChatDO later), shared libraries, one D1.** We split by *data ownership and trust boundary*, not by feature. A component
 becomes a separate service only when a platform constraint forces it (an email handler,
 a webhook, a cron) — never for organizational neatness.
 
@@ -13,6 +13,7 @@ a webhook, a cron) — never for organizational neatness.
 | 2 | **Knowledge Base** — card data, offers, accelerated RPs, MCCs, categories · **+ KB updater** | KB = schemas library + repo seed data → D1 serving tables. Updater = cron Worker that scans X / asks an LLM for card news and **proposes** review-gated changes — never writes serving data directly. |
 | 3 | **Ledger DO** — card expenses, reward points, per-txn MCC/description/category | One `LedgerDO` per user (ULID-keyed). Postings hold the money/points; MCC, description, category ride as entry metadata. |
 | 4 | **Input Workers** — Telegram / Email                            | ONE ingest Worker with two channel adapters (email handler + telegram webhook). |
+| 5 | **Agent chat** — add txns, query points/history, remembers preferences | `ChatDO` (second per-user DO): conversations + agent loop + memory. Facts via tools against LedgerDO/KB — never copied. Writes go through the same validated LedgerDO gate. |
 
 ## Components
 
@@ -57,6 +58,11 @@ a webhook, a cron) — never for organizational neatness.
                   │  rate changes, offers,   │         → human merges
                   │  devaluations → DRAFT    │         → deploy loads D1
                   └──────────────────────────┘
+
+  Agent chat (later):
+   app ──RPC──▶ ChatDO (one per user): sessions/messages · agent loop · memories
+                 └─ tools ──▶ LedgerDO (cards/balances/history; validated drafts)
+                              and D1 KB (rules, offers, MCCs)
 ```
 
 ### 1. `points-wise` — the app Worker (exists today)
@@ -91,7 +97,36 @@ Cross-member ("assume role") reads: app Worker checks D1 (is caller the family o
 this member?) → resolves opaque `membershipId` → member ULID server-side → **read-only**
 RPC to that member's DO. The ULID never crosses the wire.
 
-### 3. `points-wise-ingest` — the channels Worker (M4)
+**What lives here (per user):** opened accounts incl. **held cards** (`open` directives +
+card metadata: KB slug, statement day, last-4), transactions/postings with per-txn
+MCC/description/category metadata, **materialized `balance_totals`** (account ×
+commodity — so "current points" is a cheap read that cannot drift from history),
+captures inbox, reconciliation results, and **structured drafting rules**
+(merchant→category, alias→account) that BOTH the chat agent and ingest consult.
+Current RP is always derived from postings, never stored independently.
+
+### 3. `ChatDO` — agent chat, one per user (later)
+
+A second per-user DO (sibling of LedgerDO, keyed by the same ULID; hosted in the app
+Worker). Owns what is conversational: `sessions`/`messages` transcripts, the agent loop
+(Workers AI via Gateway), and `memories` (soft preferences distilled from chats).
+Separate from LedgerDO because chat has a different lifecycle — streaming sessions,
+long LLM turns, prunable history — and the ledger's single-writer gate must stay lean.
+
+- **Facts by tools, never copies**: each turn gets a snapshot preamble (held cards +
+  balances, one LedgerDO RPC) plus tools — `list_cards`, `points_balances`,
+  `search_transactions`, `kb_lookup`, `draft_transaction`, `remember`. LedgerDO/KB stay
+  the single source of truth; the agent holds no facts of its own.
+- **No privileged writes**: the agent drafts; the user approves; the entry posts through
+  `LedgerDO.postEntry` → earn-engine + validators, like every other path.
+- **Memory split**: rules that shape ledger output (categorization, aliases) live in
+  LedgerDO (ingest uses them too); soft conversational memory lives here. Both are
+  user-visible and editable in Settings.
+- **Refinement**: explicit "remember" tool; end-of-session distillation into memories;
+  periodic consolidation (dedupe/update/decay). No embeddings until needed.
+  Attachments (receipt images) go to R2 with a reference in the transcript.
+
+### 4. `points-wise-ingest` — the channels Worker (M4)
 
 Exists because inbound email *must* terminate on a Worker with an `email` handler
 (OpenNext controls the app Worker's entrypoint, so channels get their own tiny Worker).
@@ -108,7 +143,7 @@ Stateless adapters only — **no business logic**:
 Captures land in the user's inbox (in their DO) as drafts; the user reviews/approves in
 the app; approval posts them through the same validated write path.
 
-### 4. `points-wise-kb-updater` — KB freshness Worker (later)
+### 5. `points-wise-kb-updater` — KB freshness Worker (later)
 
 A cron-triggered Worker that keeps the Knowledge Base current: scans X / asks an LLM
 (e.g. Grok) for credit-card news — rate changes, devaluations, new cards, time-bound
@@ -120,7 +155,7 @@ tables directly. The updater emits **schema-validated proposals as PRs against
 `data/banks/*`** (or a proposals table reviewed in-app); CI validates against the Zod
 schemas; a human merges; the deploy loads D1. Freshness without corrupting earn math.
 
-### 5. Shared libraries (same repo — seams, not services)
+### 6. Shared libraries (same repo — seams, not services)
 
 | Library           | Responsibility                                                              |
 | ----------------- | --------------------------------------------------------------------------- |
@@ -129,7 +164,7 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 | `kb` (catalog)    | Zod schemas (`Card`, `RewardPool`, `EarnRule` — versioned `effectiveFrom` — plus `Offer` with validity windows, and the MCC→category taxonomy) + repo seed data (`data/banks/*`) + loader into D1; CI-validated |
 | `db`              | Drizzle schema/queries for the directory (exists today)                     |
 
-### 6. Platform pieces
+### 7. Platform pieces
 
 | Piece        | Use                                                            | When |
 | ------------ | -------------------------------------------------------------- | ---- |
@@ -145,8 +180,10 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 | -------------------------------------- | ------------------------ | -------------------------------- |
 | `users` / `households` / `memberships` | app Worker               | app, ingest (identity lookup)    |
 | `catalog_*` (KB) reference tables      | seed loader (via deploy) — kb-updater only via reviewed PRs | app, ingest |
-| Ledger (txns/postings/balances)        | that user's LedgerDO     | app (self + authorized family)   |
+| Ledger: held cards, txns/postings, materialized balances | that user's LedgerDO | app (self + authorized family), chat tools |
 | Captures inbox                         | that user's LedgerDO     | app (review UI)                  |
+| Drafting rules (merchant→category, alias→account) | that user's LedgerDO | chat agent + ingest             |
+| Chat transcripts + memories            | that user's ChatDO       | app (chat UI, Settings)          |
 | Statement artifacts (R2)               | ingest/app on upload     | that user's flows                |
 
 ## Milestone → component map
@@ -158,6 +195,7 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 - **M5**: R2 + statement reconciliation in the DO (balance assertions; pad = discrepancy).
 - **M6**: family invite/accept + assume-role reads (app Worker paths; DO untouched).
 - **M7**: `points-wise-kb-updater` cron Worker (X/LLM scan → review-gated KB proposals).
+- **M8**: `ChatDO` agent chat (tools over LedgerDO/KB, drafts-need-approval, memory).
 
 ## Explicit non-goals (keeping it simple)
 
