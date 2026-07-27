@@ -1,0 +1,4 @@
+# The repo root is the web app (Next/OpenNext). Additional deployable Workers
+# live under workers/*, each with its own wrangler config and 3 MB-gzip budget.
+packages:
+  - 'workers/*'

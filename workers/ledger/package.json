@@ -1,0 +1,10 @@
+{
+  "name": "@pointswise/ledger-worker",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "size": "wrangler deploy --dry-run --outdir /tmp/pw-ledger"
+  }
+}

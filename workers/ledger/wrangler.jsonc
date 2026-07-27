@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "points-wise-ledger",
+  "main": "index.ts",
+  "compatibility_date": "2026-05-13",
+  "compatibility_flags": ["nodejs_compat"],
+  // No public route needed — the DO is reached only via the web Worker's
+  // script_name binding, so don't expose a workers.dev URL.
+  "workers_dev": false,
+  // `@/…` imports inside the shared src/ tree (ledger-do.ts + its beancount
+  // deps) resolve to the repo src. Path is relative to this config's dir, which
+  // is the cwd when deployed via `pnpm --filter @pointswise/ledger-worker`.
+  "alias": { "@": "../../src" },
+  // This Worker DEFINES the LedgerDO; the web Worker binds it via script_name.
+  "durable_objects": {
+    "bindings": [{ "name": "LEDGER_DO", "class_name": "LedgerDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LedgerDO"] }],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -16,10 +16,13 @@
       "migrations_dir": "drizzle"
     }
   ],
+  // LedgerDO is defined and migrated in the separate points-wise-ledger Worker
+  // (workers/ledger). The web Worker only REFERENCES it via script_name, so the
+  // DO implementation stays out of the OpenNext bundle and no migration is
+  // declared here. Deploy order: points-wise-ledger BEFORE points-wise.
   "durable_objects": {
-    "bindings": [{ "name": "LEDGER_DO", "class_name": "LedgerDO" }]
+    "bindings": [{ "name": "LEDGER_DO", "class_name": "LedgerDO", "script_name": "points-wise-ledger" }]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LedgerDO"] }],
   "observability": {
     "enabled": true
   }
