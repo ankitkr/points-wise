@@ -107,6 +107,9 @@ export const earnRuleSchema = z.object({
   accelerators: z.array(acceleratorSchema).default([]),
   // Category slugs that earn NOTHING on this card (rent, fuel, wallet…).
   exclusions: z.array(slugSchema).default([]),
+  // Bank-published excluded MCCs (earn nothing regardless of category
+  // mapping) — e.g. 6513 rent, 5541/5983 fuel, 6540 wallet loads, 9399 govt.
+  excludedMccs: z.array(mccSchema).default([]),
   // False until an admin confirms the numbers against an authoritative source.
   verified: z.boolean().default(false),
   notes: z.string().optional(),
