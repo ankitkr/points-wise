@@ -28,6 +28,7 @@ export default defineWorkersConfig(async () => {
               DISCORD_GUILD_ID: 'guild-1',
               DISCORD_FAMILY_ROLE_ID: 'role-family',
               DISCORD_STANDALONE_ROLE_ID: 'role-standalone',
+              DISCORD_ADMIN_ROLE_ID: 'role-admin',
             },
           },
         },

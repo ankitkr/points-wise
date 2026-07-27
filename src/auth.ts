@@ -56,11 +56,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           displayName: discordName(p),
           avatarUrl: discordAvatarUrl(p),
           tier: check.tier,
+          isAdmin: check.isAdmin,
         })
 
         token.ulid = identity.ulid
         token.householdId = identity.householdId
         token.tier = identity.tier
+        token.isAdmin = check.isAdmin
         token.discordId = p.id
         token.name = discordName(p) ?? token.name
         token.email = p.email ?? token.email
@@ -71,10 +73,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     // Expose ONLY non-sensitive fields to the client. Never `token.ulid`.
     async session({ session, token }) {
-      const t = token as { tier?: Tier; householdId?: string; discordId?: string }
+      const t = token as { tier?: Tier; householdId?: string; discordId?: string; isAdmin?: boolean }
       session.user.tier = t.tier ?? 'readonly'
       session.user.householdId = t.householdId ?? ''
       session.user.discordId = t.discordId ?? ''
+      // Display-only; admin WRITES re-read users.is_admin from D1.
+      session.user.isAdmin = t.isAdmin ?? false
       return session
     },
   },

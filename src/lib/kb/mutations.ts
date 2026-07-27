@@ -1,0 +1,136 @@
+import { eq } from 'drizzle-orm'
+import { ulid } from 'ulid'
+import type { Db } from '@/db/client'
+import { kbBanks, kbCards, kbEarnRules } from '@/db/schema'
+import {
+  bankSchema,
+  cardSchema,
+  earnRuleSchema,
+  cardAccount,
+  poolAccount,
+  CARD_ACCOUNT_RE,
+  REWARDS_ACCOUNT_RE,
+  type Bank,
+  type Card,
+  type EarnRule,
+  type ProposalPayload,
+} from './schema'
+
+// All KB mutations funnel through here — admin server actions AND proposal
+// approval. Every write re-validates with the Zod schemas and the canonical
+// account-path regexes, so a malformed card cannot enter the KB regardless of
+// the path that proposed it.
+
+export async function upsertBank(db: Db, input: Bank): Promise<void> {
+  const bank = bankSchema.parse(input)
+  await db
+    .insert(kbBanks)
+    .values({ ...toBankRow(bank), updatedAt: Date.now() })
+    .onConflictDoUpdate({
+      target: kbBanks.slug,
+      set: { name: bank.name, beancountName: bank.beancountName, updatedAt: Date.now() },
+    })
+}
+
+export async function insertCardWithRule(db: Db, cardInput: Card, ruleInput: EarnRule): Promise<void> {
+  const card = cardSchema.parse(cardInput)
+  const rule = earnRuleSchema.parse(ruleInput)
+
+  const bank = await db.query.kbBanks.findFirst({ where: eq(kbBanks.slug, card.bankSlug) })
+  if (!bank) throw new Error(`unknown bank: ${card.bankSlug}`)
+  assertCanonicalPaths({ beancountName: bank.beancountName }, card)
+
+  const existing = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, card.slug) })
+  if (existing) throw new Error(`card already exists: ${card.slug}`)
+
+  await db.insert(kbCards).values(toCardRow(card))
+  await db.insert(kbEarnRules).values(toRuleRow(card.slug, rule))
+}
+
+export type CardPatch = Partial<Pick<Card, 'name' | 'network' | 'active'>> & {
+  poolProgramme?: string
+}
+
+export async function updateCardFields(db: Db, slug: string, patch: CardPatch): Promise<void> {
+  const existing = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, slug) })
+  if (!existing) throw new Error(`unknown card: ${slug}`)
+  await db
+    .update(kbCards)
+    .set({
+      ...(patch.name !== undefined ? { name: patch.name } : {}),
+      ...(patch.network !== undefined ? { network: patch.network } : {}),
+      ...(patch.active !== undefined ? { active: patch.active ? 1 : 0 } : {}),
+      ...(patch.poolProgramme !== undefined ? { poolProgramme: patch.poolProgramme } : {}),
+      updatedAt: Date.now(),
+    })
+    .where(eq(kbCards.slug, slug))
+}
+
+export async function addRuleVersion(db: Db, cardSlug: string, ruleInput: EarnRule): Promise<void> {
+  const rule = earnRuleSchema.parse(ruleInput)
+  const card = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, cardSlug) })
+  if (!card) throw new Error(`unknown card: ${cardSlug}`)
+  // Append-only versioning: same effective_from = correction of that version.
+  await db
+    .insert(kbEarnRules)
+    .values(toRuleRow(cardSlug, rule))
+    .onConflictDoUpdate({
+      target: [kbEarnRules.cardSlug, kbEarnRules.effectiveFrom],
+      set: { ruleJson: JSON.stringify(rule) },
+    })
+}
+
+// Applies an approved proposal. `correction` proposals carry free text — there
+// is nothing mechanical to apply; approving acknowledges them (the admin makes
+// the actual edit via the card pages).
+export async function applyProposal(db: Db, payload: ProposalPayload): Promise<void> {
+  switch (payload.kind) {
+    case 'new-card':
+      await upsertBank(db, payload.bank)
+      await insertCardWithRule(db, payload.card, payload.rule)
+      return
+    case 'new-rule':
+      await addRuleVersion(db, payload.cardSlug, payload.rule)
+      return
+    case 'edit-card':
+      await updateCardFields(db, payload.cardSlug, payload.patch)
+      return
+    case 'correction':
+      return
+  }
+}
+
+function assertCanonicalPaths(bank: Pick<Bank, 'beancountName'>, card: Card): void {
+  const acct = cardAccount(bank, card)
+  if (!CARD_ACCOUNT_RE.test(acct)) throw new Error(`invalid card account path: ${acct}`)
+  const pool = poolAccount(bank)
+  if (!REWARDS_ACCOUNT_RE.test(pool)) throw new Error(`invalid pool account path: ${pool}`)
+}
+
+function toBankRow(b: Bank) {
+  return { slug: b.slug, name: b.name, beancountName: b.beancountName }
+}
+
+function toCardRow(c: Card) {
+  return {
+    slug: c.slug,
+    bankSlug: c.bankSlug,
+    name: c.name,
+    beancountName: c.beancountName,
+    network: c.network ?? null,
+    poolTicker: c.pool.ticker,
+    poolProgramme: c.pool.programme,
+    active: c.active ? 1 : 0,
+    updatedAt: Date.now(),
+  }
+}
+
+function toRuleRow(cardSlug: string, r: EarnRule) {
+  return {
+    id: ulid(),
+    cardSlug,
+    effectiveFrom: r.effectiveFrom,
+    ruleJson: JSON.stringify(r),
+    createdAt: Date.now(),
+  }
+}

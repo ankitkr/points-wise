@@ -17,6 +17,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply points-wise --local",
     "db:migrate:remote": "wrangler d1 migrations apply points-wise --remote",
+    "kb:sql": "tsx scripts/seed-kb.ts",
+    "kb:seed:local": "pnpm kb:sql && wrangler d1 execute points-wise --local --file=.seed-kb.sql",
+    "kb:seed:remote": "pnpm kb:sql && wrangler d1 execute points-wise --remote --file=.seed-kb.sql",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
   },
@@ -49,6 +52,7 @@
     "eslint-config-next": "16.2.5",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.0",
     "typescript": "5.7.3",
     "vitest": "3.2.4",
     "wrangler": "~4.88.0"

@@ -20,6 +20,9 @@ export const users = sqliteTable(
     emailVerified: integer('email_verified'), // epoch ms; set only when provider reports verified
     displayName: text('display_name'),
     avatarUrl: text('avatar_url'),
+    // Capability flag from the Discord @admin role (re-synced each login).
+    // Display comes from the session; every admin WRITE re-reads this column.
+    isAdmin: integer('is_admin').notNull().default(0),
     createdAt: integer('created_at').notNull(),
   },
   (t) => [
@@ -74,3 +77,77 @@ export const memberships = sqliteTable(
 export type User = typeof users.$inferSelect
 export type Household = typeof households.$inferSelect
 export type Membership = typeof memberships.$inferSelect
+
+// ---------------------------------------------------------------------------
+// Knowledge Base — shared reference data (banks, cards, earn rules,
+// categories) + the proposals approval queue. Authoritative store is D1;
+// repo seed files bootstrap it; ONLY admin-gated, Zod-validated writes may
+// change it (src/lib/kb/schema.ts holds the shapes).
+
+export const kbBanks = sqliteTable('kb_banks', {
+  slug: text('slug').primaryKey(),
+  name: text('name').notNull(),
+  beancountName: text('beancount_name').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+export const kbCards = sqliteTable('kb_cards', {
+  slug: text('slug').primaryKey(),
+  bankSlug: text('bank_slug')
+    .notNull()
+    .references(() => kbBanks.slug),
+  name: text('name').notNull(),
+  beancountName: text('beancount_name').notNull(),
+  network: text('network'),
+  poolTicker: text('pool_ticker').notNull(),
+  poolProgramme: text('pool_programme').notNull(),
+  active: integer('active').notNull().default(1),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+export const kbEarnRules = sqliteTable(
+  'kb_earn_rules',
+  {
+    id: text('id').primaryKey(), // ULID
+    cardSlug: text('card_slug')
+      .notNull()
+      .references(() => kbCards.slug),
+    effectiveFrom: text('effective_from').notNull(), // YYYY-MM-DD
+    ruleJson: text('rule_json').notNull(), // Zod-validated EarnRule
+    createdAt: integer('created_at').notNull(),
+  },
+  (t) => [uniqueIndex('kb_earn_rules_card_from_unq').on(t.cardSlug, t.effectiveFrom)],
+)
+
+export const kbCategories = sqliteTable('kb_categories', {
+  slug: text('slug').primaryKey(),
+  name: text('name').notNull(),
+  root: text('root').notNull(), // one of the ten canonical expense roots
+  leaf: text('leaf'),
+  account: text('account').notNull(), // derived Expenses:… path, stored for reads
+  sort: integer('sort').notNull().default(0),
+})
+
+export const kbProposals = sqliteTable('kb_proposals', {
+  id: text('id').primaryKey(), // ULID
+  kind: text('kind', { enum: ['new-card', 'new-rule', 'edit-card', 'correction'] }).notNull(),
+  targetSlug: text('target_slug'),
+  payloadJson: text('payload_json').notNull(), // Zod-validated ProposalPayload
+  note: text('note'),
+  submittedBy: text('submitted_by')
+    .notNull()
+    .references(() => users.id),
+  status: text('status', { enum: ['pending', 'approved', 'rejected'] })
+    .notNull()
+    .default('pending'),
+  reviewedBy: text('reviewed_by').references(() => users.id),
+  reviewedAt: integer('reviewed_at'),
+  rejectionReason: text('rejection_reason'),
+  createdAt: integer('created_at').notNull(),
+})
+
+export type KbBank = typeof kbBanks.$inferSelect
+export type KbCard = typeof kbCards.$inferSelect
+export type KbEarnRule = typeof kbEarnRules.$inferSelect
+export type KbCategory = typeof kbCategories.$inferSelect
+export type KbProposal = typeof kbProposals.$inferSelect

@@ -1,13 +1,16 @@
 import type { Tier } from '@/db/schema'
 
 export type GuildCheck =
-  | { ok: true; tier: Tier; roles: string[] }
+  | { ok: true; tier: Tier; isAdmin: boolean; roles: string[] }
   | { ok: false; reason: 'not_in_guild' | 'unauthorized' | 'rate_limited' | 'outage' }
 
 // Only the guild/role ids are needed — narrowing keeps the function easy to test.
 type GuildEnv = Pick<
   CloudflareEnv,
-  'DISCORD_GUILD_ID' | 'DISCORD_FAMILY_ROLE_ID' | 'DISCORD_STANDALONE_ROLE_ID'
+  | 'DISCORD_GUILD_ID'
+  | 'DISCORD_FAMILY_ROLE_ID'
+  | 'DISCORD_STANDALONE_ROLE_ID'
+  | 'DISCORD_ADMIN_ROLE_ID'
 >
 
 // Reads the signer's member object in OUR guild and maps their roles to a tier.
@@ -40,5 +43,8 @@ export async function checkGuildMembership(
     : roles.includes(env.DISCORD_STANDALONE_ROLE_ID)
       ? 'standalone'
       : 'readonly'
-  return { ok: true, tier, roles }
+  // @admin is a capability flag orthogonal to tier: it gates Knowledge Base
+  // editing, not personal-ledger features.
+  const isAdmin = roles.includes(env.DISCORD_ADMIN_ROLE_ID)
+  return { ok: true, tier, isAdmin, roles }
 }

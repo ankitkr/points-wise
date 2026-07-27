@@ -9,6 +9,7 @@ declare module 'next-auth' {
       tier: Tier
       householdId: string
       discordId: string
+      isAdmin: boolean
     }
   }
 }
@@ -20,5 +21,6 @@ declare module 'next-auth/jwt' {
     tier?: Tier
     householdId?: string
     discordId?: string
+    isAdmin?: boolean
   }
 }

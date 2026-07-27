@@ -1,0 +1,140 @@
+'use server'
+
+import { eq } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
+import { getDb } from '@/db/client'
+import { kbProposals } from '@/db/schema'
+import { requireAdmin } from '@/lib/authz'
+import {
+  addRuleVersion,
+  applyProposal,
+  insertCardWithRule,
+  updateCardFields,
+} from '@/lib/kb/mutations'
+import { cardSchema, earnRuleSchema, proposalPayloadSchema, NETWORKS } from '@/lib/kb/schema'
+
+// Every action: session → requireAdmin (fresh D1 read of users.is_admin) →
+// Zod-validated mutation. Errors redirect back with ?error= so the admin sees
+// the validation reason inline.
+
+async function adminCtx() {
+  const session = await auth()
+  if (!session) throw new Error('unauthenticated')
+  const db = await getDb()
+  const adminUserId = await requireAdmin(db, session.user.discordId)
+  return { db, adminUserId }
+}
+
+function backWithError(path: string, e: unknown): never {
+  const msg = e instanceof Error ? e.message : String(e)
+  redirect(`${path}?error=${encodeURIComponent(msg.slice(0, 300))}`)
+}
+
+// Shared: build an EarnRule from the rule fieldset present on both card forms.
+function ruleFromForm(f: FormData) {
+  const accelerators = String(f.get('accelerators') ?? '').trim()
+  const exclusions = String(f.get('exclusions') ?? '').trim()
+  return earnRuleSchema.parse({
+    effectiveFrom: String(f.get('effectiveFrom') ?? ''),
+    base: { points: Number(f.get('basePoints')), per: Number(f.get('basePer')) },
+    accelerators: accelerators ? JSON.parse(accelerators) : [],
+    exclusions: exclusions ? exclusions.split(',').map((s) => s.trim()).filter(Boolean) : [],
+    verified: f.get('verified') === 'on',
+    notes: String(f.get('notes') ?? '').trim() || undefined,
+  })
+}
+
+export async function createCard(formData: FormData) {
+  try {
+    const { db } = await adminCtx()
+    const card = cardSchema.parse({
+      slug: String(formData.get('slug') ?? ''),
+      bankSlug: String(formData.get('bankSlug') ?? ''),
+      name: String(formData.get('name') ?? ''),
+      beancountName: String(formData.get('beancountName') ?? ''),
+      network: (formData.get('network') || undefined) as (typeof NETWORKS)[number] | undefined,
+      pool: {
+        ticker: String(formData.get('poolTicker') ?? ''),
+        programme: String(formData.get('poolProgramme') ?? ''),
+      },
+      active: true,
+    })
+    await insertCardWithRule(db, card, ruleFromForm(formData))
+  } catch (e) {
+    backWithError('/admin/kb/cards/new', e)
+  }
+  revalidatePath('/admin/kb')
+  redirect('/admin/kb')
+}
+
+export async function updateCard(formData: FormData) {
+  const slug = String(formData.get('slug') ?? '')
+  try {
+    const { db } = await adminCtx()
+    await updateCardFields(db, slug, {
+      name: String(formData.get('name') ?? '') || undefined,
+      network: (formData.get('network') || undefined) as (typeof NETWORKS)[number] | undefined,
+      active: formData.get('active') === 'on',
+      poolProgramme: String(formData.get('poolProgramme') ?? '') || undefined,
+    })
+  } catch (e) {
+    backWithError(`/admin/kb/cards/${slug}`, e)
+  }
+  revalidatePath(`/admin/kb/cards/${slug}`)
+  redirect(`/admin/kb/cards/${slug}`)
+}
+
+export async function addRule(formData: FormData) {
+  const slug = String(formData.get('cardSlug') ?? '')
+  try {
+    const { db } = await adminCtx()
+    await addRuleVersion(db, slug, ruleFromForm(formData))
+  } catch (e) {
+    backWithError(`/admin/kb/cards/${slug}`, e)
+  }
+  revalidatePath(`/admin/kb/cards/${slug}`)
+  redirect(`/admin/kb/cards/${slug}`)
+}
+
+export async function approveProposal(formData: FormData) {
+  const id = String(formData.get('id') ?? '')
+  try {
+    const { db, adminUserId } = await adminCtx()
+    const proposal = await db.query.kbProposals.findFirst({ where: eq(kbProposals.id, id) })
+    if (!proposal || proposal.status !== 'pending') throw new Error('proposal not found or not pending')
+    // Re-validate the stored payload before applying — never trust old JSON.
+    const payload = proposalPayloadSchema.parse(JSON.parse(proposal.payloadJson))
+    await applyProposal(db, payload)
+    await db
+      .update(kbProposals)
+      .set({ status: 'approved', reviewedBy: adminUserId, reviewedAt: Date.now() })
+      .where(eq(kbProposals.id, id))
+  } catch (e) {
+    backWithError('/admin/kb/proposals', e)
+  }
+  revalidatePath('/admin/kb/proposals')
+  revalidatePath('/admin/kb')
+}
+
+export async function rejectProposal(formData: FormData) {
+  const id = String(formData.get('id') ?? '')
+  try {
+    const { db, adminUserId } = await adminCtx()
+    const reason = String(formData.get('reason') ?? '').trim()
+    const res = await db
+      .update(kbProposals)
+      .set({
+        status: 'rejected',
+        reviewedBy: adminUserId,
+        reviewedAt: Date.now(),
+        rejectionReason: reason || null,
+      })
+      .where(eq(kbProposals.id, id))
+    void res
+  } catch (e) {
+    backWithError('/admin/kb/proposals', e)
+  }
+  revalidatePath('/admin/kb/proposals')
+}

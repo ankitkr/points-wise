@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Coins, Home, Moon, Settings, Sun, type LucideIcon } from 'lucide-react'
+import { BookOpen, Coins, Home, Lightbulb, Moon, Settings, Sun, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/kb/suggest', label: 'Suggest a fix', icon: Lightbulb },
 ]
 
-export function AppSidebar() {
+export function AppSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r bg-card">
@@ -28,6 +29,19 @@ export function AppSidebar() {
         {NAV.map((item) => (
           <NavLink key={item.href} {...item} active={pathname === item.href} />
         ))}
+        {isAdmin && (
+          <>
+            <div className="px-3 pb-1 pt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Admin
+            </div>
+            <NavLink
+              href="/admin/kb"
+              label="Knowledge Base"
+              icon={BookOpen}
+              active={pathname.startsWith('/admin/kb')}
+            />
+          </>
+        )}
       </nav>
 
       <div className="space-y-1 border-t p-3">
