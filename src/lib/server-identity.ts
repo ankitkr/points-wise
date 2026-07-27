@@ -1,7 +1,17 @@
+import { headers } from 'next/headers'
 import { getToken } from 'next-auth/jwt'
 import { getCloudflareContext } from '@opennextjs/cloudflare'
 
 export type ServerIdentity = { ulid: string; discordId: string }
+
+// For server components / server actions (no Request in scope): rebuild one
+// from the incoming request headers so getToken can read the session cookie.
+export async function requireServerIdentityFromContext(): Promise<ServerIdentity> {
+  const h = await headers()
+  const proto = h.get('x-forwarded-proto') ?? 'http'
+  const host = h.get('host') ?? 'localhost'
+  return requireServerIdentity(new Request(`${proto}://${host}/`, { headers: h }))
+}
 
 // The ONLY way server code learns the caller's ULID. Decrypts the next-auth
 // JWT server-side (the `session` callback never copies the ULID into the

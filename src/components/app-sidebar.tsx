@@ -3,11 +3,24 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, Coins, Home, Lightbulb, Moon, Settings, Sun, type LucideIcon } from 'lucide-react'
+import {
+  BookOpen,
+  Coins,
+  CreditCard,
+  Home,
+  Lightbulb,
+  Moon,
+  ReceiptText,
+  Settings,
+  Sun,
+  type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/cards', label: 'Cards', icon: CreditCard },
+  { href: '/transactions', label: 'Transactions', icon: ReceiptText },
   { href: '/kb/suggest', label: 'Suggest a fix', icon: Lightbulb },
 ]
 
@@ -27,7 +40,11 @@ export function AppSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
 
       <nav className="flex-1 space-y-1 px-3">
         {NAV.map((item) => (
-          <NavLink key={item.href} {...item} active={pathname === item.href} />
+          <NavLink
+            key={item.href}
+            {...item}
+            active={item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)}
+          />
         ))}
         {isAdmin && (
           <>
