@@ -37,6 +37,33 @@ export function RuleFields({ defaultEffectiveFrom }: { defaultEffectiveFrom?: st
         <Input id="exclusions" name="exclusions" placeholder="fuel, rent, wallet" />
       </div>
       <div className="space-y-1">
+        <Label htmlFor="spendTiers">Spend tiers (JSON array, optional)</Label>
+        <Textarea
+          id="spendTiers"
+          name="spendTiers"
+          rows={2}
+          placeholder='[{"fromMonthlySpend":150000,"points":35,"per":200,"label":"Incremental spend over ₹1.5L/mo"}]'
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="surcharges">Surcharges / fees (JSON array, optional)</Label>
+        <Textarea
+          id="surcharges"
+          name="surcharges"
+          rows={3}
+          placeholder='[{"kind":"rent","category":"rent","percent":1,"thresholdBasis":"per-transaction","applies":"full","plusGst":true,"verified":false}]'
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="milestones">Milestones (JSON array, optional)</Label>
+        <Textarea
+          id="milestones"
+          name="milestones"
+          rows={2}
+          placeholder='[{"spendThreshold":400000,"period":"anniversary-year","kind":"points","points":10000,"label":"₹4L/yr bonus"},{"spendThreshold":300000,"kind":"fee-waiver","valueInr":12500,"label":"annual fee waiver"}]'
+        />
+      </div>
+      <div className="space-y-1">
         <Label htmlFor="notes">Notes</Label>
         <Input id="notes" name="notes" placeholder="Source / caveats" />
       </div>

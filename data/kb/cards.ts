@@ -1,4 +1,4 @@
-import type { Card, EarnRule } from '@/lib/kb/schema'
+import type { Card, EarnRuleInput } from '@/lib/kb/schema'
 
 // Seed cards. Earn rules were verified (July 2026) against bank MITC/T&C where
 // possible; `verified: true` marks rules whose numbers came from an official
@@ -7,12 +7,15 @@ import type { Card, EarnRule } from '@/lib/kb/schema'
 // (effectiveFrom); a devaluation is a NEW rule, never an edit of history —
 // seed carries the CURRENT rule, with prior structure noted where relevant.
 //
-// M2's rule shape is coarse: base {points, per} + accelerators (multiplier over
-// base + optional monthly POINT cap) + category/MCC exclusions. Mechanics it
-// cannot express yet — milestones, spend slabs, day-of-week, international,
-// spend-value caps, tiered status — are recorded in `notes` for the M3 engine.
+// The rule shape: base {points, per} + accelerators (multiplier over base +
+// optional monthly POINT cap) + spendTiers (marginal earn past a ₹-spend slab)
+// + category/MCC exclusions. Fees live in data/kb/surcharges.ts (merged in at
+// seed time). Mechanics still not machine-encoded — milestones, day-of-week,
+// international multipliers, tiered/status earn, and spend-tier eligibility
+// exclusions / credit-limit-relative ceilings — are recorded in `notes` for
+// the M3 earn engine.
 
-export type SeedCard = { card: Card; rules: EarnRule[] }
+export type SeedCard = { card: Card; rules: EarnRuleInput[] }
 
 // Published excluded-MCC sets (bank MITC lists; 4-digit; representative where
 // the bank publishes ranges). Shared across a bank's cards.
@@ -142,16 +145,19 @@ export const CARDS: SeedCard[] = [
       network: 'visa', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
     },
     rules: [{
-      effectiveFrom: '2026-07-01',
-      base: { points: 4, per: 150 },
+      // Base revised 4 RP/₹150 → 5 RP/₹200 effective 15-May-2026 (official HDFC
+      // product-change mailer PDF; DCC markup 1.75% same date). Confirmed by
+      // reading the July-2026 MITC v4.4 + product-change doc.
+      effectiveFrom: '2026-05-15',
+      base: { points: 5, per: 200 },
       accelerators: [
-        { category: 'shopping-online', label: 'Nykaa / Myntra / M&S / Reliance Digital', multiplier: 5, monthlyCapPoints: 5000, notes: '20 RP/₹150 at brand partners, capped 5,000 RP/mo' },
-        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 4000, notes: 'shared 4,000 bonus RP/mo, daily 2,000; voucher sub-cap 3,000/mo' },
+        { category: 'shopping-online', label: 'Nykaa / Myntra / M&S / Reliance Digital', multiplier: 4, monthlyCapPoints: 5000, notes: '5X brand partners, capped 5,000 RP/mo (official Regalia Gold Rewards T&C)' },
+        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 4000, notes: 'SmartBuy ~4,000 bonus RP/mo; brand-voucher sub-cap 3,000/mo eff 1-Jul-2026' },
       ],
       exclusions: ['fuel', 'wallet'],
       excludedMccs: HDFC_EXCL,
-      verified: false,
-      notes: 'Secondary-sourced + HDFC product page. RP ~₹0.65 via SmartBuy. Unlike Infinia, pays base on insurance/utilities/education.',
+      verified: true,
+      notes: 'Official HDFC MITC v4.4 (Jul-2026) + product-change PDF: base 5 RP/₹200 (from 4 RP/₹150) + DCC 1.75% eff 15-May-2026. Fee ₹2,500, waiver ₹4L. FCY 2%. Overall 50,000 RP/cycle cap. Pays base on insurance/utilities/education.',
     }],
   },
   {
@@ -186,7 +192,19 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'rent', 'wallet', 'government'],
       excludedMccs: HDFC_EXCL,
       verified: true,
-      notes: 'Official Marriott/HDFC Bonvoy T&C. Free Night Awards (<=15k pts) at ₹6L/₹9L/₹15L annual spend + welcome/renewal FNA + Silver Elite — milestones are M3. Voucher/gift-card purchases excluded from earn.',
+      notes: 'Official Marriott/HDFC Bonvoy T&C (pre-15-May-2026 version). Free Night Awards (<=15k pts) at ₹6L/₹9L/₹15L annual spend + welcome/renewal FNA + Silver Elite — milestones are M3. Voucher/gift-card purchases excluded from earn.',
+    }, {
+      // Devaluation effective 15-May-2026 (append-only new version).
+      effectiveFrom: '2026-05-15',
+      base: { points: 2, per: 200 },
+      accelerators: [
+        { category: 'travel', label: 'Marriott hotels', multiplier: 4, notes: '8 Bonvoy pts/₹200 at Marriott properties (post-15-May-2026)' },
+        { category: 'dining', label: 'Travel / dining / entertainment', multiplier: 2, notes: '4 pts/₹200' },
+      ],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: HDFC_EXCL,
+      verified: false,
+      notes: 'Devaluation 15-May-2026: earn shifted to per-₹200 (from ₹150), ~25% cut; a 1.75% DCC markup was introduced (distinct from the standard forex markup, so not added as a surcharge). Secondary — Grok sweep 2026-07-27 citing CardExpress/Business Standard; confirm vs official MITC before flipping verified.',
     }],
   },
   {
@@ -257,10 +275,13 @@ export const CARDS: SeedCard[] = [
       accelerators: [
         { category: 'travel-portal', label: 'Travel Edge / Grab Deals / GYFTR', multiplier: 5, notes: 'up to 5x on base 12; cap ₹2L spend/mo (excluded from the 35x tier pool)' },
       ],
+      spendTiers: [
+        { fromMonthlySpend: 150000, points: 35, per: 200, label: 'Incremental spend over ₹1.5L/mo', notes: '~3.5% vs 1.2% base; excluded categories and Travel-Edge/GrabDeals spend do NOT count toward the ₹1.5L trigger.' },
+      ],
       exclusions: ['fuel', 'rent', 'wallet', 'utilities', 'telecom', 'insurance', 'government', 'jewellery'],
       excludedMccs: AXIS_EXCL,
       verified: true,
-      notes: 'Official. Earns EDGE REWARD POINTS (~₹0.20), not Miles. 35 RP/₹200 on incremental spend >₹1.5L/mo. Transfer 5:2 (Burgundy 5:4). Devaluations: govt/utilities 1-Sep-2023, insurance/fuel/gold 20-Apr-2024.',
+      notes: 'Official. Earns EDGE REWARD POINTS (~₹0.20), not Miles. 35 RP/₹200 on incremental spend >₹1.5L/mo (see spendTiers). Transfer 5:2 (Burgundy 5:4). Devaluations: govt/utilities 1-Sep-2023, insurance/fuel/gold 20-Apr-2024.',
     }],
   },
   {
@@ -274,10 +295,13 @@ export const CARDS: SeedCard[] = [
       accelerators: [
         { category: 'travel-portal', label: 'Travel Edge / Grab Deals', multiplier: 5, notes: 'up to 5x on base; cap ₹2L spend/mo' },
       ],
+      spendTiers: [
+        { fromMonthlySpend: 150000, points: 35, per: 200, label: 'Incremental spend over ₹1.5L/mo', notes: 'Burgundy T&C 20-Jun-2025: tier ceilings at (credit limit + ₹1.5L)/mo — per-customer, so the upper bound is left unbounded here; reverts to 12/₹200 above it.' },
+      ],
       exclusions: ['fuel', 'rent', 'wallet', 'utilities', 'telecom', 'insurance', 'government', 'jewellery'],
       excludedMccs: AXIS_EXCL,
       verified: true,
-      notes: 'Official (T&C 20-Jun-2025). 35 RP/₹200 tier now ceilings at (credit limit + ₹1.5L)/mo then reverts to 12/₹200. Transfer 5:4, cap 10L RP/yr. Value ~₹0.20/RP.',
+      notes: 'Official (T&C 20-Jun-2025). 35 RP/₹200 tier now ceilings at (credit limit + ₹1.5L)/mo then reverts to 12/₹200 (see spendTiers). Transfer 5:4, cap 10L RP/yr. Value ~₹0.20/RP.',
     }],
   },
   {
@@ -865,13 +889,14 @@ export const CARDS: SeedCard[] = [
     rules: [{
       effectiveFrom: '2026-01-18',
       base: { points: 5, per: 150 },
-      accelerators: [
-        { category: 'shopping', label: 'Incremental spend above ₹20,000/cycle', multiplier: 2, notes: '10 RP/₹150 above the ₹20k slab (spend-slab = M3)' },
+      accelerators: [],
+      spendTiers: [
+        { fromMonthlySpend: 20000, points: 10, per: 150, label: 'Incremental spend over ₹20,000/mo', notes: '10 RP/₹150 on all eligible spend above the ₹20k monthly slab (base 5 RP/₹150 below).' },
       ],
       exclusions: ['fuel'],
       excludedMccs: [],
       verified: true,
-      notes: 'Official T&C. Metal flagship. 1 RP = ₹0.25 (₹0.50 on app travel). rent/govt/wallet/education 3 RP/₹150; FASTag/railway/insurance/utilities 1 RP/₹150. App bonus cap 25,000 RP/mo. No numeric MCC list.',
+      notes: 'Official T&C. Metal flagship. 1 RP = ₹0.25 (₹0.50 on app travel). ₹20k monthly spend slab → 10 RP/₹150 (see spendTiers). rent/govt/wallet/education 3 RP/₹150; FASTag/railway/insurance/utilities 1 RP/₹150. App bonus cap 25,000 RP/mo. No numeric MCC list.',
     }],
   },
 

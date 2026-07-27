@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { BANKS } from '../../../data/kb/banks'
 import { CARDS } from '../../../data/kb/cards'
 import { CATEGORIES } from '../../../data/kb/categories'
+import { surchargesFor, unknownSurchargeKeys } from '../../../data/kb/surcharges'
+import { feesFor, milestonesFor, unknownMilestoneKeys } from '../../../data/kb/milestones'
 import {
   bankSchema,
   cardSchema,
@@ -49,8 +51,18 @@ describe('KB seed data', () => {
 
       expect(rules.length).toBeGreaterThan(0)
       const froms = new Set<string>()
-      for (const r of rules) {
-        expect(() => earnRuleSchema.parse(r)).not.toThrow()
+      for (const raw of rules) {
+        // Compose surcharges exactly as scripts/seed-kb.ts does, then parse:
+        // seed rules are input-shaped (defaulted fields optional), and the
+        // real surcharges live in the bank/card maps, not inline — so this is
+        // the only place the shipped surcharge data is actually validated.
+        const composed = {
+          ...raw,
+          surcharges: [...(raw.surcharges ?? []), ...surchargesFor(card.bankSlug, card.slug)],
+          milestones: [...(raw.milestones ?? []), ...milestonesFor(card.slug)],
+          fees: { ...raw.fees, ...feesFor(card.slug) },
+        }
+        const r = earnRuleSchema.parse(composed)
         expect(froms.has(r.effectiveFrom)).toBe(false) // one rule per date
         froms.add(r.effectiveFrom)
         for (const a of r.accelerators) {
@@ -59,7 +71,26 @@ describe('KB seed data', () => {
         for (const x of r.exclusions) {
           expect(catSlugs.has(x), `exclusion ${x}`).toBe(true)
         }
+        for (const s of r.surcharges) {
+          if (s.category) expect(catSlugs.has(s.category), `surcharge category ${s.category}`).toBe(true)
+        }
       }
     }
+  })
+
+  it('every surcharge map key resolves to a real bank/card slug', () => {
+    const bankSlugs = new Set(BANKS.map((b) => b.slug))
+    const cardSlugs = new Set(CARDS.map(({ card }) => card.slug))
+    // A typo in BANK_SURCHARGES/CARD_SURCHARGES would otherwise silently orphan
+    // the fees (never merged, never caught) — this is the guard against that.
+    expect(unknownSurchargeKeys(bankSlugs, cardSlugs)).toEqual([])
+    expect(unknownMilestoneKeys(cardSlugs)).toEqual([])
+
+    // Sanity: composition actually attaches fees (e.g. HSBC's rent surcharge).
+    const hsbcRent = surchargesFor('hsbc', 'hsbc-live-plus').find((s) => s.kind === 'rent')
+    expect(hsbcRent?.percent).toBe(1)
+    // Sanity: a fee-waiver milestone carries the annual fee it reverses.
+    const eliteWaiver = milestonesFor('sbi-elite').find((m) => m.kind === 'fee-waiver')
+    expect(eliteWaiver?.valueInr).toBe(4999)
   })
 })

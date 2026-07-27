@@ -96,6 +96,139 @@ export const acceleratorSchema = z
   })
 export type Accelerator = z.infer<typeof acceleratorSchema>
 
+// ---------------------------------------------------------------------------
+// Spend tiers — marginal earn that changes once cumulative *eligible* spend in
+// a statement cycle crosses a rupee threshold. Axis Magnus: base 12 RP/₹200 up
+// to ₹1.5L/mo, then 35 RP/₹200 on the incremental spend beyond it. Distinct
+// from an accelerator (category-triggered, not spend-volume-triggered).
+
+export const spendTierSchema = z
+  .object({
+    // ₹ of cumulative eligible spend in the cycle at which this tier begins.
+    fromMonthlySpend: z.number().positive(),
+    // Upper ₹ ceiling; absent = unbounded. (Magnus Burgundy caps at
+    // credit limit + ₹1.5L, which is per-customer — left unbounded, see notes.)
+    // M3: eligible-spend exclusions and credit-limit-relative ceilings are not
+    // yet machine-encoded — recorded in `notes` for the earn engine.
+    toMonthlySpend: z.number().positive().optional(),
+    // Marginal earn on spend that falls inside this tier.
+    points: z.number().nonnegative(),
+    per: z.number().positive(),
+    label: z.string().optional(),
+    notes: z.string().optional(),
+  })
+  .refine((t) => t.toMonthlySpend === undefined || t.toMonthlySpend > t.fromMonthlySpend, {
+    message: 'spend tier toMonthlySpend must be greater than fromMonthlySpend',
+  })
+export type SpendTier = z.infer<typeof spendTierSchema>
+
+// ---------------------------------------------------------------------------
+// Surcharges / fees — the "extra paid" that erodes the real earn rate. Indian
+// issuers now levy ~1% on rent, and on utility/fuel/education/wallet/gaming
+// spends above a monthly threshold, usually with a per-txn cap and 18% GST.
+// Fuel carries a surcharge that is WAIVED up to a cycle cap within a txn band.
+// A surcharge is versioned with the earn rule it sits on (the rule's
+// effectiveFrom is authoritative unless the fee has its own effectiveFrom).
+
+export const FEE_KINDS = [
+  'rent',
+  'utilities',
+  'fuel',
+  'education',
+  'wallet',
+  'government',
+  'insurance',
+  'international',
+  'gaming',
+  'other',
+] as const
+
+export const surchargeSchema = z
+  .object({
+    kind: z.enum(FEE_KINDS),
+    // Optional links so the engine can match a transaction to this fee.
+    category: slugSchema.optional(),
+    mccs: z.array(mccSchema).optional(),
+    // The levy: a percent of spend and/or a flat ₹ per txn. At least one.
+    // If BOTH are set, `combine` says how (e.g. IDFC rent = max(₹249, 1%)).
+    percent: z.number().nonnegative().optional(), // 1 = 1%
+    flat: z.number().nonnegative().optional(), // ₹ per transaction
+    combine: z.enum(['max', 'sum']).optional(),
+    // Only charged once spend crosses this ₹ threshold; absent = from ₹1.
+    threshold: z.number().positive().optional(),
+    // Is `threshold` measured over the statement cycle or per transaction?
+    thresholdBasis: z.enum(['monthly', 'per-transaction']).default('monthly'),
+    // Charge base once the threshold is crossed. 'above-threshold' = only the
+    // amount over `threshold`; 'full' = the whole triggering transaction.
+    // NOTE (M3): a few issuers (SBI utility) charge 1% of the WHOLE cycle's
+    // bucket spend retroactively — captured in `notes` today; the earn engine
+    // will add an explicit cycle-total base rather than overload 'full'.
+    applies: z.enum(['above-threshold', 'full']).default('above-threshold'),
+    // Ceiling on the surcharge per transaction (₹).
+    perTxnCap: z.number().positive().optional(),
+    // Fuel-style waiver: surcharge levied then reversed up to this ₹ per
+    // `waiverPeriod`, for transactions within [txnMin, txnMax].
+    waiverCapPerCycle: z.number().nonnegative().optional(),
+    waiverPeriod: z.enum(['cycle', 'quarter', 'year']).default('cycle'),
+    txnMin: z.number().nonnegative().optional(),
+    txnMax: z.number().positive().optional(),
+    // 18% GST applies on top of the surcharge (true for essentially all).
+    plusGst: z.boolean().default(true),
+    // Overrides rule.effectiveFrom only if this fee began on a different date.
+    effectiveFrom: dateSchema.optional(),
+    // False until an admin confirms against an authoritative source.
+    verified: z.boolean().default(false),
+    notes: z.string().optional(),
+  })
+  .superRefine((s, ctx) => {
+    if (s.percent === undefined && s.flat === undefined)
+      ctx.addIssue({ code: 'custom', message: 'surcharge needs a percent or a flat amount' })
+    if (s.percent !== undefined && s.flat !== undefined && s.combine === undefined)
+      ctx.addIssue({ code: 'custom', message: 'set combine (max|sum) when both percent and flat are present' })
+    if (s.txnMin !== undefined && s.txnMax !== undefined && s.txnMax < s.txnMin)
+      ctx.addIssue({ code: 'custom', message: 'surcharge txnMax must be ≥ txnMin' })
+  })
+export type Surcharge = z.infer<typeof surchargeSchema>
+// Pre-parse shape for authoring surcharge seed data (data/kb/surcharges.ts):
+// defaulted fields (thresholdBasis, applies, plusGst, verified, waiverPeriod)
+// are optional here, required on the parsed Surcharge.
+export type SurchargeInput = z.input<typeof surchargeSchema>
+
+// ---------------------------------------------------------------------------
+// Milestones — a benefit unlocked by cumulative spend over a period. Covers
+// bonus points ("₹4L/yr → 10,000 miles"), vouchers ("₹1.5L → ₹10k Taj"),
+// Free Night Awards, and — importantly for real earn rate — annual-fee waivers
+// ("spend ₹3L/yr → fee reversed"). Distinct from spendTiers (which change the
+// marginal EARN RATE) — a milestone is a one-off (or repeatable) reward.
+
+export const MILESTONE_KINDS = ['points', 'voucher', 'fee-waiver', 'free-night', 'lounge', 'other'] as const
+
+export const milestoneSchema = z
+  .object({
+    // Cumulative eligible spend (₹) over `period` that unlocks the benefit.
+    // Absent = no spend gate (e.g. a welcome benefit on activation / first txn).
+    spendThreshold: z.number().positive().optional(),
+    period: z
+      .enum(['welcome', 'statement-cycle', 'quarter', 'anniversary-year', 'calendar-year'])
+      .default('anniversary-year'),
+    kind: z.enum(MILESTONE_KINDS),
+    // Bonus points/miles awarded (kind 'points'); `ticker` defaults to the card pool.
+    points: z.number().int().positive().optional(),
+    ticker: tickerSchema.optional(),
+    // ₹ value of a voucher / free-night / the annual fee waived (kind 'fee-waiver').
+    valueInr: z.number().positive().optional(),
+    label: z.string().optional(), // "₹10k Taj voucher", "annual fee waiver", "FNA <=15k pts"
+    // True when the benefit repeats each threshold (e.g. a voucher per ₹1L), not once.
+    repeatable: z.boolean().default(false),
+    verified: z.boolean().default(false),
+    notes: z.string().optional(),
+  })
+  .refine((m) => m.points !== undefined || m.valueInr !== undefined || m.kind === 'lounge' || m.kind === 'other', {
+    message: 'milestone needs points or valueInr (except lounge/other)',
+  })
+export type Milestone = z.infer<typeof milestoneSchema>
+export type MilestoneInput = z.input<typeof milestoneSchema>
+
 export const earnRuleSchema = z.object({
   effectiveFrom: dateSchema,
   // Base earn: `points` per `per` units of the billing currency (floor()).
@@ -105,6 +238,26 @@ export const earnRuleSchema = z.object({
     per: z.number().positive(),
   }),
   accelerators: z.array(acceleratorSchema).default([]),
+  // Overall monthly cap on ACCELERATED (bonus-over-base) points across ALL
+  // accelerators — the "umbrella" cap (e.g. HDFC Infinia SmartBuy). Per-
+  // accelerator/per-platform sub-caps still live on each accelerator's
+  // `monthlyCapPoints` (e.g. SmartBuy gift vouchers ≤3,000 RP/mo within it).
+  acceleratedMonthlyCapPoints: z.number().int().positive().optional(),
+  // Volume-based marginal earn tiers (e.g. Magnus >₹1.5L/mo).
+  spendTiers: z.array(spendTierSchema).default([]),
+  // Fees that erode the real earn rate (rent, utility-over-threshold, fuel…).
+  surcharges: z.array(surchargeSchema).default([]),
+  // Spend-milestone benefits: bonus points, vouchers, free nights, fee waivers.
+  milestones: z.array(milestoneSchema).default([]),
+  // Card fees (₹): joining + annual. Card-level, but stored on the versioned
+  // rule (rides rule_json) to avoid a kb_cards migration; a fee-waiver milestone
+  // says what annual spend reverses the annual fee.
+  fees: z
+    .object({
+      joiningInr: z.number().nonnegative().optional(),
+      annualInr: z.number().nonnegative().optional(),
+    })
+    .optional(),
   // Category slugs that earn NOTHING on this card (rent, fuel, wallet…).
   exclusions: z.array(slugSchema).default([]),
   // Bank-published excluded MCCs (earn nothing regardless of category
@@ -115,6 +268,10 @@ export const earnRuleSchema = z.object({
   notes: z.string().optional(),
 })
 export type EarnRule = z.infer<typeof earnRuleSchema>
+// Pre-parse shape for authoring seed rules: fields with a Zod default
+// (accelerators, spendTiers, surcharges, exclusions, excludedMccs, verified)
+// are optional here, required on the parsed EarnRule.
+export type EarnRuleInput = z.input<typeof earnRuleSchema>
 
 // ---------------------------------------------------------------------------
 // Cards
