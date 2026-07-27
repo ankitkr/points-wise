@@ -16,6 +16,10 @@
       "migrations_dir": "drizzle"
     }
   ],
+  "durable_objects": {
+    "bindings": [{ "name": "LEDGER_DO", "class_name": "LedgerDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LedgerDO"] }],
   "observability": {
     "enabled": true
   }

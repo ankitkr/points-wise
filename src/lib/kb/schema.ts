@@ -22,10 +22,12 @@ export const beancountSegmentSchema = z
   .string()
   .regex(/^[A-Z][A-Za-z0-9]*$/, 'must be a beancount segment (CapitalCamelCase)')
 
-// Reward commodity ticker, e.g. "EDGE", "MR", "CB_INR".
+// Reward commodity ticker, e.g. "EDGE_MILES", "HDFC_RP". Must NOT look like a
+// 3-letter fiat ISO code — the ledger validator treats those as fiat.
 export const tickerSchema = z
   .string()
   .regex(/^[A-Z][A-Z0-9_]{1,15}$/, 'must be an UPPERCASE ticker')
+  .refine((t) => !/^[A-Z]{3}$/.test(t), 'must not look like a fiat ISO code (3 letters)')
 
 // ISO-ish calendar date.
 export const dateSchema = z
