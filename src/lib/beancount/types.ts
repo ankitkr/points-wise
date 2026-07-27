@@ -24,7 +24,10 @@ export type TxnMeta = {
 
 export type TxnEntry = {
   kind: 'txn'
-  id: string // ULID
+  // A ULID minted by the LedgerDO at write time — an OPAQUE per-entry handle,
+  // safe to expose to the owning client. (The server-only secrecy rule covers
+  // users.id, the DO-addressing ULID; entry ids carry no such capability.)
+  id: string
   date: string // YYYY-MM-DD
   flag: '*' | '!'
   payee: string

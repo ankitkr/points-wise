@@ -35,7 +35,14 @@ export function formatScaled(s: Scaled, minDp = 0): string {
 }
 
 // Bring a value to SCALE (exact — throws if precision would be lost).
+// Guards EVERY path (Codex review): scale must be an integer within POW's
+// range and the scaled value a safe integer — including when scale === SCALE,
+// since structured callers can pass arbitrary objects.
 export function rescale(s: Scaled): Scaled {
+  if (!Number.isInteger(s.scale) || s.scale < 0 || s.scale >= POW.length) {
+    throw new Error(`invalid scale: ${s.scale}`)
+  }
+  if (!Number.isSafeInteger(s.scaled)) throw new Error('amount out of range')
   if (s.scale === SCALE) return s
   if (s.scale < SCALE) {
     const scaled = s.scaled * POW[SCALE - s.scale]
