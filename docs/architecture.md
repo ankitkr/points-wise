@@ -9,8 +9,8 @@ a webhook, a cron) — never for organizational neatness.
 
 | # | Component (product view)                                        | Implementation |
 |---|-----------------------------------------------------------------|----------------|
-| 1 | **Authentication** — users, roles/tiers                         | Module inside the app Worker (next-auth + Discord role→tier) + the D1 directory. Not a separate deployable. **Built (M1).** |
-| 2 | **Knowledge Base** — card data, offers, accelerated RPs, MCCs, categories · **+ KB updater** | KB = schemas library + repo seed data → D1 serving tables. Updater = cron Worker that scans X / asks an LLM for card news and **proposes** review-gated changes — never writes serving data directly. |
+| 1 | **Authentication** — users, roles/tiers                         | Module inside the app Worker (next-auth + Discord role→tier, plus the `@admin` capability role gating KB edits) + the D1 directory. Not a separate deployable. **Built (M1/M2).** |
+| 2 | **Knowledge Base** — card data, offers, accelerated RPs (incl. platform accelerators + caps), excluded categories/MCCs · **+ KB updater** | **Not a separate worker — lives in the app Worker.** Authoritative store = D1 `kb_*` tables; repo seed (`data/kb/*`) bootstraps; **admins edit in-app** (Zod-validated, `is_admin` re-read from D1); members suggest via the `kb_proposals` queue. Updater = cron Worker (M7) that scans X / asks an LLM and **submits proposals into the same queue** — never writes serving data directly. **Built (M2)** except updater. |
 | 3 | **Ledger DO** — card expenses, reward points, per-txn MCC/description/category | One `LedgerDO` per user (ULID-keyed). Postings hold the money/points; MCC, description, category ride as entry metadata. |
 | 4 | **Input Workers** — Telegram / Email                            | ONE ingest Worker with two channel adapters (email handler + telegram webhook). |
 | 5 | **Agent chat** — add txns, query points/history, remembers preferences | `ChatDO` (second per-user DO): conversations + agent loop + memory. Facts via tools against LedgerDO/KB — never copied. Writes go through the same validated LedgerDO gate. |
@@ -23,8 +23,10 @@ a webhook, a cron) — never for organizational neatness.
   Browser ──────────────▶  UI + API routes                            │
                         │  • next-auth (Discord) — login gate         │
                         │  • AUTHZ: every request authorized HERE     │
-                        │    (session → ULID; tier re-read from D1)   │
-                        │  • directory + catalog reads (D1)           │
+                        │    (session → ULID; tier/is_admin re-read   │
+                        │    from D1 for writes AND admin reads)      │
+                        │  • KB lives HERE: reads + admin CRUD +      │
+                        │    proposals review (/admin/kb)             │
                         │  • hosts the LedgerDO class                 │
                         └───────┬──────────────────────────┬──────────┘
                                 │ RPC (per-user, by ULID)  │ SQL
@@ -34,11 +36,11 @@ a webhook, a cron) — never for organizational neatness.
                   │  id = users.id (ULID)    │   │  • users / households │
                   │  • beancount ledger:     │   │    / memberships      │
                   │    txns, postings,       │   │    (directory+authz)  │
-                  │    balances, captures    │   │  • catalog_* (banks,  │
-                  │  • runs earn-engine +    │   │    cards, pools, earn │
-                  │    validators on EVERY   │   │    rules — reference) │
-                  │    write (fail-closed)   │   └───────────────────────┘
-                  │  • reconciliation state  │
+                  │    balances, captures    │   │  • kb_* (banks, cards,│
+                  │  • runs earn-engine +    │   │    versioned earn     │
+                  │    validators on EVERY   │   │    rules, categories, │
+                  │    write (fail-closed)   │   │    proposals queue)   │
+                  │  • reconciliation state  │   └───────────────────────┘
                   └──────────▲───────────────┘   ┌───────────────────────┐
                              │ RPC (capture)     │  R2 (M5+)             │
                   ┌──────────┴───────────────┐   │  statement PDFs /     │
@@ -52,12 +54,12 @@ a webhook, a cron) — never for organizational neatness.
                   └──────────────────────────┘   by the deterministic engine
 
   KB freshness (scout, not writer — later):
-                  ┌──────────────────────────┐         schema-validated PR
-   cron ──────────▶  points-wise-kb-updater  │──────▶  against data/banks/*
-                  │  scan X / ask LLM for    │         → CI validates (Zod)
-                  │  rate changes, offers,   │         → human merges
-                  │  devaluations → DRAFT    │         → deploy loads D1
-                  └──────────────────────────┘
+                  ┌──────────────────────────┐        schema-validated PROPOSAL
+   cron ──────────▶  points-wise-kb-updater  │──────▶ into kb_proposals (same
+                  │  scan X / ask LLM for    │        queue as member
+                  │  rate changes, offers,   │        suggestions) → admin
+                  │  devaluations → DRAFT    │        approves in /admin/kb →
+                  └──────────────────────────┘        validated apply to kb_*
 
   Agent chat (later):
    app ──RPC──▶ ChatDO (one per user): sessions/messages · agent loop · memories
@@ -151,9 +153,10 @@ offers — and drafts KB updates.
 
 **Design rule: the updater is a scout, never a writer.** The deterministic earn engine
 is only as correct as the KB, so scraped/LLM-sourced data must not flow into serving
-tables directly. The updater emits **schema-validated proposals as PRs against
-`data/banks/*`** (or a proposals table reviewed in-app); CI validates against the Zod
-schemas; a human merges; the deploy loads D1. Freshness without corrupting earn math.
+tables directly. The updater submits **schema-validated proposals into the same
+`kb_proposals` queue member suggestions use** (built in M2); an admin reviews in
+`/admin/kb/proposals`; approval re-validates the payload and applies it to the `kb_*`
+tables. Freshness without corrupting earn math.
 
 ### 6. Shared libraries (same repo — seams, not services)
 
@@ -161,7 +164,7 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 | ----------------- | --------------------------------------------------------------------------- |
 | `beancount-core`  | Entry/posting model, serialization, validators (zero-sum per commodity, account shapes, commodity constraints) |
 | `earn-engine`     | Pure function: (txn, card rules, period state) → points/cashback legs + surcharge split. Deterministic, fully unit-tested |
-| `kb` (catalog)    | Zod schemas (`Card`, `RewardPool`, `EarnRule` — versioned `effectiveFrom` — plus `Offer` with validity windows, and the MCC→category taxonomy) + repo seed data (`data/banks/*`) + loader into D1; CI-validated |
+| `kb` (catalog)    | Zod schemas (`Card`, pool, `EarnRule` — versioned `effectiveFrom`, accelerators with platforms/caps/MCCs, excluded categories **and excluded MCCs** — plus `Offer` and the category taxonomy) + repo seed data (`data/kb/*`, bootstrap) + idempotent seed loader into D1; CI-validated. **D1 is authoritative post-bootstrap; all edits via admin-gated Zod-validated mutations** |
 | `db`              | Drizzle schema/queries for the directory (exists today)                     |
 
 ### 7. Platform pieces
@@ -179,7 +182,7 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 | Data                                   | Owner (sole writer)      | Readers                          |
 | -------------------------------------- | ------------------------ | -------------------------------- |
 | `users` / `households` / `memberships` | app Worker               | app, ingest (identity lookup)    |
-| `catalog_*` (KB) reference tables      | seed loader (via deploy) — kb-updater only via reviewed PRs | app, ingest |
+| `kb_*` reference tables + proposals    | seed loader (bootstrap) + **admin-gated validated mutations** (admin CRUD / approved proposals); kb-updater only via the proposals queue | app, ingest |
 | Ledger: held cards, txns/postings, materialized balances | that user's LedgerDO | app (self + authorized family), chat tools |
 | Captures inbox                         | that user's LedgerDO     | app (review UI)                  |
 | Drafting rules (merchant→category, alias→account) | that user's LedgerDO | chat agent + ingest             |
@@ -189,7 +192,8 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 ## Milestone → component map
 
 - **M1 (done)**: app Worker + D1 directory + Discord auth/tiers.
-- **M2**: `LedgerDO` + `beancount-core` + `kb` (schemas, seed, loader) + manual entry UI.
+- **M2 (built — PRs #3/#4/#5)**: `kb` (schemas, 47-card seed, admin CRUD, proposals
+  queue, `@admin` role) + `beancount-core` + `LedgerDO` + Cards/Transactions UI.
 - **M3**: `earn-engine` in the DO write path (accelerators, caps, surcharge, actual-rate).
 - **M4**: `points-wise-ingest` Worker (email + telegram → captures).
 - **M5**: R2 + statement reconciliation in the DO (balance assertions; pad = discrepancy).
@@ -202,10 +206,11 @@ schemas; a human merges; the deploy loads D1. Freshness without corrupting earn 
 - **No microservice per feature** — earn engine, validators, catalog are libraries.
 - **No queues yet** — the captures inbox in the DO is the buffer; email/telegram both
   retry delivery. Add Cloudflare Queues only if ingest volume ever demands it.
-- **No separate KB/catalog service** (milesvault has one; we don't) — the KB is
-  versioned data in this repo, loaded into D1. The kb-updater proposes; it never
-  publishes: no scraped/LLM data reaches serving tables without schema validation
-  and human review.
+- **No separate KB/catalog service** (milesvault has one; we don't) — the KB lives in
+  the app Worker: D1 `kb_*` tables + an in-process schemas library, bootstrapped from
+  repo seed data and edited only through admin-gated validated mutations. The
+  kb-updater proposes into the queue; it never publishes: no scraped/LLM data reaches
+  serving tables without schema validation and human (admin) review.
 - **No two ingest Workers** — email and telegram are two adapters in one Worker.
 - **No cross-user/global DO singletons** — anything shared lives in D1.
 - **No second datastore** — no KV/Postgres until a concrete need appears.
