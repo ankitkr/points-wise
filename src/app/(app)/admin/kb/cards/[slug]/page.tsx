@@ -3,16 +3,7 @@ import { notFound } from 'next/navigation'
 import { getDb } from '@/db/client'
 import { getCardDetail } from '@/lib/kb/queries'
 import { cardAccount, poolAccount, NETWORKS } from '@/lib/kb/schema'
-import {
-  effectiveVerified,
-  milestoneKey,
-  redemptionKey,
-  ruleKey,
-  surchargeKey,
-  taxKey,
-  valuationKey,
-  type VerifyEntityType,
-} from '@/lib/kb/verify'
+import { effectiveVerified, ruleEntities, valuationEntity, type VerifiableEntity } from '@/lib/kb/verify'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -34,7 +25,11 @@ export default async function EditCardPage({
   const db = await getDb()
   const detail = await getCardDetail(db, slug)
   if (!detail) notFound()
-  const { card, bank, rules, overrides } = detail
+  const { card, bank, rules, overrides, valuation } = detail
+
+  // Effective verified for an entity: admin override wins over the seed flag.
+  const cur = (e: VerifiableEntity) => effectiveVerified(overrides, e.entityType, e.entityKey, e.seedVerified)
+  const valEntity = valuationEntity(card.poolTicker, valuation)
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-8 py-10">
@@ -86,18 +81,9 @@ export default async function EditCardPage({
             <Button type="submit">Save card</Button>
           </form>
 
-          {/* Reward-currency valuation verification (per pool ticker; not seeded to
-              D1, so seed-verified defaults false — admin override is the source). */}
           <div className="flex items-center justify-between rounded-md border p-3 text-sm">
-            <span>
-              Valuation · <span className="font-mono text-xs">{card.poolTicker}</span>
-            </span>
-            <VerifyButton
-              cardSlug={card.slug}
-              entityType="valuation"
-              entityKey={valuationKey(card.poolTicker)}
-              current={effectiveVerified(overrides, 'valuation', valuationKey(card.poolTicker), false)}
-            />
+            <span>{valEntity.label}</span>
+            <VerifyButton cardSlug={card.slug} entity={valEntity} current={cur(valEntity)} />
           </div>
         </CardContent>
       </Card>
@@ -107,23 +93,20 @@ export default async function EditCardPage({
           <CardTitle>Earn rules ({rules.length})</CardTitle>
           <CardDescription>
             Versioned, append-only. Verify each item against an official bank source — the badge is an admin
-            override that survives a reseed.
+            override that survives a reseed (and clears itself if the underlying value later changes).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <ul className="space-y-3">
             {rules.map((r) => {
-              const from = r.effectiveFrom
+              const entities = r.rule ? ruleEntities(card.slug, r.effectiveFrom, r.rule) : []
+              const ruleEntity = entities[0]
+              const subEntities = entities.slice(1)
               return (
                 <li key={r.id} className="rounded-md border p-3 text-sm">
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="font-medium">from {from}</span>
-                    <VerifyButton
-                      cardSlug={card.slug}
-                      entityType="rule"
-                      entityKey={ruleKey(card.slug, from)}
-                      current={effectiveVerified(overrides, 'rule', ruleKey(card.slug, from), r.rule?.verified ?? false)}
-                    />
+                    <span className="font-medium">from {r.effectiveFrom}</span>
+                    {ruleEntity && <VerifyButton cardSlug={card.slug} entity={ruleEntity} current={cur(ruleEntity)} />}
                   </div>
                   {r.rule ? (
                     <div className="space-y-2 text-muted-foreground">
@@ -140,46 +123,9 @@ export default async function EditCardPage({
                       )}
                       {r.rule.exclusions.length > 0 && <div>Excluded: {r.rule.exclusions.join(', ')}</div>}
                       {r.rule.notes && <div className="text-xs">{r.rule.notes}</div>}
-
-                      {/* Per-sub-item verification rows */}
-                      {r.rule.surcharges.map((s) => (
-                        <VerifyRow
-                          key={`s-${s.kind}`}
-                          cardSlug={card.slug}
-                          entityType="surcharge"
-                          entityKey={surchargeKey(card.slug, from, s.kind)}
-                          label={`Surcharge · ${s.kind}${s.percent != null ? ` ${s.percent}%` : ''}${s.flat != null ? ` ₹${s.flat}` : ''}`}
-                          current={effectiveVerified(overrides, 'surcharge', surchargeKey(card.slug, from, s.kind), s.verified)}
-                        />
+                      {subEntities.map((e) => (
+                        <VerifyRow key={e.entityKey} cardSlug={card.slug} entity={e} current={cur(e)} />
                       ))}
-                      {r.rule.milestones.map((m, i) => (
-                        <VerifyRow
-                          key={`m-${i}`}
-                          cardSlug={card.slug}
-                          entityType="milestone"
-                          entityKey={milestoneKey(card.slug, from, i)}
-                          label={`Milestone · ${m.kind}${m.spendThreshold ? ` @ ₹${m.spendThreshold}` : ''}${m.label ? ` (${m.label})` : ''}`}
-                          current={effectiveVerified(overrides, 'milestone', milestoneKey(card.slug, from, i), m.verified)}
-                        />
-                      ))}
-                      {r.rule.redemption && (
-                        <VerifyRow
-                          cardSlug={card.slug}
-                          entityType="redemption"
-                          entityKey={redemptionKey(card.slug, from)}
-                          label={`Redemption · ${r.rule.redemption.methods.length} method(s), ${r.rule.redemption.transferPartners.length} partner(s)`}
-                          current={effectiveVerified(overrides, 'redemption', redemptionKey(card.slug, from), r.rule.redemption.verified)}
-                        />
-                      )}
-                      {r.rule.taxPayments && (
-                        <VerifyRow
-                          cardSlug={card.slug}
-                          entityType="tax"
-                          entityKey={taxKey(card.slug, from)}
-                          label={`Tax/GST · earns ${r.rule.taxPayments.earns ? 'yes' : 'no'}, milestone ${r.rule.taxPayments.countsToMilestone ? 'yes' : 'no'}`}
-                          current={effectiveVerified(overrides, 'tax', taxKey(card.slug, from), r.rule.taxPayments.verified)}
-                        />
-                      )}
                     </div>
                   ) : (
                     <span className="text-destructive">unparseable rule payload</span>
@@ -202,24 +148,14 @@ export default async function EditCardPage({
   )
 }
 
-// A verified/unverified badge + a one-click toggle that posts the DESIRED next
-// state to the admin-gated verifyEntity action.
-function VerifyButton({
-  cardSlug,
-  entityType,
-  entityKey,
-  current,
-}: {
-  cardSlug: string
-  entityType: VerifyEntityType
-  entityKey: string
-  current: boolean
-}) {
+// A verified/unverified badge + a one-click toggle posting the DESIRED next state
+// to the admin-gated verifyEntity action.
+function VerifyButton({ cardSlug, entity, current }: { cardSlug: string; entity: VerifiableEntity; current: boolean }) {
   return (
     <form action={verifyEntity} className="flex items-center gap-2">
       <input type="hidden" name="cardSlug" value={cardSlug} />
-      <input type="hidden" name="entityType" value={entityType} />
-      <input type="hidden" name="entityKey" value={entityKey} />
+      <input type="hidden" name="entityType" value={entity.entityType} />
+      <input type="hidden" name="entityKey" value={entity.entityKey} />
       <input type="hidden" name="verified" value={current ? 'false' : 'true'} />
       {current ? <Badge variant="secondary">verified</Badge> : <Badge variant="outline">unverified</Badge>}
       <Button type="submit" size="sm" variant="ghost" className="h-6 px-2 text-xs">
@@ -229,18 +165,11 @@ function VerifyButton({
   )
 }
 
-// A labelled sub-item row with its own VerifyButton.
-function VerifyRow(props: {
-  cardSlug: string
-  entityType: VerifyEntityType
-  entityKey: string
-  label: string
-  current: boolean
-}) {
+function VerifyRow({ cardSlug, entity, current }: { cardSlug: string; entity: VerifiableEntity; current: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2 border-t pt-2">
-      <span className="text-xs">{props.label}</span>
-      <VerifyButton cardSlug={props.cardSlug} entityType={props.entityType} entityKey={props.entityKey} current={props.current} />
+      <span className="text-xs">{entity.label}</span>
+      <VerifyButton cardSlug={cardSlug} entity={entity} current={current} />
     </div>
   )
 }

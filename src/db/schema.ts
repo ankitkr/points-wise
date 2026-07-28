@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const TIERS = ['readonly', 'standalone', 'family'] as const
 export type Tier = (typeof TIERS)[number]
@@ -146,6 +146,21 @@ export const kbProposals = sqliteTable('kb_proposals', {
   createdAt: integer('created_at').notNull(),
 })
 
+// Per-programme point valuations (₹/point) — seeded from data/kb/valuations.ts.
+// In D1 so the app reads them like any other KB table (badge seed-verified, and
+// the M3 net-worth view). Admin verification of a valuation lives in the override
+// table below, keyed by ticker; this table carries the bootstrap `verified` flag.
+export const kbValuations = sqliteTable('kb_valuations', {
+  ticker: text('ticker').primaryKey(),
+  floorInr: real('floor_inr').notNull(),
+  realisticInr: real('realistic_inr').notNull(),
+  bestInr: real('best_inr').notNull(),
+  source: text('source').notNull(), // 'official' | 'community'
+  verified: integer('verified').notNull().default(0),
+  notes: text('notes'),
+  updatedAt: integer('updated_at').notNull(),
+})
+
 // Admin verification OVERRIDES. Each KB entity that carries a `verified` flag
 // (an earn rule, and the surcharges/milestones/redemption/tax/valuation merged
 // into rule_json) can be verified/un-verified from the admin UI. The seed only
@@ -173,3 +188,4 @@ export type KbEarnRule = typeof kbEarnRules.$inferSelect
 export type KbCategory = typeof kbCategories.$inferSelect
 export type KbProposal = typeof kbProposals.$inferSelect
 export type KbVerification = typeof kbVerifications.$inferSelect
+export type KbValuation = typeof kbValuations.$inferSelect

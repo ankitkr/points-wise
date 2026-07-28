@@ -1,46 +1,148 @@
 import { z } from 'zod'
-import { slugSchema, dateSchema, tickerSchema } from './schema'
+import type { EarnRule } from './schema'
 
-// Verification overrides — the addressing + effective-state logic, kept pure so
-// the admin page (which renders the buttons), the server action (which writes),
-// and the tests all agree on the exact keys. A verifiable entity is anything in
-// the KB that carries its own `verified` flag.
+// Verification overrides — addressing + effective-state logic, kept pure so the
+// admin page (renders buttons), the server action (writes + validates), and the
+// tests all agree. A verifiable entity is anything in the KB carrying its own
+// `verified` flag: an earn rule, each surcharge / milestone merged into it, its
+// redemption + tax blocks, and a per-ticker valuation.
+//
+// KEY DESIGN (Codex review): an entity key is `<scope>:<contentHash>` where scope
+// ties it to a card+version (or a ticker) and the hash is over the entity's
+// canonical contents. Consequences:
+//   • No positional/`kind` collisions — two same-`kind` surcharges with different
+//     contents (e.g. IDFC Wealth's two fuel entries) get different hashes.
+//   • Reorder-safe — a milestone's key follows its contents, not its array index.
+//   • Content-aware durability — if a reseed materially changes a rate, the hash
+//     changes, the old override no longer matches, and the entity falls back to
+//     the seed flag (i.e. a changed fact is NOT silently left "verified").
 
 export const VERIFY_ENTITY_TYPES = ['rule', 'surcharge', 'milestone', 'redemption', 'tax', 'valuation'] as const
 export type VerifyEntityType = (typeof VERIFY_ENTITY_TYPES)[number]
 
-// Stable keys — must not depend on array order except where an index is the only
-// natural identity (milestones), and must survive a reseed. `card@from` scopes an
-// entity to a specific rule version; `#suffix` distinguishes items within it.
-export const ruleKey = (cardSlug: string, effectiveFrom: string) => `${cardSlug}@${effectiveFrom}`
-export const surchargeKey = (cardSlug: string, effectiveFrom: string, kind: string) =>
-  `${cardSlug}@${effectiveFrom}#${kind}`
-export const milestoneKey = (cardSlug: string, effectiveFrom: string, idx: number) =>
-  `${cardSlug}@${effectiveFrom}#${idx}`
-export const redemptionKey = (cardSlug: string, effectiveFrom: string) => `${cardSlug}@${effectiveFrom}`
-export const taxKey = (cardSlug: string, effectiveFrom: string) => `${cardSlug}@${effectiveFrom}`
-export const valuationKey = (ticker: string) => ticker
+// Deterministic stringify: object keys sorted recursively so key order in the
+// source can't change the hash. (Arrays keep their order — order is content.)
+function canonical(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null'
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
+  const obj = value as Record<string, unknown>
+  return `{${Object.keys(obj)
+    .sort()
+    .map((k) => `${JSON.stringify(k)}:${canonical(obj[k])}`)
+    .join(',')}}`
+}
+
+// cyrb53 — a small, fast, well-distributed 53-bit string hash (sync, no crypto).
+// 53 bits is ample for a few hundred KB entities; base-36 keeps the key short.
+function cyrb53(str: string, seed = 0): number {
+  let h1 = 0xdeadbeef ^ seed
+  let h2 = 0x41c6ce57 ^ seed
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i)
+    h1 = Math.imul(h1 ^ ch, 2654435761)
+    h2 = Math.imul(h2 ^ ch, 1597334677)
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0)
+}
+
+const contentHash = (value: unknown): string => cyrb53(canonical(value)).toString(36)
+const entityKey = (scope: string, content: unknown): string => `${scope}:${contentHash(content)}`
+const cardScope = (cardSlug: string, effectiveFrom: string) => `${cardSlug}@${effectiveFrom}`
 
 // The map the page/list builds from the overrides table. Map key namespaces the
-// entity type so a rule and a redemption sharing `card@from` never collide.
+// entity type so two types are never confused even if a hash coincided.
 export const mapKey = (entityType: VerifyEntityType, entityKey: string) => `${entityType}:${entityKey}`
 
-// Effective verified state: an admin override wins over the seed's flag; absent
-// an override, fall back to whatever the seed shipped.
 export function effectiveVerified(
   overrides: Map<string, boolean>,
   entityType: VerifyEntityType,
-  entityKey: string,
+  key: string,
   seedVerified: boolean,
 ): boolean {
-  const o = overrides.get(mapKey(entityType, entityKey))
+  const o = overrides.get(mapKey(entityType, key))
   return o === undefined ? seedVerified : o
 }
 
-// Server-action input: the entity being (un)verified and the desired new state.
-// entityKey is loosely validated (it embeds a slug/date/ticker + suffix); the
-// authoritative check is that the referenced entity actually exists (done by the
-// action against the parsed rule), so we only guard shape/length here.
+export type VerifiableEntity = {
+  entityType: VerifyEntityType
+  entityKey: string
+  seedVerified: boolean
+  label: string
+}
+
+// Only the earn-rate identity fields — NOT notes/fees or the merged sub-entities
+// (those verify independently), so a surcharge edit doesn't invalidate the rule.
+function ruleCore(rule: EarnRule) {
+  return {
+    base: rule.base,
+    accelerators: rule.accelerators,
+    spendTiers: rule.spendTiers,
+    exclusions: rule.exclusions,
+    excludedMccs: rule.excludedMccs,
+  }
+}
+
+// Every verifiable entity belonging to ONE earn-rule version (rule first).
+export function ruleEntities(cardSlug: string, effectiveFrom: string, rule: EarnRule): VerifiableEntity[] {
+  const scope = cardScope(cardSlug, effectiveFrom)
+  const out: VerifiableEntity[] = [
+    { entityType: 'rule', entityKey: entityKey(scope, ruleCore(rule)), seedVerified: rule.verified, label: `Rule from ${effectiveFrom}` },
+  ]
+  for (const s of rule.surcharges) {
+    const bits = [s.percent != null ? `${s.percent}%` : null, s.flat != null ? `₹${s.flat}` : null].filter(Boolean).join(' + ')
+    out.push({
+      entityType: 'surcharge',
+      entityKey: entityKey(scope, s),
+      seedVerified: s.verified,
+      label: `Surcharge · ${s.kind}${bits ? ` ${bits}` : ''}`,
+    })
+  }
+  for (const m of rule.milestones) {
+    out.push({
+      entityType: 'milestone',
+      entityKey: entityKey(scope, m),
+      seedVerified: m.verified,
+      label: `Milestone · ${m.kind}${m.spendThreshold ? ` @ ₹${m.spendThreshold}` : ''}${m.label ? ` (${m.label})` : ''}`,
+    })
+  }
+  if (rule.redemption) {
+    out.push({
+      entityType: 'redemption',
+      entityKey: entityKey(scope, rule.redemption),
+      seedVerified: rule.redemption.verified,
+      label: `Redemption · ${rule.redemption.methods.length} method(s), ${rule.redemption.transferPartners.length} partner(s)`,
+    })
+  }
+  if (rule.taxPayments) {
+    out.push({
+      entityType: 'tax',
+      entityKey: entityKey(scope, rule.taxPayments),
+      seedVerified: rule.taxPayments.verified,
+      label: `Tax/GST · earns ${rule.taxPayments.earns ? 'yes' : 'no'}, milestone ${rule.taxPayments.countsToMilestone ? 'yes' : 'no'}`,
+    })
+  }
+  return out
+}
+
+// The per-ticker valuation entity. `seed` is the D1 row (null if not seeded yet).
+export function valuationEntity(
+  ticker: string,
+  seed: { floorInr: number; realisticInr: number; bestInr: number; source: string; verified: number } | null,
+): VerifiableEntity {
+  const content = seed
+    ? { floorInr: seed.floorInr, realisticInr: seed.realisticInr, bestInr: seed.bestInr, source: seed.source }
+    : { ticker }
+  return {
+    entityType: 'valuation',
+    entityKey: entityKey(ticker, content),
+    seedVerified: seed ? seed.verified === 1 : false,
+    label: `Valuation · ${ticker}`,
+  }
+}
+
+// Server-action input: the entity being (un)verified and its desired new state.
 export const verificationInputSchema = z.object({
   entityType: z.enum(VERIFY_ENTITY_TYPES),
   entityKey: z.string().min(1).max(128),
@@ -48,6 +150,3 @@ export const verificationInputSchema = z.object({
   note: z.string().max(500).optional(),
 })
 export type VerificationInput = z.infer<typeof verificationInputSchema>
-
-// Re-exported so callers building keys can validate their inputs if they want.
-export { slugSchema, dateSchema, tickerSchema }

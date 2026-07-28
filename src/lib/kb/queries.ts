@@ -1,8 +1,9 @@
 import { desc, eq } from 'drizzle-orm'
 import type { Db } from '@/db/client'
-import { kbBanks, kbCards, kbCategories, kbEarnRules, kbProposals, kbVerifications } from '@/db/schema'
+import { kbBanks, kbCards, kbCategories, kbEarnRules, kbProposals, kbValuations, kbVerifications } from '@/db/schema'
+import type { KbValuation } from '@/db/schema'
 import { earnRuleSchema, type EarnRule } from './schema'
-import { effectiveVerified, mapKey, ruleKey, type VerifyEntityType } from './verify'
+import { effectiveVerified, mapKey, ruleEntities, type VerifyEntityType } from './verify'
 
 // All admin verification overrides as a lookup: `${entityType}:${entityKey}` →
 // verified. The table is small (one row per verified entity), so a full read is
@@ -61,7 +62,11 @@ export async function listCards(db: Db): Promise<CardListRow[]> {
   for (const r of rules) {
     if (!latest.has(r.cardSlug)) {
       const parsed = safeRule(r.ruleJson)
-      const verified = effectiveVerified(overrides, 'rule', ruleKey(r.cardSlug, r.effectiveFrom), parsed?.verified ?? false)
+      // The rule-level entity is the first entry ruleEntities() returns.
+      const ruleEntity = parsed ? ruleEntities(r.cardSlug, r.effectiveFrom, parsed)[0] : null
+      const verified = ruleEntity
+        ? effectiveVerified(overrides, 'rule', ruleEntity.entityKey, ruleEntity.seedVerified)
+        : false
       latest.set(r.cardSlug, { effectiveFrom: r.effectiveFrom, verified })
     }
   }
@@ -75,6 +80,8 @@ export type CardDetail = {
   // Admin verification overrides (`${entityType}:${entityKey}` → verified) so the
   // page can compute effective-verified per rule / surcharge / milestone / etc.
   overrides: Map<string, boolean>
+  // The card's pool-ticker valuation row (null if not seeded), for its verify toggle.
+  valuation: KbValuation | null
 }
 
 export async function getCardDetail(db: Db, slug: string): Promise<CardDetail | null> {
@@ -97,6 +104,7 @@ export async function getCardDetail(db: Db, slug: string): Promise<CardDetail | 
       raw: r.ruleJson,
     })),
     overrides: await getVerificationMap(db),
+    valuation: (await db.query.kbValuations.findFirst({ where: eq(kbValuations.ticker, card.poolTicker) })) ?? null,
   }
 }
 

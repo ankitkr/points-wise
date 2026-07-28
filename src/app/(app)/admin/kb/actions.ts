@@ -14,8 +14,9 @@ import {
   setVerification,
   updateCardFields,
 } from '@/lib/kb/mutations'
+import { getCardDetail } from '@/lib/kb/queries'
 import { cardSchema, earnRuleSchema, proposalPayloadSchema, NETWORKS } from '@/lib/kb/schema'
-import { VERIFY_ENTITY_TYPES, type VerifyEntityType } from '@/lib/kb/verify'
+import { mapKey, ruleEntities, valuationEntity, VERIFY_ENTITY_TYPES, type VerifyEntityType } from '@/lib/kb/verify'
 
 // Every action: session → requireAdmin (fresh D1 read of users.is_admin) →
 // Zod-validated mutation. Errors redirect back with ?error= so the admin sees
@@ -119,9 +120,24 @@ export async function verifyEntity(formData: FormData) {
     const { db, adminUserId } = await adminCtx()
     const entityType = String(formData.get('entityType') ?? '') as VerifyEntityType
     if (!VERIFY_ENTITY_TYPES.includes(entityType)) throw new Error(`unknown entity type: ${entityType}`)
+    const entityKey = String(formData.get('entityKey') ?? '')
+
+    // Never trust the posted key — rebuild the set of keys this card actually
+    // exposes (from its current rules + valuation) and reject anything else, so a
+    // forged/stale form can't create orphan overrides (Codex review).
+    const detail = await getCardDetail(db, cardSlug)
+    if (!detail) throw new Error(`unknown card: ${cardSlug}`)
+    const allowed = new Set<string>()
+    for (const r of detail.rules)
+      if (r.rule) for (const e of ruleEntities(cardSlug, r.effectiveFrom, r.rule)) allowed.add(mapKey(e.entityType, e.entityKey))
+    const val = valuationEntity(detail.card.poolTicker, detail.valuation)
+    allowed.add(mapKey(val.entityType, val.entityKey))
+    if (!allowed.has(mapKey(entityType, entityKey)))
+      throw new Error('entity not found on this card (stale or forged key) — reload and retry')
+
     await setVerification(db, adminUserId, {
       entityType,
-      entityKey: String(formData.get('entityKey') ?? ''),
+      entityKey,
       verified: formData.get('verified') === 'true',
       note: String(formData.get('note') ?? '').trim() || undefined,
     })

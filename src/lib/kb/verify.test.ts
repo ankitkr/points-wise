@@ -1,58 +1,75 @@
 import { describe, expect, it } from 'vitest'
-import {
-  effectiveVerified,
-  mapKey,
-  milestoneKey,
-  redemptionKey,
-  ruleKey,
-  surchargeKey,
-  taxKey,
-  valuationKey,
-  verificationInputSchema,
-} from './verify'
+import { earnRuleSchema, type EarnRuleInput } from './schema'
+import { effectiveVerified, mapKey, ruleEntities, valuationEntity, verificationInputSchema } from './verify'
 
-describe('verification keys', () => {
-  it('build stable, distinct keys per entity', () => {
-    expect(ruleKey('hdfc-infinia', '2026-01-01')).toBe('hdfc-infinia@2026-01-01')
-    expect(surchargeKey('hdfc-infinia', '2026-01-01', 'rent')).toBe('hdfc-infinia@2026-01-01#rent')
-    expect(milestoneKey('hdfc-infinia', '2026-01-01', 2)).toBe('hdfc-infinia@2026-01-01#2')
-    expect(valuationKey('HDFC_RP')).toBe('HDFC_RP')
+const rule = (over: Partial<EarnRuleInput>) =>
+  earnRuleSchema.parse({ effectiveFrom: '2026-01-01', base: { points: 1, per: 100 }, ...over })
+
+const keyOf = (r: ReturnType<typeof rule>, type: string, i = 0) =>
+  ruleEntities('c', '2026-01-01', r).filter((e) => e.entityType === type)[i]?.entityKey
+
+describe('content-hash entity keys', () => {
+  it('gives two same-`kind` surcharges DISTINCT keys (the live IDFC dual-fuel case)', () => {
+    const r = rule({
+      surcharges: [
+        { kind: 'fuel', percent: 1, waiverCapPerCycle: 400 },
+        { kind: 'fuel', percent: 1, threshold: 30000, applies: 'above-threshold' },
+      ],
+    })
+    const subs = ruleEntities('c', '2026-01-01', r).filter((e) => e.entityType === 'surcharge')
+    expect(subs).toHaveLength(2)
+    expect(subs[0].entityKey).not.toBe(subs[1].entityKey) // no collision
   })
 
-  it('namespaces by type so rule and redemption on the same version never collide', () => {
-    const from = '2026-01-01'
-    expect(redemptionKey('c', from)).toBe(taxKey('c', from)) // same raw key…
-    expect(mapKey('redemption', redemptionKey('c', from))).not.toBe(mapKey('tax', taxKey('c', from))) // …distinct map keys
+  it('is reorder-safe: a milestone key follows its contents, not its array index', () => {
+    const m1 = { kind: 'points' as const, points: 1000, spendThreshold: 100000 }
+    const m2 = { kind: 'voucher' as const, valueInr: 1500, spendThreshold: 150000 }
+    const a = ruleEntities('c', '2026-01-01', rule({ milestones: [m1, m2] })).filter((e) => e.entityType === 'milestone')
+    const b = ruleEntities('c', '2026-01-01', rule({ milestones: [m2, m1] })).filter((e) => e.entityType === 'milestone')
+    expect(new Set(a.map((e) => e.entityKey))).toEqual(new Set(b.map((e) => e.entityKey)))
+  })
+
+  it('changes the key when contents materially change (stale verification auto-clears)', () => {
+    const k1 = keyOf(rule({ surcharges: [{ kind: 'rent', percent: 1 }] }), 'surcharge')
+    const k2 = keyOf(rule({ surcharges: [{ kind: 'rent', percent: 2 }] }), 'surcharge')
+    expect(k1).not.toBe(k2)
+  })
+
+  it('rule key ignores notes/sub-entities but tracks the base rate', () => {
+    const base = keyOf(rule({ notes: 'x' }), 'rule')
+    expect(keyOf(rule({ notes: 'totally different note' }), 'rule')).toBe(base) // notes don't matter
+    expect(keyOf(rule({ base: { points: 5, per: 200 } }), 'rule')).not.toBe(base) // rate does
   })
 })
 
 describe('effectiveVerified', () => {
-  const from = '2026-01-01'
-  const key = ruleKey('c', from)
-
-  it('falls back to the seed flag when there is no override', () => {
-    const empty = new Map<string, boolean>()
-    expect(effectiveVerified(empty, 'rule', key, true)).toBe(true)
-    expect(effectiveVerified(empty, 'rule', key, false)).toBe(false)
+  const k = keyOf(rule({}), 'rule')!
+  it('falls back to the seed flag with no override', () => {
+    expect(effectiveVerified(new Map(), 'rule', k, true)).toBe(true)
+    expect(effectiveVerified(new Map(), 'rule', k, false)).toBe(false)
   })
-
-  it('lets an admin override win over the seed flag — both directions', () => {
-    const verify = new Map([[mapKey('rule', key), true]])
-    expect(effectiveVerified(verify, 'rule', key, false)).toBe(true) // promote a seed-false
-    const unverify = new Map([[mapKey('rule', key), false]])
-    expect(effectiveVerified(unverify, 'rule', key, true)).toBe(false) // demote a seed-true
+  it('lets an admin override win — both directions', () => {
+    expect(effectiveVerified(new Map([[mapKey('rule', k), true]]), 'rule', k, false)).toBe(true)
+    expect(effectiveVerified(new Map([[mapKey('rule', k), false]]), 'rule', k, true)).toBe(false)
   })
+})
 
-  it('does not leak an override across entity types sharing a raw key', () => {
-    const overrides = new Map([[mapKey('redemption', redemptionKey('c', from)), true]])
-    // tax shares the raw key but must stay on its own seed value
-    expect(effectiveVerified(overrides, 'tax', taxKey('c', from), false)).toBe(false)
+describe('valuationEntity', () => {
+  it('takes seedVerified from the D1 row and defaults false when unseeded', () => {
+    const seeded = valuationEntity('HDFC_RP', { floorInr: 0.2, realisticInr: 0.5, bestInr: 1, source: 'community', verified: 1 })
+    expect(seeded.seedVerified).toBe(true)
+    expect(valuationEntity('HDFC_RP', null).seedVerified).toBe(false)
+  })
+  it('changes key when the valuation numbers change', () => {
+    const a = valuationEntity('X', { floorInr: 0.2, realisticInr: 0.5, bestInr: 1, source: 'community', verified: 0 })
+    const b = valuationEntity('X', { floorInr: 0.2, realisticInr: 0.6, bestInr: 1, source: 'community', verified: 0 })
+    expect(a.entityKey).not.toBe(b.entityKey)
   })
 })
 
 describe('verificationInputSchema', () => {
-  it('accepts a valid input and rejects an unknown entity type', () => {
-    expect(verificationInputSchema.safeParse({ entityType: 'rule', entityKey: 'c@2026-01-01', verified: true }).success).toBe(true)
+  it('accepts valid input, rejects unknown type / empty key', () => {
+    expect(verificationInputSchema.safeParse({ entityType: 'rule', entityKey: 'c@2026-01-01:abc', verified: true }).success).toBe(true)
     expect(verificationInputSchema.safeParse({ entityType: 'bogus', entityKey: 'x', verified: true }).success).toBe(false)
     expect(verificationInputSchema.safeParse({ entityType: 'rule', entityKey: '', verified: true }).success).toBe(false)
   })

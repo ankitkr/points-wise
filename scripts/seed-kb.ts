@@ -10,13 +10,14 @@ import { CATEGORIES } from '../data/kb/categories'
 import { surchargesFor, unknownSurchargeKeys } from '../data/kb/surcharges'
 import { accelCapFor, feesFor, milestonesFor, unknownMilestoneKeys } from '../data/kb/milestones'
 import { redemptionFor, unknownRedemptionKeys } from '../data/kb/redemptions'
-import { unpricedTickers, orphanValuationTickers } from '../data/kb/valuations'
+import { COMMODITY_VALUES, unpricedTickers, orphanValuationTickers } from '../data/kb/valuations'
 import { taxTreatmentFor, unknownTaxTreatmentKeys } from '../data/kb/tax-treatment'
 import {
   bankSchema,
   cardSchema,
   earnRuleSchema,
   categorySchema,
+  commodityValueSchema,
   categoryAccount,
   cardAccount,
   poolAccount,
@@ -149,7 +150,18 @@ for (const { card, rules } of CARDS) {
   }
 }
 
+// Per-programme valuations. `verified` here is the BOOTSTRAP flag; an admin's
+// verification lives in kb_verifications (keyed by ticker) and wins over this.
+const valuations = Object.entries(COMMODITY_VALUES).map(([ticker, raw]) => ({ ticker, v: commodityValueSchema.parse(raw) }))
+for (const { ticker, v } of valuations) {
+  lines.push(
+    `INSERT INTO kb_valuations (ticker, floor_inr, realistic_inr, best_inr, source, verified, notes, updated_at)
+  VALUES (${q(ticker)}, ${v.floorInr}, ${v.realisticInr}, ${v.bestInr}, ${q(v.source)}, ${v.verified ? 1 : 0}, ${v.notes ? q(v.notes) : 'NULL'}, ${now})
+  ON CONFLICT(ticker) DO UPDATE SET floor_inr=excluded.floor_inr, realistic_inr=excluded.realistic_inr, best_inr=excluded.best_inr, source=excluded.source, verified=excluded.verified, notes=excluded.notes, updated_at=excluded.updated_at;`,
+  )
+}
+
 writeFileSync('.seed-kb.sql', lines.join('\n') + '\n')
 console.log(
-  `[seed-kb] wrote .seed-kb.sql — ${banks.length} banks, ${categories.length} categories, ${CARDS.length} cards, ${CARDS.reduce((n, c) => n + c.rules.length, 0)} rules`,
+  `[seed-kb] wrote .seed-kb.sql — ${banks.length} banks, ${categories.length} categories, ${CARDS.length} cards, ${CARDS.reduce((n, c) => n + c.rules.length, 0)} rules, ${valuations.length} valuations`,
 )
