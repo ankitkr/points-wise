@@ -22,7 +22,7 @@
     "kb:seed:remote": "pnpm kb:sql && wrangler d1 execute points-wise --remote --file=.seed-kb.sql",
     "deploy": "pnpm run deploy:ledger && pnpm run deploy:web",
     "deploy:web": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "deploy:ledger": "pnpm --filter @pointswise/ledger-worker deploy",
+    "deploy:ledger": "pnpm --filter @pointswise/ledger-worker run deploy",
     "dev:ledger": "pnpm --filter @pointswise/ledger-worker dev",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "size:web": "opennextjs-cloudflare build && wrangler deploy --dry-run --outdir /tmp/pw-web",
