@@ -147,8 +147,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'rent', 'wallet'],
       excludedMccs: HDFC_BIZ_EXCL,
-      verified: false,
-      notes: 'Business card; caps mirror Diners Black (secondary-sourced). Insurance 5,000 RP/mo, grocery 2,000 RP/mo. Tax/GST (MCC 9311) IS an eligible earn category (HDFC_BIZ_EXCL omits the government block) — see tax-treatment.ts.',
+      verified: true,
+      notes: 'Base 5 RP/₹150; 5X (25 RP/₹150) on SmartBuy above ₹50k/mo — confirmed against HDFC\'s official BizBlack tax blog (per the earlier verification round; hdfc.bank.in page is JS-rendered). Insurance 5,000 RP/mo, grocery 2,000 RP/mo. SmartBuy brand-voucher cap 3,000 RP/mo (cardinsider). Tax/GST (MCC 9311) IS an eligible earn category (HDFC_BIZ_EXCL omits the government block) — see tax-treatment.ts.',
     }],
   },
   {
@@ -204,19 +204,7 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'rent', 'wallet', 'government'],
       excludedMccs: HDFC_EXCL,
       verified: true,
-      notes: 'Official Marriott/HDFC Bonvoy T&C (pre-15-May-2026 version). Free Night Awards (<=15k pts) at ₹6L/₹9L/₹15L annual spend + welcome/renewal FNA + Silver Elite — milestones are M3. Voucher/gift-card purchases excluded from earn.',
-    }, {
-      // Devaluation effective 15-May-2026 (append-only new version).
-      effectiveFrom: '2026-05-15',
-      base: { points: 2, per: 200 },
-      accelerators: [
-        { category: 'travel', label: 'Marriott hotels', multiplier: 4, notes: '8 Bonvoy pts/₹200 at Marriott properties (post-15-May-2026)' },
-        { category: 'dining', label: 'Travel / dining / entertainment', multiplier: 2, notes: '4 pts/₹200' },
-      ],
-      exclusions: ['fuel', 'rent', 'wallet', 'government'],
-      excludedMccs: HDFC_EXCL,
-      verified: false,
-      notes: 'Devaluation 15-May-2026: earn shifted to per-₹200 (from ₹150), ~25% cut; a 1.75% DCC markup was introduced (distinct from the standard forex markup, so not added as a surcharge). Secondary — Grok sweep 2026-07-27 citing CardExpress/Business Standard; confirm vs official MITC before flipping verified.',
+      notes: 'OFFICIAL — marriott.com India co-brand page (browser-verified Jul-2026): 8 / 4 / 2 Bonvoy pts per ₹150 (Marriott properties / travel-dining-entertainment / all other). FNA (<=15k pts) at ₹6L/₹9L/₹15L annual + welcome/renewal FNA + Silver Elite + 10 Elite Night Credits; 12+12 lounges/yr + golf 2x/qtr — milestones/benefits are M3. Voucher/gift-card purchases excluded from earn. NOTE: the reported 15-May-2026 per-₹200 devaluation is NOT on the current official page — the rate is still per ₹150, so that (Grok-sourced, unverified) version was removed as spurious.',
     }],
   },
   {
@@ -232,8 +220,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'rent', 'wallet', 'government'],
       excludedMccs: HDFC_EXCL,
-      verified: false,
-      notes: '1 NeuCoin = ₹1 in Tata ecosystem. RuPay UPI 1.5% capped 500 NeuCoins/mo; grocery capped 2,000/mo. Secondary + HDFC page.',
+      verified: true,
+      notes: 'Official HDFC Tata Neu Infinity figures (confirmed via Google against hdfc.bank.in; live page is JS-rendered so not directly screenshot-readable): 5% NeuCoins on Tata Neu / Tata brands (pay-with-card required since 1-May-2026), 1.5% on other eligible spends. RuPay UPI capped 500 NeuCoins/mo; grocery 2,000/mo. NeuCoins 12-mo validity (from 1-Aug-2025). 1 NeuCoin = ₹1 in Tata ecosystem.',
     }],
   },
   {
@@ -611,13 +599,12 @@ export const CARDS: SeedCard[] = [
       effectiveFrom: '2025-06-12',
       base: { points: 1, per: 40 },
       accelerators: [
-        { category: 'fuel', label: 'Fuel', multiplier: 2, monthlyCapPoints: 5000, notes: '5 MR/₹100, cap ~5,000 MR/mo — only Amex India card still earning on fuel' },
-        { category: 'travel', label: 'Foreign-currency spends', multiplier: 3, notes: '3x MR on forex (4.13% markup)' },
+        { category: 'travel', label: 'Foreign-currency spends (3X MR)', multiplier: 3, notes: '3X MR on all spends abroad — confirmed on the official Amex India Platinum Charge page.' },
       ],
       exclusions: ['utilities', 'telecom', 'insurance', 'government'],
       excludedMccs: [],
-      verified: false,
-      notes: 'Charge card; MR ~₹0.50-1.0+ via transfers. Welcome/renewal vouchers campaign-dependent (M3). Fee ₹60,000+GST.',
+      verified: true,
+      notes: 'OFFICIAL — americanexpress.com/in/charge-cards/platinum-card (browser-verified Jul-2026): base 1 MR/₹40; 3X MR abroad; MR never expire; annual fee ₹66,000+GST. Removed a spurious "5 MR/₹100 on fuel" accelerator — the official Rewards section lists only base/3X-forex + the brand bonuses (Rewards Xcelerator up to 20X, Shopwise up to 5X on select brands — M3/offers, not a category rate). MR ~₹0.50-1.0+ via transfers.',
     }],
   },
   {
@@ -838,8 +825,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'rent', 'education', 'government', 'commute'],
       excludedMccs: [],
-      verified: false,
-      notes: '1 RP = ₹0.25. Devalued 1-Jan-2026 (base 5->3). Overall cap 25,000 RP/cycle. International/grocery 5 RP/₹100; utilities/telecom/insurance 1 RP/₹100. aubank.in 403 — MCCs category-only.',
+      verified: true,
+      notes: 'Official AU Zenith 1-Jan-2026 devaluation, confirmed via Google against au.bank.in figures (page 403s to direct fetch): base 5→3 RP/₹100, dining 20→5, international 10→5, grocery/dept 10→5 (all per ₹100). Utilities/telecom/insurance 1 RP/₹100. Overall cap 25,000 RP/cycle; 1 RP = ₹0.25. New milestone from 1-Jan-2026: ₹50k/cycle → 1,000 bonus RP (old milestones discontinued) — M3. MCCs category-only.',
     }],
   },
   {
