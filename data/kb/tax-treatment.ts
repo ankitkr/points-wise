@@ -114,36 +114,36 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
   'hdfc-bizpower': {
     earns: true,
     countsToMilestone: false,
-    verified: false,
+    verified: true,
     notes:
-      'Business card: earns 5X (25 RP/₹200) on IT/GST, cap 7,500 RP/cycle; post-15-May-2026 only the first 2 IT + 2 GST txns/cycle earn. Tax is EXCLUDED from the ₹2.5L/qtr milestone (IT/GST/fuel/EMI). community.',
+      'OFFICIAL (HDFC BizPower Product-Feature PDF): earns 5X (25 RP/₹200) on IT/GST, cap 7,500 RP/cycle; only the first 2 IT + 2 GST txns/cycle earn. Tax is EXCLUDED from the ₹2.5L/qtr milestone (IT/GST/fuel/EMI).',
   },
   'hdfc-bizgrow': {
     earns: true,
     countsToMilestone: true,
-    verified: false,
+    verified: true,
     notes:
-      'Business card: earns 10X (20 CP/₹200) on IT/GST, shares the 1,500 CP/cycle 10X cap. Milestone (2,000 CP on ₹1L/qtr) excludes only rent/fuel, so tax MAY count — UNCONFIRMED (differs from BizPower). community.',
+      'OFFICIAL (HDFC BizGrow T&C PDF): earns 10X (20 CP/₹150) on IT/GST, shares the 1,500 CP/cycle 10X cap. Milestone (2,000 CP on ₹1L/qtr) excludes only fuel/rent, so tax DOES count (confirmed — differs from BizPower).',
   },
   'au-ca-metal': {
     earns: true,
     countsToMilestone: false,
-    verified: false,
+    verified: true,
     notes:
-      'CA card: 8 RP/₹100 on tax (cap 5,000 RP/cycle) — but MCC-GATED: earns only if the txn codes under Tax MCC 9311, NOT Govt 9399; community reports AU rails may not process GST/IT as the 8X category (UNCONFIRMED). No spend milestone (welcome benefits only). community.',
+      'OFFICIAL (AU CA T&C PDF): 8 RP/₹100 on tax — MCC-GATED, earns only under Tax MCC 9311/7276, NOT Govt 9399 (excluded). No spend milestone (welcome benefits only). 5,000 RP/cycle cap is community (not in T&C).',
   },
   'idfc-business-multiplier': {
     earns: true,
     countsToMilestone: false,
-    verified: false,
-    notes: 'FD-backed business card: 10 RP/₹200 on GST/tax up to ₹1L/mo, then 5 RP/₹200. No spend milestone. community.',
+    verified: true,
+    notes: 'OFFICIAL (IDFC Business-Multiplier Product-Guide PDF): 10 RP/₹200 on GST/tax up to ₹1L/mo, then 5 RP/₹200. No spend milestone.',
   },
   'idfc-business-max': {
     earns: true,
     countsToMilestone: false,
-    verified: false,
+    verified: true,
     notes:
-      'FD-backed, requires active GST. GST/tax earn rate UNCONFIRMED — likely base/utility 1 RP/₹200, no accelerated tax multiplier (unlike Business Multiplier). No milestone. community.',
+      'OFFICIAL (idfcfirst.bank.in Business Max page): GST/tax earns an ACCELERATED up to 6 RP/₹200 (corrects the earlier "no tax rate" assumption — it is NOT the 1 RP/₹200 utility bucket). No milestone.',
   },
 
   // ---- Axis: tax counts toward NEITHER earning nor milestones ----

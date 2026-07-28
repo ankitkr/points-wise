@@ -983,8 +983,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'rent', 'wallet', 'education'],
       excludedMccs: HDFC_BIZ_EXCL,
-      verified: false,
-      notes: 'Business card (community; post-15-May-2026 revamp cut base 20 RP/₹150 → 5 RP/₹200). Tax/GST IS an eligible 5X earn category (unlike personal HDFC). Milestone: ₹5k voucher on ₹2.5L/qtr — IT/GST/fuel/EMI EXCLUDED from milestone. Fee ₹2,500, waiver ₹4L. RP 2-yr expiry, min 2,500 RP; ₹0.20 cashback / ₹0.50 travel / ₹0.65 catalog.',
+      verified: true,
+      notes: 'OFFICIAL HDFC BizPower Product-Feature-change PDF (post-15-May-2026): base 5 RP/₹200; 5X (25 RP/₹200) on IT/GST + business categories (unlock ≥₹25k non-tax/cycle); 5X cap 7,500 RP/cycle. Only the first 2 IT + 2 GST txns/cycle earn. Milestone ₹5k voucher on ₹2.5L/qtr — IT/GST/fuel/EMI EXCLUDED. Fee ₹2,500, waiver ₹4L; RP 2-yr expiry.',
     }],
   },
   {
@@ -994,14 +994,14 @@ export const CARDS: SeedCard[] = [
     },
     rules: [{
       effectiveFrom: '2026-05-15',
-      base: { points: 2, per: 200 },
+      base: { points: 2, per: 150 },
       accelerators: [
-        { mccs: ['9311'], label: 'IT/advance-tax, GST, bill-pay, DMart, ClearTax, travel, software (10X)', multiplier: 10, monthlyCapPoints: 1500, notes: '20 CP/₹200 on IT/GST (MCC 9311) + SmartPay/PayZapp bill-pay, DMart, ClearTax, MMT MyBiz hotel/flight, SmartBuy BizDeals software. Unlocks with ≥₹10k/cycle; 10X cap 1,500 CP/cycle (tax shares this bucket). Overall 15,000 CP/cycle.' },
+        { mccs: ['9311'], label: 'IT/advance-tax, GST, bill-pay, DMart, ClearTax, travel, software (10X)', multiplier: 10, monthlyCapPoints: 1500, notes: '20 CP/₹150 on IT/GST (MCC 9311) + SmartPay/PayZapp bill-pay, DMart, ClearTax, MMT MyBiz hotel/flight, SmartBuy BizDeals software. Unlocks with ≥₹10k/cycle; 10X cap 1,500 CP/cycle (tax shares this bucket). Overall 15,000 CP/cycle.' },
       ],
       exclusions: ['fuel', 'rent'],
       excludedMccs: HDFC_BIZ_EXCL,
-      verified: false,
-      notes: 'Business card (community). Earns HDFC CashPoints (modelled as HDFC_RP; realizes the low end ~₹0.20 cashback / ₹0.25 travel / ₹0.30 catalog). Base 2 CP/₹200. Tax/GST IS a 10X earn category. Milestone: 2,000 CP on ₹1L/qtr — only rent/fuel excluded, so tax MAY count (unconfirmed). Fee ₹500, waiver ₹1L.',
+      verified: true,
+      notes: 'OFFICIAL HDFC BizGrow T&C PDF: base 2 CP/₹150; 10X (20 CP/₹150) on IT/GST + business categories (unlock ≥₹10k/cycle), 10X cap 1,500 CP/cycle, overall 15,000 CP/cycle. Earns CashPoints (modelled as HDFC_RP; realizes ~₹0.20–0.30). Milestone 2,000 CP on ₹1L/qtr — only fuel/rent excluded, so TAX COUNTS. Fee ₹500, waiver ₹1L.',
     }],
   },
   {
@@ -1015,12 +1015,12 @@ export const CARDS: SeedCard[] = [
       accelerators: [
         { category: 'dining', label: 'Dining (8 RP/₹100)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Shared 5,000 RP/cycle cap across the 8X bucket (dining + travel + tax + software).' },
         { category: 'travel', label: 'Travel (8 RP/₹100)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Part of the shared 5,000 RP/cycle 8X bucket.' },
-        { mccs: ['9311'], label: 'Income Tax / GST (8 RP/₹100, MCC-gated)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Only if the txn codes under Tax MCC 9311 (NOT Govt 9399); community reports AU rails may not process GST/IT as the 8X category — UNCONFIRMED. Shares the 5,000 RP/cycle bucket.' },
+        { mccs: ['9311', '7276'], label: 'Income Tax / GST (8 RP/₹100, MCC-gated)', multiplier: 4, monthlyCapPoints: 5000, notes: 'OFFICIAL AU CA T&C PDF: 8X only under Tax MCC 9311/7276; Government MCC 9399 is EXCLUDED (earns nothing). Shares the 8X bucket cap.' },
       ],
       exclusions: ['fuel', 'rent', 'education'],
       excludedMccs: ['5541', '5542', '5983', '6513'],
-      verified: false,
-      notes: 'For Chartered Accountants (Visa Signature). Base 2 RP/₹100; 8 RP/₹100 on dining/travel/tax/software (cap 5,000 RP/cycle); utility/insurance 1 RP/₹100 (cap 100 RP/txn). Government (MCC 9399) earns nothing, but Tax (9311) earns 8X if coded correctly. Lifetime-free. Welcome: 2,000 RP on ₹5k/30d. 1 RP ≈ ₹0.25 (AU Rewardz). Community-sourced.',
+      verified: true,
+      notes: 'OFFICIAL AU CA Credit Card Reward-Points T&C PDF: base 2 RP/₹100; 8 RP/₹100 on dining/travel/tax/software; utility/telecom/insurance 1 RP/₹100. Tax earns 8X ONLY under MCC 9311/7276; Govt 9399 EXCLUDED. Lifetime-free. The 5,000 RP/cycle 8X cap is community (not stated in the T&C). Welcome 2,000 RP on ₹5k/30d; 1 RP ≈ ₹0.25.',
     }],
   },
   {
@@ -1037,8 +1037,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'insurance', 'rent'],
       excludedMccs: ['5541', '5542', '5983', '6513'],
-      verified: false,
-      notes: 'FD-backed business card (min FD ₹50k); ships a companion FIRST Digital RuPay for UPI earn. Base 1 RP/₹200 (utility/insurance). GST/tax headline: 10 RP/₹200 ≤₹1L/mo then 5 RP/₹200. No spend milestone. Fee ₹1,000, waiver ₹5L. 1 RP = ₹0.25, ₹99+GST redemption, points never expire. Community-sourced.',
+      verified: true,
+      notes: 'OFFICIAL IDFC Business-Multiplier Product-Guide PDF: GST/tax 10 RP/₹200 up to ₹1L/mo then 5 RP/₹200; base 1 RP/₹200. FD-backed (min FD ₹50k); companion FIRST Digital RuPay for UPI earn. No spend milestone. Fee ₹1,000, waiver ₹5L. 1 RP = ₹0.25, ₹99+GST redemption, points never expire.',
     }],
   },
   {
@@ -1051,11 +1051,12 @@ export const CARDS: SeedCard[] = [
       base: { points: 4, per: 200 },
       accelerators: [
         { category: 'shopping-online', label: 'Domestic online (6 RP/₹200)', multiplier: 1.5, notes: 'Online 6 RP/₹200 vs 4 RP/₹200 offline base. UPI > ₹2,000: 3 RP/₹200; utility/insurance 1 RP/₹200.' },
+        { mccs: ['9311'], label: 'GST / Income-Tax (6 RP/₹200)', multiplier: 1.5, notes: 'OFFICIAL: up to 6 RP/₹200 on mandatory business payments incl. GST & taxes (accelerated, NOT the 1 RP/₹200 utility bucket).' },
       ],
       exclusions: ['fuel', 'insurance', 'rent', 'utilities'],
       excludedMccs: ['5541', '5542', '5983', '6513'],
-      verified: false,
-      notes: 'FD-backed (min FD ₹10k), requires active GST to apply. Base 4 RP/₹200 offline, 6 RP/₹200 online. GST/tax earn rate UNCONFIRMED — likely NO accelerated rate (falls in the 1 RP/₹200 utility bucket per CardInsider); do not assume 6X on tax. Lifetime-free. No milestone. 1 RP = ₹0.25, ₹99+GST redemption, 24-mo expiry, forex 1.5%. Community-sourced.',
+      verified: true,
+      notes: 'OFFICIAL idfcfirst.bank.in Business Max page: base 4 RP/₹200 offline, 6 RP/₹200 online, GST/tax up to 6 RP/₹200 (accelerated — corrects the earlier "no tax rate" assumption). FD-backed (min FD ₹10k), requires active GST. Lifetime-free. No milestone. 1 RP = ₹0.25, ₹99+GST redemption, 24-mo expiry, forex 1.5%.',
     }],
   },
 ]
