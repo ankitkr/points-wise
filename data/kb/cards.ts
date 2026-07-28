@@ -143,7 +143,7 @@ export const CARDS: SeedCard[] = [
       effectiveFrom: '2025-07-01',
       base: { points: 5, per: 150 },
       accelerators: [
-        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 10000, notes: '5x business accel needs >=₹50k/mo spend; capped 10,000 RP/cycle' },
+        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 10000, notes: '5x business accel needs >=₹50k/mo spend; umbrella cap 10,000 RP/cycle. SmartBuy brand-voucher purchases capped 3,000 accel RP/mo (eff 1-Jul-2026; full 5X voucher rate ~₹22,500/mo) — cardinsider.' },
       ],
       exclusions: ['fuel', 'rent', 'wallet'],
       excludedMccs: HDFC_BIZ_EXCL,
