@@ -36,5 +36,6 @@ jobs:
       # Apply any new D1 migrations to the remote database before deploying.
       - run: pnpm db:migrate:remote
 
-      # OpenNext build + deploy to Cloudflare Workers.
+      # `deploy` deploys the ledger Worker first (the web Worker binds its
+      # LedgerDO via script_name) and then the OpenNext web Worker.
       - run: pnpm run deploy

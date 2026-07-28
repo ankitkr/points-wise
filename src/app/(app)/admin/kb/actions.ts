@@ -36,11 +36,20 @@ function backWithError(path: string, e: unknown): never {
 function ruleFromForm(f: FormData) {
   const accelerators = String(f.get('accelerators') ?? '').trim()
   const exclusions = String(f.get('exclusions') ?? '').trim()
+  const spendTiers = String(f.get('spendTiers') ?? '').trim()
+  const surcharges = String(f.get('surcharges') ?? '').trim()
+  const milestones = String(f.get('milestones') ?? '').trim()
   return earnRuleSchema.parse({
     effectiveFrom: String(f.get('effectiveFrom') ?? ''),
     base: { points: Number(f.get('basePoints')), per: Number(f.get('basePer')) },
     accelerators: accelerators ? JSON.parse(accelerators) : [],
     exclusions: exclusions ? exclusions.split(',').map((s) => s.trim()).filter(Boolean) : [],
+    // Spend tiers, surcharges and milestones are entered as JSON (admin tool);
+    // the Zod parse echoes precise errors back. Omitting them no longer silently
+    // drops them — an admin editing a seeded card must carry these forward.
+    spendTiers: spendTiers ? JSON.parse(spendTiers) : [],
+    surcharges: surcharges ? JSON.parse(surcharges) : [],
+    milestones: milestones ? JSON.parse(milestones) : [],
     verified: f.get('verified') === 'on',
     notes: String(f.get('notes') ?? '').trim() || undefined,
   })

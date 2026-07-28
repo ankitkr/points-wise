@@ -13,7 +13,7 @@ function freshLedger(): DurableObjectStub<LedgerDO> {
 const CARD = 'Liabilities:CreditCards:Axis:Magnus'
 const META = {
   kbSlug: 'axis-magnus',
-  poolAccount: 'Assets:Rewards:Axis',
+  poolAccount: 'Assets:Rewards:Axis:Magnus',
   poolTicker: 'EDGE_MILES',
 }
 

@@ -40,7 +40,7 @@ export async function insertCardWithRule(db: Db, cardInput: Card, ruleInput: Ear
 
   const bank = await db.query.kbBanks.findFirst({ where: eq(kbBanks.slug, card.bankSlug) })
   if (!bank) throw new Error(`unknown bank: ${card.bankSlug}`)
-  assertCanonicalPaths({ beancountName: bank.beancountName }, card)
+  assertCanonicalPaths({ slug: bank.slug, beancountName: bank.beancountName }, card)
 
   const existing = await db.query.kbCards.findFirst({ where: eq(kbCards.slug, card.slug) })
   if (existing) throw new Error(`card already exists: ${card.slug}`)
@@ -103,10 +103,10 @@ export async function applyProposal(db: Db, payload: ProposalPayload): Promise<v
   }
 }
 
-function assertCanonicalPaths(bank: Pick<Bank, 'beancountName'>, card: Card): void {
+function assertCanonicalPaths(bank: Pick<Bank, 'slug' | 'beancountName'>, card: Card): void {
   const acct = cardAccount(bank, card)
   if (!CARD_ACCOUNT_RE.test(acct)) throw new Error(`invalid card account path: ${acct}`)
-  const pool = poolAccount(bank)
+  const pool = poolAccount(bank, card.beancountName, card.pool.ticker)
   if (!REWARDS_ACCOUNT_RE.test(pool)) throw new Error(`invalid pool account path: ${pool}`)
 }
 

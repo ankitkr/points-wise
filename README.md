@@ -48,8 +48,14 @@ Useful scripts: `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm db:generate` 
 pnpm wrangler login
 pnpm wrangler d1 create points-wise      # paste the id into wrangler.jsonc
 pnpm db:migrate:remote                    # apply migrations to remote D1
-pnpm run deploy                           # OpenNext build + deploy (creates the Worker)
+pnpm run deploy                           # deploys the ledger Worker, then the OpenNext web Worker
 ```
+
+`pnpm run deploy` deploys **both** Workers in the required order:
+`points-wise-ledger` (owns the `LedgerDO`) first, then `points-wise` (the web
+app, which binds that DO via `script_name`). Use `deploy:web` / `deploy:ledger`
+to deploy one in isolation. For local dev the ledger Worker runs separately:
+`pnpm dev:ledger` in a second terminal alongside `pnpm dev`.
 
 Then set the runtime secrets on the Worker (they persist across deploys):
 
