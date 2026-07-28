@@ -13,3 +13,5 @@ AUTH_DISCORD_SECRET=""
 DISCORD_GUILD_ID=""
 DISCORD_FAMILY_ROLE_ID=""
 DISCORD_STANDALONE_ROLE_ID=""
+# Members holding this role can edit the Knowledge Base (cards/rewards data).
+DISCORD_ADMIN_ROLE_ID=""

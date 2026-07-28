@@ -9,6 +9,7 @@ export type ProvisionInput = {
   displayName: string | null
   avatarUrl: string | null
   tier: Tier
+  isAdmin: boolean
 }
 
 export type Identity = {
@@ -39,6 +40,7 @@ export async function provisionUser(db: Db, input: ProvisionInput): Promise<Iden
       emailVerified: input.emailVerified,
       displayName: input.displayName,
       avatarUrl: input.avatarUrl,
+      isAdmin: input.isAdmin ? 1 : 0,
       createdAt: now,
     })
     .onConflictDoUpdate({
@@ -48,6 +50,7 @@ export async function provisionUser(db: Db, input: ProvisionInput): Promise<Iden
         emailVerified: input.emailVerified,
         displayName: input.displayName,
         avatarUrl: input.avatarUrl,
+        isAdmin: input.isAdmin ? 1 : 0,
       },
     })
     .returning({ id: users.id })

@@ -17,7 +17,23 @@ describe('checkGuildMembership — role → tier', () => {
     expect(await checkGuildMembership('tok', env)).toEqual({
       ok: true,
       tier: 'family',
+      isAdmin: false,
       roles: ['role-family', 'x'],
+    })
+  })
+
+  it('@admin sets isAdmin independently of tier', async () => {
+    mockMember(200, { roles: ['role-admin'] })
+    expect(await checkGuildMembership('tok', env)).toMatchObject({
+      ok: true,
+      tier: 'readonly',
+      isAdmin: true,
+    })
+    mockMember(200, { roles: ['role-admin', 'role-family'] })
+    expect(await checkGuildMembership('tok', env)).toMatchObject({
+      ok: true,
+      tier: 'family',
+      isAdmin: true,
     })
   })
 

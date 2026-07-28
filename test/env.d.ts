@@ -8,5 +8,6 @@ declare module 'cloudflare:test' {
     DISCORD_GUILD_ID: string
     DISCORD_FAMILY_ROLE_ID: string
     DISCORD_STANDALONE_ROLE_ID: string
+    DISCORD_ADMIN_ROLE_ID: string
   }
 }

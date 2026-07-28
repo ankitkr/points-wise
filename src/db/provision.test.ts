@@ -12,6 +12,7 @@ const base = {
   emailVerified: null,
   displayName: 'Ankit',
   avatarUrl: null,
+  isAdmin: false,
 }
 
 // Isolated storage rolls back between tests, but clear defensively too.
@@ -47,6 +48,17 @@ describe('provisionUser', () => {
     const hh = await db.select().from(households)
     expect(hh).toHaveLength(1)
     expect(hh[0].tier).toBe('family') // tier re-synced from Discord
+  })
+
+  it('syncs is_admin from the Discord check on every login', async () => {
+    await provisionUser(db, { ...base, discordId: 'd1', tier: 'standalone', isAdmin: true })
+    let rows = await db.select().from(users)
+    expect(rows[0].isAdmin).toBe(1)
+
+    // Role removed in Discord → next login flips it off.
+    await provisionUser(db, { ...base, discordId: 'd1', tier: 'standalone', isAdmin: false })
+    rows = await db.select().from(users)
+    expect(rows[0].isAdmin).toBe(0)
   })
 
   it('enforces one household per owner', async () => {
