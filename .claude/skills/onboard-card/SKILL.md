@@ -1,11 +1,12 @@
 ---
 name: onboard-card
 description: >-
-  Onboard a new bank or credit card into the PointsWise knowledge base
-  (data/kb): research earn rules + surcharges from authoritative sources, encode
-  them in the Zod-validated seed, then validate, reseed, and test. Use whenever
-  adding or updating a card/bank/category in the KB, or refreshing rates after a
-  bank revises its T&C.
+  Onboard or update a bank/credit card in the PointsWise knowledge base
+  (data/kb): research earn rules, surcharges, spend tiers, milestones, fees,
+  accelerated caps, and redemption/transfer values from authoritative sources,
+  encode them in the Zod-validated seed, then validate, reseed, and test. Use
+  whenever adding or updating a card/bank/category, refreshing rates after a bank
+  revises its T&C, or running an official-source verification pass.
 ---
 
 # Onboarding a bank / card into the PointsWise KB
@@ -22,9 +23,15 @@ bank and categories) correctly the first time.
 |------|-------|----------|
 | `data/kb/banks.ts` | `BANKS: Bank[]` | `slug` |
 | `data/kb/categories.ts` | `CATEGORIES: Category[]` | `slug` |
-| `data/kb/cards.ts` | `CARDS: SeedCard[]` + shared `*_EXCL` MCC constants | `card.slug` |
+| `data/kb/cards.ts` | `CARDS: SeedCard[]` (core per-card earn: base, accelerators, spendTiers, exclusions) + shared `*_EXCL` MCC constants | `card.slug` |
+| `data/kb/surcharges.ts` | `BANK_SURCHARGES` + `CARD_SURCHARGES` (fees) | bank / card slug |
+| `data/kb/milestones.ts` | `CARD_MILESTONES` + `CARD_FEES` + `CARD_ACCEL_CAP` (umbrella caps) | card slug |
+| `data/kb/redemptions.ts` | `CARD_REDEMPTION` (methods, ₹/pt, transfer partners, caps) | card slug |
+| `data/kb/offers.ts` | network-tier + card offers — **staging, uncommitted** (see the `refresh-offers` skill) | tier / card slug |
 | `src/lib/kb/schema.ts` | Zod schemas = single source of truth | — |
-| `scripts/seed-kb.ts` | validates all seed, emits `.seed-kb.sql` | — |
+| `scripts/seed-kb.ts` | validates all seed, merges the keyed files, emits `.seed-kb.sql` | — |
+
+**The keyed-merge pattern** (surcharges / milestones / fees / accel-cap / redemption): these live in their own `data/kb/*.ts` files keyed by bank/card slug, and `scripts/seed-kb.ts` (`withExtras`) merges them onto each rule's `rule_json` at seed time. Rationale: much of this is bank-wide (surcharges) or would otherwise be ~90 fiddly inline edits across a 46 KB `cards.ts`. **Only the cohesive per-card earn unit** (base + accelerators + spendTiers + exclusions) stays inline in `cards.ts`. Every keyed file exports an `unknown…Keys()` guard so a typo'd slug fails the seed instead of silently orphaning data.
 
 `SeedCard = { card: Card; rules: EarnRuleInput[] }` — the *input* shape (fields
 with Zod defaults are optional when authoring; the parsed `EarnRule` has them
@@ -44,19 +51,34 @@ Gather the numbers **before** touching code. Prefer, in order:
 
 Capture, per card:
 - **Base earn** — points per ₹ (and the currency divisor `per`).
-- **Accelerators** — platform/category, multiplier over base, monthly *point* cap.
+- **Accelerators** — platform/category, multiplier over base, monthly *point* sub-cap.
+- **Accelerated umbrella cap** — overall monthly cap on bonus points (e.g. SmartBuy
+  15k/mo) → `acceleratedMonthlyCapPoints` / `CARD_ACCEL_CAP`.
 - **Spend tiers** — any rate that changes past a monthly ₹ spend threshold.
 - **Exclusions** — categories that earn nothing + bank-published excluded MCCs.
 - **Surcharges** — rent %, utility fee + threshold, fuel surcharge + waiver band,
   education/wallet/government/insurance fees, forex markup, per-txn fee cap, GST.
+- **Fees + milestones** — joining/annual fee; spend milestones (bonus points,
+  vouchers, free nights, **annual-fee-waiver-on-spend**).
+- **Redemption** — methods + rough ₹/point (portal/cashback/transfer), transfer
+  partners + ratios, and the caps/mechanics (portal-utilization %, monthly
+  transfer/redemption caps + max txns, point expiry).
 - **Point value** and **effective date** of the current rule.
 
-> Bulk onboarding (many cards/banks at once): fan out **parallel research agents
-> grouped by bank** (Agent tool). Fee-schedule lookup is factual web research —
-> `sonnet` is the right-sized model (cheaper, and less likely to exhaust session
-> limits than a fleet of `opus` agents). Have each agent return ready-to-paste
-> literals + a source URL + confidence per fact; do the folding yourself so the
-> schema stays consistent. Grouping ~2 banks per agent keeps each one bounded.
+> Bulk onboarding / refresh / verification (many cards at once): fan out
+> **parallel research agents grouped by bank** (Agent tool). This is factual web
+> research — `sonnet` is the right-sized model (cheaper, and less likely to
+> exhaust session limits than a fleet of `opus` agents). **Guardrail every agent
+> prompt**: "use ONLY direct WebSearch/WebFetch; do NOT invoke any workflow /
+> skill / deep-research / sub-agent" — unguarded agents escalate to heavyweight
+> workflows and blow the session limit. Cap web calls (~12). Have each return
+> ready-to-paste literals + a source URL + confidence per fact; do the folding
+> yourself so the schema stays consistent.
+>
+> For community-known nuances that official pages don't surface (SmartBuy 70%
+> utilization, per-card transfer limits), **Grok in Chrome** (`/chrome`, then the
+> browser tools) can query X community accounts (ccgeeks, Ravisutanjani, Live
+> From A Lounge) — cross-check its output against the agent sweeps.
 
 ### 2. Ensure the bank exists (`data/kb/banks.ts`)
 If new, add `{ slug, name, beancountName }`. `beancountName` is **CapitalCamelCase**
@@ -162,6 +184,39 @@ Field meanings: `percent` and/or `flat` (≥1 required) · `threshold` +
 18%) · `effectiveFrom` (only if the fee started on a different date than the
 rule) · `verified`.
 
+### 6c. Accelerated umbrella cap (`CARD_ACCEL_CAP` in `milestones.ts`)
+Per-accelerator `monthlyCapPoints` are sub-caps; the **overall** monthly bonus
+cap across all accelerators is `acceleratedMonthlyCapPoints`, kept as one number
+per card in `CARD_ACCEL_CAP` (merged onto the rule). Only clean **point** caps go
+here — ₹-cashback caps stay on the cashback accelerator; Axis/Atlas portal caps
+are *spend* caps (kept in accelerator notes), not point umbrellas.
+
+### 6d. Redemption + transfer (`CARD_REDEMPTION` in `redemptions.ts`)
+`redemption` = `{ methods[], transferPartners[], portalUtilizationPct?,
+monthlyTransferCapPoints?, monthlyTransferMaxTxns?, annualTransferCapPoints?,
+pointExpiryMonths?, verified }`. This is what makes "actual earn rate" real — a
+point is only worth its best realistic redemption.
+- **`methods[]`** — each `{ method, valuePerPoint (₹, REQUIRED — use an estimate,
+  never null), notes }`. Methods: smartbuy / travel-portal / airmiles-transfer /
+  hotel-transfer / cashback / statement-credit / catalog / gift-voucher /
+  pay-with-points / other.
+- **`transferPartners[]`** — `{ partner, kind, ratio ("5:2"), valuePerPoint? }`.
+  Keep it to the notable ratios; summarise the full 20-partner list in `notes`.
+- **`pointExpiryMonths`** — a positive int; **omit** for never-expire (e.g. Amex
+  MR, HSBC Premier) and say so in `notes`.
+Cross-check the fiddly caps (SmartBuy 70%, BizBlack 75k, SBI 60k/mo, IDFC
+₹1L/₹2L) against a Grok/X pass — official reward T&C PDFs are mostly binary.
+
+### 6e. Verification pass (flipping `verified`)
+To confirm existing data: run the guardrailed by-bank sweep **official-first**,
+and when a bank's HTML page is nav-only/blocked, search for and fetch the linked
+**MITC / fee-schedule PDF** from the official domain (`pdftotext` on a fetched
+PDF often works where the HTML doesn't). Flip `verified: true` **only** where an
+official page/PDF was actually reached; leave secondary-corroborated data
+`verified: false` with its source. Contradictions become append-only new rule
+versions (see Domain lessons) or corrections; record unresolved conflicts in
+`notes` for the `/admin/kb` human pass.
+
 ### 7. Validate, reseed, test
 ```bash
 pnpm kb:sql        # validates every row; writes .seed-kb.sql (git-ignored)
@@ -200,16 +255,19 @@ body and **no `Co-Authored-By` trailer** (contributor is `ankitkr` only).
   confirm in `/admin/kb`.
 - **Wound-down cards** → `active: false` (e.g. co-brands being retired), keep the
   rule for historical reconciliation.
-- **What the rule shape still cannot express** — milestone/annual-fee-waiver
-  bonuses, international earn multipliers, tiered/status earn, day-of-week boosts,
-  and spend-value caps expressed in ₹-of-spend (as opposed to `monthlyCapPoints`).
-  Record these in `notes` for the M3 earn engine. (`spendTiers` now covers
-  marginal ₹-spend thresholds; `surcharges` covers fees.)
+- **What the rule shape now covers** — `spendTiers` (marginal ₹-spend thresholds),
+  `surcharges` (fees), `milestones` (incl. fee-waiver-on-spend), `fees`,
+  `acceleratedMonthlyCapPoints`, and `redemption` (values/transfer/caps). **Still
+  not machine-encoded** (record in `notes`): international earn multipliers,
+  tiered/status earn, day-of-week boosts, spend-tier eligibility exclusions, and
+  the exact retroactive-vs-excess arithmetic of `applies` — all for the M3 engine.
 
 ## Done-when checklist
 - [ ] Bank in `banks.ts`; every referenced category in `categories.ts`.
-- [ ] Card has base + accelerators + (spendTiers) + exclusions + excludedMccs +
-      surcharges, each with a source in `notes`.
-- [ ] `verified` set honestly per official-source availability.
+- [ ] `cards.ts`: base + accelerators + spendTiers + exclusions + excludedMccs.
+- [ ] Keyed files populated where applicable: `surcharges.ts`, `milestones.ts`
+      (fees + `CARD_ACCEL_CAP`), `redemptions.ts` — each with a source in `notes`
+      and its slug resolving (seed key-guards pass).
+- [ ] `verified` set honestly per official-source availability (PDF counts).
 - [ ] `pnpm kb:sql` prints the counts line; `pnpm test` green; typecheck + lint clean.
 - [ ] Committed on a branch, PR opened, no `Co-Authored-By` trailer.
