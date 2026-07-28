@@ -17,12 +17,17 @@ export default defineWorkersConfig(async () => {
       poolOptions: {
         workers: {
           singleWorker: true,
+          // Exposes LedgerDO to the runtime so DO tests can bind it.
+          main: './test/do-worker.ts',
           miniflare: {
             // The bundled test runtime lags the app's wrangler date; use a date
             // it supports to avoid a fallback warning.
             compatibilityDate: '2025-09-06',
             compatibilityFlags: ['nodejs_compat'],
             d1Databases: { D1: 'points-wise-test' },
+            durableObjects: {
+              LEDGER_DO: { className: 'LedgerDO', useSQLite: true },
+            },
             bindings: {
               TEST_MIGRATIONS: migrations,
               DISCORD_GUILD_ID: 'guild-1',

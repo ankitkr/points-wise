@@ -20,8 +20,8 @@
     "kb:sql": "tsx scripts/seed-kb.ts",
     "kb:seed:local": "pnpm kb:sql && wrangler d1 execute points-wise --local --file=.seed-kb.sql",
     "kb:seed:remote": "pnpm kb:sql && wrangler d1 execute points-wise --remote --file=.seed-kb.sql",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
+    "deploy": "opennextjs-cloudflare build && node scripts/inject-do.mjs && opennextjs-cloudflare deploy",
+    "preview": "opennextjs-cloudflare build && node scripts/inject-do.mjs && opennextjs-cloudflare preview"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.19.7",
