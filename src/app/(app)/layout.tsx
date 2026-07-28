@@ -7,9 +7,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const session = await auth()
   if (!session) redirect('/login')
   return (
-    <div className="flex min-h-screen">
+    // Cap the shell to the viewport so the sidebar (h-screen) stays pinned and
+    // only <main> scrolls. `min-h-screen` let the container grow past the viewport,
+    // so the whole page scrolled and the un-pinned sidebar rode up out of view.
+    <div className="flex h-screen overflow-hidden">
       <AppSidebar isAdmin={session.user.isAdmin} />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   )
 }
