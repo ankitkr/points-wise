@@ -57,7 +57,7 @@ export async function openCardAction(formData: FormData) {
         nickname: input.nickname,
         last4: input.last4,
         statementDay: input.statementDay,
-        poolAccount: poolAccount(bank),
+        poolAccount: poolAccount(bank, card.beancountName, card.poolTicker),
         poolTicker: card.poolTicker,
       },
     })

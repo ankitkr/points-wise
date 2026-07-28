@@ -229,6 +229,99 @@ export const milestoneSchema = z
 export type Milestone = z.infer<typeof milestoneSchema>
 export type MilestoneInput = z.input<typeof milestoneSchema>
 
+// ---------------------------------------------------------------------------
+// Redemption — how a card's points turn into value, and the caps/mechanics that
+// gate it. This is what makes the "actual earn rate" real (a point is only worth
+// its best realistic redemption). Programme-level methods + card-level caps.
+
+export const REDEMPTION_METHODS = [
+  'smartbuy', // HDFC SmartBuy flights/hotels
+  'travel-portal', // iShop / Travel EDGE / other bank portals
+  'airmiles-transfer', // convert to airline miles
+  'hotel-transfer', // convert to hotel points
+  'cashback', // points → statement cashback
+  'statement-credit',
+  'catalog', // gift catalog / merchandise
+  'gift-voucher',
+  'pay-with-points', // at checkout
+  'other',
+] as const
+
+export const transferPartnerSchema = z.object({
+  partner: z.string().min(1), // "Marriott Bonvoy", "Singapore KrisFlyer"
+  kind: z.enum(['airline', 'hotel', 'other']).default('airline'),
+  ratio: z.string().optional(), // "5:2" = 5 card points → 2 partner miles
+  valuePerPoint: z.number().nonnegative().optional(), // ₹ per CARD point via this partner
+  notes: z.string().optional(),
+})
+
+export const redemptionMethodSchema = z.object({
+  method: z.enum(REDEMPTION_METHODS),
+  valuePerPoint: z.number().nonnegative(), // ₹ per point via this method
+  notes: z.string().optional(),
+})
+
+export const redemptionSchema = z.object({
+  methods: z.array(redemptionMethodSchema).default([]),
+  transferPartners: z.array(transferPartnerSchema).default([]),
+  // Caps / mechanics that gate redemption:
+  // points may cover at most this % of a portal purchase (e.g. SmartBuy 70%).
+  portalUtilizationPct: z.number().min(0).max(100).optional(),
+  monthlyTransferCapPoints: z.number().int().positive().optional(), // e.g. 75,000 (BizBlack)
+  monthlyTransferMaxTxns: z.number().int().positive().optional(), // e.g. 5
+  annualTransferCapPoints: z.number().int().positive().optional(),
+  pointExpiryMonths: z.number().int().positive().optional(),
+  verified: z.boolean().default(false),
+  notes: z.string().optional(),
+})
+export type Redemption = z.infer<typeof redemptionSchema>
+export type RedemptionInput = z.input<typeof redemptionSchema>
+
+// ---------------------------------------------------------------------------
+// Commodity valuations — what ONE unit of a reward currency is worth in ₹.
+// This is milesvault's "pricing index" (it prices 150+ programmes): each
+// programme is priced at three qualities so a portfolio can be valued as a
+// net-worth figure AND a card's REAL earn rate computed (a point is only worth
+// its realistic redemption). Keyed by ticker in data/kb/valuations.ts — a
+// SHARED pool (AMEX_MR, EDGE_RP) is priced once, not per card. Values are
+// community consensus unless an issuer publishes a fixed rate (cashback/1:1
+// portal) → 'official'. NOT merged into earn rules (it is per-currency, not
+// per-card); the earn engine (M3) and the net-worth view read it directly.
+export const VALUE_SOURCES = ['official', 'community'] as const
+
+export const commodityValueSchema = z
+  .object({
+    // ₹ per point at three redemption qualities (must be floor ≤ realistic ≤ best):
+    floorInr: z.number().nonnegative(), // cash / statement-credit equivalent (worst)
+    realisticInr: z.number().nonnegative(), // typical portal / voucher / economy transfer
+    bestInr: z.number().nonnegative(), // optimised premium-cabin / sweet-spot award
+    source: z.enum(VALUE_SOURCES).default('community'),
+    verified: z.boolean().default(false),
+    notes: z.string().optional(),
+  })
+  .refine((v) => v.floorInr <= v.realisticInr && v.realisticInr <= v.bestInr, {
+    message: 'valuation must satisfy floorInr ≤ realisticInr ≤ bestInr',
+  })
+export type CommodityValue = z.infer<typeof commodityValueSchema>
+export type CommodityValueInput = z.input<typeof commodityValueSchema>
+
+// ---------------------------------------------------------------------------
+// Direct tax / GST payment treatment (MCC 9311 tax, 9399 government) — a frequent
+// India question with a subtle answer: EARNING and MILESTONE-COUNTING are separate
+// axes. On many personal cards tax earns nothing yet still counts toward spend
+// milestones (HDFC/ICICI/SBI, per community); on Axis it counts toward NEITHER; on
+// business cards (HDFC Biz, AU CA Metal, IDFC Business) it does BOTH. `excludedMccs`
+// already zeroes base earn — this records the milestone side (and confirms the earn
+// side) that the M3 earn/milestone engine can't otherwise infer.
+export const taxPaymentsSchema = z.object({
+  earns: z.boolean(), // do tax/GST payments earn base/accelerated points?
+  countsToMilestone: z.boolean(), // does the spend count toward spend milestones even if it earns 0?
+  verified: z.boolean().default(false),
+  notes: z.string().optional(),
+})
+export type TaxPayments = z.infer<typeof taxPaymentsSchema>
+export type TaxPaymentsInput = z.input<typeof taxPaymentsSchema>
+
 export const earnRuleSchema = z.object({
   effectiveFrom: dateSchema,
   // Base earn: `points` per `per` units of the billing currency (floor()).
@@ -258,6 +351,11 @@ export const earnRuleSchema = z.object({
       annualInr: z.number().nonnegative().optional(),
     })
     .optional(),
+  // How points redeem/transfer, rough ₹/point per method, and the caps that
+  // gate it (SmartBuy 70% utilization, monthly transfer limits, expiry).
+  redemption: redemptionSchema.optional(),
+  // How direct income-tax / GST payments earn and count toward milestones.
+  taxPayments: taxPaymentsSchema.optional(),
   // Category slugs that earn NOTHING on this card (rent, fuel, wallet…).
   exclusions: z.array(slugSchema).default([]),
   // Bank-published excluded MCCs (earn nothing regardless of category
@@ -304,15 +402,31 @@ export type CardPatch = z.infer<typeof cardPatchSchema>
 export function cardAccount(bank: Pick<Bank, 'beancountName'>, card: Pick<Card, 'beancountName'>): string {
   return `Liabilities:CreditCards:${bank.beancountName}:${card.beancountName}`
 }
-// One rewards wallet per issuer (milesvault convention); ticker says which
-// programme the points are.
-export function poolAccount(bank: Pick<Bank, 'beancountName'>): string {
-  return `Assets:Rewards:${bank.beancountName}`
+// Reward balances are tracked PER CARD by default — HDFC/ICICI/SBI/… each card
+// accrues and redeems its own Reward Points, so two cards never share a balance.
+// A few PROGRAMMES pool across an issuer's cards into ONE balance; that is a
+// property of the programme (bank + ticker), not the card. Keyed "bank:ticker":
+//   - Amex Membership Rewards: all MR cards → one pool.
+//   - Axis EDGE Reward Points: pooled (Atlas's EDGE Miles stay per-card).
+//     (EDGE RP could split per-card later — just remove the entry.)
+export const SHARED_POOLS: Record<string, string> = {
+  'amex:AMEX_MR': 'MembershipRewards',
+  'axis:EDGE_RP': 'EdgeRewards',
+}
+// Rewards pool account: Assets:Rewards:<Bank>:<Card> (per-card) or
+// Assets:Rewards:<Bank>:<SharedPool> for pooled programmes.
+export function poolAccount(
+  bank: Pick<Bank, 'slug' | 'beancountName'>,
+  cardBeancountName: string,
+  ticker: string,
+): string {
+  const segment = SHARED_POOLS[`${bank.slug}:${ticker}`] ?? cardBeancountName
+  return `Assets:Rewards:${bank.beancountName}:${segment}`
 }
 
 // The strict shape the ledger validator enforces; KB-derived paths must match.
 export const CARD_ACCOUNT_RE = /^Liabilities:CreditCards:[A-Z][A-Za-z0-9]*:[A-Z][A-Za-z0-9]*(:[A-Za-z0-9]+)?$/
-export const REWARDS_ACCOUNT_RE = /^Assets:Rewards:[A-Z][A-Za-z0-9]*$/
+export const REWARDS_ACCOUNT_RE = /^Assets:Rewards:[A-Z][A-Za-z0-9]*:[A-Z][A-Za-z0-9]*$/
 
 // ---------------------------------------------------------------------------
 // Offers — schema now, serving table later (M3/M7).

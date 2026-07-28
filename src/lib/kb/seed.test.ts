@@ -4,10 +4,14 @@ import { CARDS } from '../../../data/kb/cards'
 import { CATEGORIES } from '../../../data/kb/categories'
 import { surchargesFor, unknownSurchargeKeys } from '../../../data/kb/surcharges'
 import { feesFor, milestonesFor, unknownMilestoneKeys } from '../../../data/kb/milestones'
+import { redemptionFor, unknownRedemptionKeys } from '../../../data/kb/redemptions'
+import { COMMODITY_VALUES, unpricedTickers, orphanValuationTickers } from '../../../data/kb/valuations'
+import { taxTreatmentFor, unknownTaxTreatmentKeys } from '../../../data/kb/tax-treatment'
 import {
   bankSchema,
   cardSchema,
   categorySchema,
+  commodityValueSchema,
   earnRuleSchema,
   categoryAccount,
   cardAccount,
@@ -47,7 +51,7 @@ describe('KB seed data', () => {
       const bank = bankBySlug.get(card.bankSlug)
       expect(bank, `bank ${card.bankSlug} for ${card.slug}`).toBeDefined()
       expect(cardAccount(bank!, card)).toMatch(CARD_ACCOUNT_RE)
-      expect(poolAccount(bank!)).toMatch(REWARDS_ACCOUNT_RE)
+      expect(poolAccount(bank!, card.beancountName, card.pool.ticker)).toMatch(REWARDS_ACCOUNT_RE)
 
       expect(rules.length).toBeGreaterThan(0)
       const froms = new Set<string>()
@@ -61,6 +65,8 @@ describe('KB seed data', () => {
           surcharges: [...(raw.surcharges ?? []), ...surchargesFor(card.bankSlug, card.slug)],
           milestones: [...(raw.milestones ?? []), ...milestonesFor(card.slug)],
           fees: { ...raw.fees, ...feesFor(card.slug) },
+          redemption: redemptionFor(card.slug) ?? raw.redemption,
+          taxPayments: taxTreatmentFor(card.slug) ?? raw.taxPayments,
         }
         const r = earnRuleSchema.parse(composed)
         expect(froms.has(r.effectiveFrom)).toBe(false) // one rule per date
@@ -85,6 +91,13 @@ describe('KB seed data', () => {
     // the fees (never merged, never caught) — this is the guard against that.
     expect(unknownSurchargeKeys(bankSlugs, cardSlugs)).toEqual([])
     expect(unknownMilestoneKeys(cardSlugs)).toEqual([])
+    expect(unknownRedemptionKeys(cardSlugs)).toEqual([])
+    expect(unknownTaxTreatmentKeys(cardSlugs)).toEqual([])
+
+    // Sanity: the earn/milestone axes are independent — a business card earns AND
+    // milestones on tax; Axis counts toward neither.
+    expect(taxTreatmentFor('hdfc-bizblack')).toMatchObject({ earns: true, countsToMilestone: true })
+    expect(taxTreatmentFor('axis-atlas')).toMatchObject({ earns: false, countsToMilestone: false })
 
     // Sanity: composition actually attaches fees (e.g. HSBC's rent surcharge).
     const hsbcRent = surchargesFor('hsbc', 'hsbc-live-plus').find((s) => s.kind === 'rent')
@@ -92,5 +105,17 @@ describe('KB seed data', () => {
     // Sanity: a fee-waiver milestone carries the annual fee it reverses.
     const eliteWaiver = milestonesFor('sbi-elite').find((m) => m.kind === 'fee-waiver')
     expect(eliteWaiver?.valueInr).toBe(4999)
+  })
+
+  it('every reward ticker is priced, every valuation is valid and floor≤realistic≤best', () => {
+    const cardTickers = new Set(CARDS.map(({ card }) => card.pool.ticker))
+    // Bijection: each card's currency has a ₹ valuation, and no valuation is stale.
+    expect(unpricedTickers(cardTickers)).toEqual([])
+    expect(orphanValuationTickers(cardTickers)).toEqual([])
+    for (const [ticker, v] of Object.entries(COMMODITY_VALUES)) {
+      expect(() => commodityValueSchema.parse(v), ticker).not.toThrow()
+    }
+    // Sanity: a cashback currency is a fixed ₹1, an official value.
+    expect(COMMODITY_VALUES.AMZN_CB).toMatchObject({ realisticInr: 1, source: 'official' })
   })
 })

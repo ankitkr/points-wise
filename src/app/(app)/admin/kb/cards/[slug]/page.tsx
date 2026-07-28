@@ -43,7 +43,7 @@ export default async function EditCardPage({
           <CardTitle>Card</CardTitle>
           <CardDescription>
             <span className="font-mono text-xs">
-              {cardAccount(bank, card)} · {poolAccount(bank)} ({card.poolTicker})
+              {cardAccount(bank, card)} · {poolAccount(bank, card.beancountName, card.poolTicker)} ({card.poolTicker})
             </span>
           </CardDescription>
         </CardHeader>
