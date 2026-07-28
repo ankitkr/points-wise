@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const TIERS = ['readonly', 'standalone', 'family'] as const
 export type Tier = (typeof TIERS)[number]
@@ -146,8 +146,46 @@ export const kbProposals = sqliteTable('kb_proposals', {
   createdAt: integer('created_at').notNull(),
 })
 
+// Per-programme point valuations (₹/point) — seeded from data/kb/valuations.ts.
+// In D1 so the app reads them like any other KB table (badge seed-verified, and
+// the M3 net-worth view). Admin verification of a valuation lives in the override
+// table below, keyed by ticker; this table carries the bootstrap `verified` flag.
+export const kbValuations = sqliteTable('kb_valuations', {
+  ticker: text('ticker').primaryKey(),
+  floorInr: real('floor_inr').notNull(),
+  realisticInr: real('realistic_inr').notNull(),
+  bestInr: real('best_inr').notNull(),
+  source: text('source').notNull(), // 'official' | 'community'
+  verified: integer('verified').notNull().default(0),
+  notes: text('notes'),
+  updatedAt: integer('updated_at').notNull(),
+})
+
+// Admin verification OVERRIDES. Each KB entity that carries a `verified` flag
+// (an earn rule, and the surcharges/milestones/redemption/tax/valuation merged
+// into rule_json) can be verified/un-verified from the admin UI. The seed only
+// ever writes rule_json — it NEVER touches this table — so a `kb:seed:*` reseed
+// cannot clobber an admin's decision. Effective verified = this override if a
+// row exists, else the seed's flag. Keyed by (entity_type, stable entity_key).
+export const kbVerifications = sqliteTable(
+  'kb_verifications',
+  {
+    entityType: text('entity_type', {
+      enum: ['rule', 'surcharge', 'milestone', 'redemption', 'tax', 'valuation'],
+    }).notNull(),
+    entityKey: text('entity_key').notNull(),
+    verified: integer('verified').notNull().default(0),
+    verifiedBy: text('verified_by').references(() => users.id),
+    verifiedAt: integer('verified_at'),
+    note: text('note'),
+  },
+  (t) => [primaryKey({ columns: [t.entityType, t.entityKey] })],
+)
+
 export type KbBank = typeof kbBanks.$inferSelect
 export type KbCard = typeof kbCards.$inferSelect
 export type KbEarnRule = typeof kbEarnRules.$inferSelect
 export type KbCategory = typeof kbCategories.$inferSelect
 export type KbProposal = typeof kbProposals.$inferSelect
+export type KbVerification = typeof kbVerifications.$inferSelect
+export type KbValuation = typeof kbValuations.$inferSelect

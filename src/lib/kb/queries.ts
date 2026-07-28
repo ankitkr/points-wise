@@ -1,7 +1,19 @@
 import { desc, eq } from 'drizzle-orm'
 import type { Db } from '@/db/client'
-import { kbBanks, kbCards, kbCategories, kbEarnRules, kbProposals } from '@/db/schema'
+import { kbBanks, kbCards, kbCategories, kbEarnRules, kbProposals, kbValuations, kbVerifications } from '@/db/schema'
+import type { KbValuation } from '@/db/schema'
 import { earnRuleSchema, type EarnRule } from './schema'
+import { effectiveVerified, mapKey, ruleEntities, type VerifyEntityType } from './verify'
+
+// All admin verification overrides as a lookup: `${entityType}:${entityKey}` →
+// verified. The table is small (one row per verified entity), so a full read is
+// cheap and simpler than per-entity joins.
+export async function getVerificationMap(db: Db): Promise<Map<string, boolean>> {
+  const rows = await db.select().from(kbVerifications)
+  const m = new Map<string, boolean>()
+  for (const r of rows) m.set(mapKey(r.entityType as VerifyEntityType, r.entityKey), r.verified === 1)
+  return m
+}
 
 export type CardListRow = {
   slug: string
@@ -44,11 +56,18 @@ export async function listCards(db: Db): Promise<CardListRow[]> {
     .from(kbEarnRules)
     .orderBy(desc(kbEarnRules.effectiveFrom))
 
+  // Badge reflects the EFFECTIVE verified state (admin override wins over seed).
+  const overrides = await getVerificationMap(db)
   const latest = new Map<string, { effectiveFrom: string; verified: boolean }>()
   for (const r of rules) {
     if (!latest.has(r.cardSlug)) {
       const parsed = safeRule(r.ruleJson)
-      latest.set(r.cardSlug, { effectiveFrom: r.effectiveFrom, verified: parsed?.verified ?? false })
+      // The rule-level entity is the first entry ruleEntities() returns.
+      const ruleEntity = parsed ? ruleEntities(r.cardSlug, r.effectiveFrom, parsed)[0] : null
+      const verified = ruleEntity
+        ? effectiveVerified(overrides, 'rule', ruleEntity.entityKey, ruleEntity.seedVerified)
+        : false
+      latest.set(r.cardSlug, { effectiveFrom: r.effectiveFrom, verified })
     }
   }
   return cards.map((c) => ({ ...c, active: c.active === 1, latestRule: latest.get(c.slug) ?? null }))
@@ -58,6 +77,11 @@ export type CardDetail = {
   card: typeof kbCards.$inferSelect
   bank: typeof kbBanks.$inferSelect
   rules: Array<{ id: string; effectiveFrom: string; rule: EarnRule | null; raw: string }>
+  // Admin verification overrides (`${entityType}:${entityKey}` → verified) so the
+  // page can compute effective-verified per rule / surcharge / milestone / etc.
+  overrides: Map<string, boolean>
+  // The card's pool-ticker valuation row (null if not seeded), for its verify toggle.
+  valuation: KbValuation | null
 }
 
 export async function getCardDetail(db: Db, slug: string): Promise<CardDetail | null> {
@@ -79,6 +103,8 @@ export async function getCardDetail(db: Db, slug: string): Promise<CardDetail | 
       rule: safeRule(r.ruleJson),
       raw: r.ruleJson,
     })),
+    overrides: await getVerificationMap(db),
+    valuation: (await db.query.kbValuations.findFirst({ where: eq(kbValuations.ticker, card.poolTicker) })) ?? null,
   }
 }
 
