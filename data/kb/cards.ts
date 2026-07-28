@@ -29,6 +29,18 @@ const HDFC_EXCL = [
   '8211', '8220', '8241', '8244', '8249', '8299', // education
   '9211', '9222', '9223', '9311', '9399', '9402', '9405', '9950', // government
 ]
+// HDFC BUSINESS cards (BizBlack/BizPower/BizGrow) — same exclusions as personal
+// EXCEPT government/tax: on business cards income-tax & GST (MCC 9311/9399) ARE an
+// eligible (accelerated) earn category, so the government block is removed here.
+const HDFC_BIZ_EXCL = [
+  '5172', '5541', '5542', '5983', // fuel
+  '6513', // rent / property
+  '6540', // wallet load
+  '5094', '5944', // jewellery
+  '5947', // gift/prepaid cards
+  '5816', '7995', // gaming/gambling
+  '8211', '8220', '8241', '8244', '8249', '8299', // education
+]
 const AXIS_EXCL = [
   '5541', '5542', '5983', // fuel
   '6513', // rent
@@ -133,10 +145,10 @@ export const CARDS: SeedCard[] = [
       accelerators: [
         { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 10000, notes: '5x business accel needs >=₹50k/mo spend; capped 10,000 RP/cycle' },
       ],
-      exclusions: ['fuel', 'rent', 'wallet', 'government'],
-      excludedMccs: HDFC_EXCL,
+      exclusions: ['fuel', 'rent', 'wallet'],
+      excludedMccs: HDFC_BIZ_EXCL,
       verified: false,
-      notes: 'Business card; caps mirror Diners Black (secondary-sourced). Insurance 5,000 RP/mo, grocery 2,000 RP/mo.',
+      notes: 'Business card; caps mirror Diners Black (secondary-sourced). Insurance 5,000 RP/mo, grocery 2,000 RP/mo. Tax/GST (MCC 9311) IS an eligible earn category (HDFC_BIZ_EXCL omits the government block) — see tax-treatment.ts.',
     }],
   },
   {
@@ -952,6 +964,98 @@ export const CARDS: SeedCard[] = [
       excludedMccs: BOB_EXCL,
       verified: true,
       notes: 'Etihad Guest Miles. Standard: 3/₹100 Etihad, 1/₹100 other. Premium variant doubles both. Full published MCC exclusion table (BoBCard standard) — corroborated across multiple sources.',
+    }],
+  },
+
+  // ---- Business / professional cards (tax & GST are an eligible earn category,
+  // unlike personal cards). Onboarded Jul 2026; earn rates community-sourced
+  // (issuer product pages are JS-rendered / MITC PDFs unreadable) → verified:false.
+  {
+    card: {
+      slug: 'hdfc-bizpower', bankSlug: 'hdfc', name: 'HDFC BizPower', beancountName: 'BizPower',
+      network: 'visa', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-05-15',
+      base: { points: 5, per: 200 },
+      accelerators: [
+        { mccs: ['9311'], label: 'Income Tax & GST + bill-pay/ads/Reliance/travel (5X)', multiplier: 5, monthlyCapPoints: 7500, notes: '25 RP/₹200 on IT/GST (MCC 9311) + bill payments, Google/Meta Ads, Reliance Digital, hotel/flight. Unlocks only with ≥₹25k non-IT/GST retail/cycle; 5X cap 7,500 RP/cycle; tax limited to first 2 IT + 2 GST txns/cycle (post-15-May-2026 fair use).' },
+      ],
+      exclusions: ['fuel', 'rent', 'wallet', 'education'],
+      excludedMccs: HDFC_BIZ_EXCL,
+      verified: false,
+      notes: 'Business card (community; post-15-May-2026 revamp cut base 20 RP/₹150 → 5 RP/₹200). Tax/GST IS an eligible 5X earn category (unlike personal HDFC). Milestone: ₹5k voucher on ₹2.5L/qtr — IT/GST/fuel/EMI EXCLUDED from milestone. Fee ₹2,500, waiver ₹4L. RP 2-yr expiry, min 2,500 RP; ₹0.20 cashback / ₹0.50 travel / ₹0.65 catalog.',
+    }],
+  },
+  {
+    card: {
+      slug: 'hdfc-bizgrow', bankSlug: 'hdfc', name: 'HDFC BizGrow', beancountName: 'BizGrow',
+      network: 'rupay', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-05-15',
+      base: { points: 2, per: 200 },
+      accelerators: [
+        { mccs: ['9311'], label: 'IT/advance-tax, GST, bill-pay, DMart, ClearTax, travel, software (10X)', multiplier: 10, monthlyCapPoints: 1500, notes: '20 CP/₹200 on IT/GST (MCC 9311) + SmartPay/PayZapp bill-pay, DMart, ClearTax, MMT MyBiz hotel/flight, SmartBuy BizDeals software. Unlocks with ≥₹10k/cycle; 10X cap 1,500 CP/cycle (tax shares this bucket). Overall 15,000 CP/cycle.' },
+      ],
+      exclusions: ['fuel', 'rent'],
+      excludedMccs: HDFC_BIZ_EXCL,
+      verified: false,
+      notes: 'Business card (community). Earns HDFC CashPoints (modelled as HDFC_RP; realizes the low end ~₹0.20 cashback / ₹0.25 travel / ₹0.30 catalog). Base 2 CP/₹200. Tax/GST IS a 10X earn category. Milestone: 2,000 CP on ₹1L/qtr — only rent/fuel excluded, so tax MAY count (unconfirmed). Fee ₹500, waiver ₹1L.',
+    }],
+  },
+  {
+    card: {
+      slug: 'au-ca-metal', bankSlug: 'au', name: 'AU CA Metal', beancountName: 'CaMetal',
+      network: 'visa', pool: { ticker: 'AU_RP', programme: 'AU Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-06-01',
+      base: { points: 2, per: 100 },
+      accelerators: [
+        { category: 'dining', label: 'Dining (8 RP/₹100)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Shared 5,000 RP/cycle cap across the 8X bucket (dining + travel + tax + software).' },
+        { category: 'travel', label: 'Travel (8 RP/₹100)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Part of the shared 5,000 RP/cycle 8X bucket.' },
+        { mccs: ['9311'], label: 'Income Tax / GST (8 RP/₹100, MCC-gated)', multiplier: 4, monthlyCapPoints: 5000, notes: 'Only if the txn codes under Tax MCC 9311 (NOT Govt 9399); community reports AU rails may not process GST/IT as the 8X category — UNCONFIRMED. Shares the 5,000 RP/cycle bucket.' },
+      ],
+      exclusions: ['fuel', 'rent', 'education'],
+      excludedMccs: ['5541', '5542', '5983', '6513'],
+      verified: false,
+      notes: 'For Chartered Accountants (Visa Signature). Base 2 RP/₹100; 8 RP/₹100 on dining/travel/tax/software (cap 5,000 RP/cycle); utility/insurance 1 RP/₹100 (cap 100 RP/txn). Government (MCC 9399) earns nothing, but Tax (9311) earns 8X if coded correctly. Lifetime-free. Welcome: 2,000 RP on ₹5k/30d. 1 RP ≈ ₹0.25 (AU Rewardz). Community-sourced.',
+    }],
+  },
+  {
+    card: {
+      slug: 'idfc-business-multiplier', bankSlug: 'idfc-first', name: 'IDFC FIRST Business Multiplier', beancountName: 'BusinessMultiplier',
+      pool: { ticker: 'IDFC_RP', programme: 'IDFC FIRST Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-01-01',
+      base: { points: 1, per: 200 },
+      accelerators: [
+        { mccs: ['9311'], label: 'GST / Income-Tax (10 RP/₹200)', multiplier: 10, monthlyCapPoints: 5000, notes: '10 RP/₹200 on GST/tax up to ₹1L spend/month, then 5 RP/₹200 beyond (≈5,000 RP at the 10X rate = ₹1L/mo).' },
+        { category: 'shopping-online', label: 'UPI > ₹2,000 (3 RP/₹200)', multiplier: 3, notes: 'UPI > ₹2,000 earns 3 RP/₹200 via the companion FIRST Digital RuPay; UPI < ₹2,000 at base.' },
+      ],
+      exclusions: ['fuel', 'insurance', 'rent'],
+      excludedMccs: ['5541', '5542', '5983', '6513'],
+      verified: false,
+      notes: 'FD-backed business card (min FD ₹50k); ships a companion FIRST Digital RuPay for UPI earn. Base 1 RP/₹200 (utility/insurance). GST/tax headline: 10 RP/₹200 ≤₹1L/mo then 5 RP/₹200. No spend milestone. Fee ₹1,000, waiver ₹5L. 1 RP = ₹0.25, ₹99+GST redemption, points never expire. Community-sourced.',
+    }],
+  },
+  {
+    card: {
+      slug: 'idfc-business-max', bankSlug: 'idfc-first', name: 'IDFC FIRST Business Max', beancountName: 'BusinessMax',
+      pool: { ticker: 'IDFC_RP', programme: 'IDFC FIRST Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-01-01',
+      base: { points: 4, per: 200 },
+      accelerators: [
+        { category: 'shopping-online', label: 'Domestic online (6 RP/₹200)', multiplier: 1.5, notes: 'Online 6 RP/₹200 vs 4 RP/₹200 offline base. UPI > ₹2,000: 3 RP/₹200; utility/insurance 1 RP/₹200.' },
+      ],
+      exclusions: ['fuel', 'insurance', 'rent', 'utilities'],
+      excludedMccs: ['5541', '5542', '5983', '6513'],
+      verified: false,
+      notes: 'FD-backed (min FD ₹10k), requires active GST to apply. Base 4 RP/₹200 offline, 6 RP/₹200 online. GST/tax earn rate UNCONFIRMED — likely NO accelerated rate (falls in the 1 RP/₹200 utility bucket per CardInsider); do not assume 6X on tax. Lifetime-free. No milestone. 1 RP = ₹0.25, ₹99+GST redemption, 24-mo expiry, forex 1.5%. Community-sourced.',
     }],
   },
 ]

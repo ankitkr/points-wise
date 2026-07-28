@@ -110,6 +110,42 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     notes: 'Govt/tax earns 0 RP; SBI generally counts govt spend toward milestone/fee-waiver (community). Verify per card.',
   },
 
+  // ---- More business/professional cards: tax/GST is an earn category ----
+  'hdfc-bizpower': {
+    earns: true,
+    countsToMilestone: false,
+    verified: false,
+    notes:
+      'Business card: earns 5X (25 RP/₹200) on IT/GST, cap 7,500 RP/cycle; post-15-May-2026 only the first 2 IT + 2 GST txns/cycle earn. Tax is EXCLUDED from the ₹2.5L/qtr milestone (IT/GST/fuel/EMI). community.',
+  },
+  'hdfc-bizgrow': {
+    earns: true,
+    countsToMilestone: true,
+    verified: false,
+    notes:
+      'Business card: earns 10X (20 CP/₹200) on IT/GST, shares the 1,500 CP/cycle 10X cap. Milestone (2,000 CP on ₹1L/qtr) excludes only rent/fuel, so tax MAY count — UNCONFIRMED (differs from BizPower). community.',
+  },
+  'au-ca-metal': {
+    earns: true,
+    countsToMilestone: false,
+    verified: false,
+    notes:
+      'CA card: 8 RP/₹100 on tax (cap 5,000 RP/cycle) — but MCC-GATED: earns only if the txn codes under Tax MCC 9311, NOT Govt 9399; community reports AU rails may not process GST/IT as the 8X category (UNCONFIRMED). No spend milestone (welcome benefits only). community.',
+  },
+  'idfc-business-multiplier': {
+    earns: true,
+    countsToMilestone: false,
+    verified: false,
+    notes: 'FD-backed business card: 10 RP/₹200 on GST/tax up to ₹1L/mo, then 5 RP/₹200. No spend milestone. community.',
+  },
+  'idfc-business-max': {
+    earns: true,
+    countsToMilestone: false,
+    verified: false,
+    notes:
+      'FD-backed, requires active GST. GST/tax earn rate UNCONFIRMED — likely base/utility 1 RP/₹200, no accelerated tax multiplier (unlike Business Multiplier). No milestone. community.',
+  },
+
   // ---- Axis: tax counts toward NEITHER earning nor milestones ----
   'axis-magnus': { earns: false, countsToMilestone: false, verified: false, notes: 'Axis: tax/govt earns nothing AND does not count toward cumulative spend / milestones (@RushilM_, community).' },
   'axis-magnus-burgundy': { earns: false, countsToMilestone: false, verified: false, notes: 'Axis: tax/govt earns nothing and does not count toward cumulative spend / milestones. community.' },

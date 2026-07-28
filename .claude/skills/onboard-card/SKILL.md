@@ -26,12 +26,14 @@ bank and categories) correctly the first time.
 | `data/kb/cards.ts` | `CARDS: SeedCard[]` (core per-card earn: base, accelerators, spendTiers, exclusions) + shared `*_EXCL` MCC constants | `card.slug` |
 | `data/kb/surcharges.ts` | `BANK_SURCHARGES` + `CARD_SURCHARGES` (fees) | bank / card slug |
 | `data/kb/milestones.ts` | `CARD_MILESTONES` + `CARD_FEES` + `CARD_ACCEL_CAP` (umbrella caps) | card slug |
-| `data/kb/redemptions.ts` | `CARD_REDEMPTION` (methods, ₹/pt, transfer partners, caps) | card slug |
+| `data/kb/redemptions.ts` | `CARD_REDEMPTION` (methods, ₹/pt, full per-partner transfer ratios, caps) | card slug |
+| `data/kb/valuations.ts` | `COMMODITY_VALUES` (₹/point per programme: floor/realistic/best) | **ticker** (not slug) |
+| `data/kb/tax-treatment.ts` | `CARD_TAX_TREATMENT` (income-tax/GST: `earns` + `countsToMilestone`) | card slug |
 | `data/kb/offers.ts` | network-tier + card offers — **staging, uncommitted** (see the `refresh-offers` skill) | tier / card slug |
 | `src/lib/kb/schema.ts` | Zod schemas = single source of truth | — |
 | `scripts/seed-kb.ts` | validates all seed, merges the keyed files, emits `.seed-kb.sql` | — |
 
-**The keyed-merge pattern** (surcharges / milestones / fees / accel-cap / redemption): these live in their own `data/kb/*.ts` files keyed by bank/card slug, and `scripts/seed-kb.ts` (`withExtras`) merges them onto each rule's `rule_json` at seed time. Rationale: much of this is bank-wide (surcharges) or would otherwise be ~90 fiddly inline edits across a 46 KB `cards.ts`. **Only the cohesive per-card earn unit** (base + accelerators + spendTiers + exclusions) stays inline in `cards.ts`. Every keyed file exports an `unknown…Keys()` guard so a typo'd slug fails the seed instead of silently orphaning data.
+**The keyed-merge pattern** (surcharges / milestones / fees / accel-cap / redemption / tax-treatment): these live in their own `data/kb/*.ts` files keyed by bank/card slug, and `scripts/seed-kb.ts` (`withExtras`) merges them onto each rule's `rule_json` at seed time. (`valuations.ts` is the exception — keyed by **ticker**, not merged into rules; the seed asserts every card's `pool.ticker` is priced and no valuation is orphaned.) Rationale: much of this is bank-wide (surcharges) or would otherwise be ~90 fiddly inline edits across a 46 KB `cards.ts`. **Only the cohesive per-card earn unit** (base + accelerators + spendTiers + exclusions) stays inline in `cards.ts`. Every keyed file exports an `unknown…Keys()` guard so a typo'd slug fails the seed instead of silently orphaning data.
 
 `SeedCard = { card: Card; rules: EarnRuleInput[] }` — the *input* shape (fields
 with Zod defaults are optional when authoring; the parsed `EarnRule` has them
@@ -243,10 +245,22 @@ body and **no `Co-Authored-By` trailer** (contributor is `ankitkr` only).
 - **category referenced anywhere must exist** in `categories.ts` first.
 
 ## Domain lessons (baked-in mistakes to avoid)
-- **One rewards pool account per issuer** (`Assets:Rewards:<Bank>`), but different
-  programmes on the same issuer use **different tickers** (same account, distinct
-  commodities). Axis: Magnus/Burgundy/Privilege earn `EDGE_RP` (~₹0.20); only
-  **Atlas** earns `EDGE_MILES` (~₹1). Do not conflate similarly-named programmes.
+- **Reward balances are PER-CARD by default** (`Assets:Rewards:<Bank>:<Card>`) —
+  two cards never share a balance unless the *programme* pools across the issuer's
+  cards. Those exceptions live in `SHARED_POOLS` (schema.ts), keyed `bank:ticker`:
+  only **Amex MR** and **Axis EDGE RP** pool today (→ `<Bank>:MembershipRewards` /
+  `:EdgeRewards`). Same ticker ≠ same balance: every HDFC card uses `HDFC_RP` but
+  each keeps its own per-card balance. Different programmes on one issuer use
+  different tickers (Axis Magnus/Burgundy/Privilege = `EDGE_RP` ~₹0.20; **Atlas** =
+  `EDGE_MILES` ~₹1). Every ticker must be priced in `valuations.ts`.
+- **Business / professional cards treat tax & GST as an EARN category** (unlike
+  personal cards, which exclude it). Use a business excluded-MCC set that omits the
+  government block (see `HDFC_BIZ_EXCL`) and model the tax earn via an accelerator
+  with `mccs: ['9311']`. Watch the **9311 (tax) vs 9399 (government)** split — a card
+  can earn on one and not the other (AU CA Metal earns on 9311 only; HDFC Infinia
+  earns govt 9399 but not tax 9311). Record the axes in `tax-treatment.ts`
+  (`earns` + `countsToMilestone` are independent — a card can earn 0 yet still count
+  toward a milestone, or vice-versa).
 - **Devaluation = a new rule version**, appended to `rules[]` with a later
   `effectiveFrom` — never edit history. Seed carries the **current** rule; note
   the prior structure in `notes`.
@@ -266,8 +280,9 @@ body and **no `Co-Authored-By` trailer** (contributor is `ankitkr` only).
 - [ ] Bank in `banks.ts`; every referenced category in `categories.ts`.
 - [ ] `cards.ts`: base + accelerators + spendTiers + exclusions + excludedMccs.
 - [ ] Keyed files populated where applicable: `surcharges.ts`, `milestones.ts`
-      (fees + `CARD_ACCEL_CAP`), `redemptions.ts` — each with a source in `notes`
-      and its slug resolving (seed key-guards pass).
+      (fees + `CARD_ACCEL_CAP`), `redemptions.ts`, `tax-treatment.ts` — each with a
+      source in `notes` and its slug resolving (seed key-guards pass).
+- [ ] `pool.ticker` priced in `valuations.ts` (seed fails on an unpriced ticker).
 - [ ] `verified` set honestly per official-source availability (PDF counts).
 - [ ] `pnpm kb:sql` prints the counts line; `pnpm test` green; typecheck + lint clean.
 - [ ] Committed on a branch, PR opened, no `Co-Authored-By` trailer.
