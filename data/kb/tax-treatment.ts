@@ -92,8 +92,9 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
   'indusind-qatar-avios': {
     earns: true,
     countsToMilestone: false,
-    verified: false,
-    notes: 'Earns Avios directly on tax (community, @HeySisyphus). No milestone.',
+    verified: true,
+    notes:
+      'OFFICIAL (indusind.bank.in earn table, browser-verified): Govt services (incl. tax) earn a REDUCED 1 Avios/₹200 (vs base 3). Avios credited directly; milestone-counting of govt/tax not established.',
   },
 
   // ---- SBI: tax earns 0 but generally counts toward milestone/fee-waiver ----
