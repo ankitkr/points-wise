@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import type { Db } from '@/db/client'
-import { kbBanks, kbCards, kbEarnRules } from '@/db/schema'
+import { kbBanks, kbCards, kbEarnRules, kbVerifications } from '@/db/schema'
+import { verificationInputSchema, type VerificationInput } from './verify'
 import {
   bankSchema,
   cardSchema,
@@ -101,6 +102,28 @@ export async function applyProposal(db: Db, payload: ProposalPayload): Promise<v
     case 'correction':
       return
   }
+}
+
+// Set (or clear) an admin verification override for one KB entity. Writes ONLY
+// to kb_verifications, never to rule_json — so a reseed can't revert it. Idempotent
+// upsert on the composite (entity_type, entity_key) key.
+export async function setVerification(db: Db, adminUserId: string, input: VerificationInput): Promise<void> {
+  const v = verificationInputSchema.parse(input)
+  const now = Date.now()
+  await db
+    .insert(kbVerifications)
+    .values({
+      entityType: v.entityType,
+      entityKey: v.entityKey,
+      verified: v.verified ? 1 : 0,
+      verifiedBy: adminUserId,
+      verifiedAt: now,
+      note: v.note ?? null,
+    })
+    .onConflictDoUpdate({
+      target: [kbVerifications.entityType, kbVerifications.entityKey],
+      set: { verified: v.verified ? 1 : 0, verifiedBy: adminUserId, verifiedAt: now, note: v.note ?? null },
+    })
 }
 
 function assertCanonicalPaths(bank: Pick<Bank, 'slug' | 'beancountName'>, card: Card): void {

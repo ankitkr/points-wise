@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const TIERS = ['readonly', 'standalone', 'family'] as const
 export type Tier = (typeof TIERS)[number]
@@ -146,8 +146,30 @@ export const kbProposals = sqliteTable('kb_proposals', {
   createdAt: integer('created_at').notNull(),
 })
 
+// Admin verification OVERRIDES. Each KB entity that carries a `verified` flag
+// (an earn rule, and the surcharges/milestones/redemption/tax/valuation merged
+// into rule_json) can be verified/un-verified from the admin UI. The seed only
+// ever writes rule_json — it NEVER touches this table — so a `kb:seed:*` reseed
+// cannot clobber an admin's decision. Effective verified = this override if a
+// row exists, else the seed's flag. Keyed by (entity_type, stable entity_key).
+export const kbVerifications = sqliteTable(
+  'kb_verifications',
+  {
+    entityType: text('entity_type', {
+      enum: ['rule', 'surcharge', 'milestone', 'redemption', 'tax', 'valuation'],
+    }).notNull(),
+    entityKey: text('entity_key').notNull(),
+    verified: integer('verified').notNull().default(0),
+    verifiedBy: text('verified_by').references(() => users.id),
+    verifiedAt: integer('verified_at'),
+    note: text('note'),
+  },
+  (t) => [primaryKey({ columns: [t.entityType, t.entityKey] })],
+)
+
 export type KbBank = typeof kbBanks.$inferSelect
 export type KbCard = typeof kbCards.$inferSelect
 export type KbEarnRule = typeof kbEarnRules.$inferSelect
 export type KbCategory = typeof kbCategories.$inferSelect
 export type KbProposal = typeof kbProposals.$inferSelect
+export type KbVerification = typeof kbVerifications.$inferSelect

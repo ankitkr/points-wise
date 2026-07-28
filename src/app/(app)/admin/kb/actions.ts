@@ -11,9 +11,11 @@ import {
   addRuleVersion,
   applyProposal,
   insertCardWithRule,
+  setVerification,
   updateCardFields,
 } from '@/lib/kb/mutations'
 import { cardSchema, earnRuleSchema, proposalPayloadSchema, NETWORKS } from '@/lib/kb/schema'
+import { VERIFY_ENTITY_TYPES, type VerifyEntityType } from '@/lib/kb/verify'
 
 // Every action: session → requireAdmin (fresh D1 read of users.is_admin) →
 // Zod-validated mutation. Errors redirect back with ?error= so the admin sees
@@ -105,6 +107,30 @@ export async function addRule(formData: FormData) {
   }
   revalidatePath(`/admin/kb/cards/${slug}`)
   redirect(`/admin/kb/cards/${slug}`)
+}
+
+// Toggle an admin verification override for one KB entity (rule / surcharge /
+// milestone / redemption / tax / valuation). Writes to kb_verifications only, so
+// it survives a reseed. The button posts the DESIRED next state in `verified`.
+export async function verifyEntity(formData: FormData) {
+  const cardSlug = String(formData.get('cardSlug') ?? '')
+  const back = cardSlug ? `/admin/kb/cards/${cardSlug}` : '/admin/kb'
+  try {
+    const { db, adminUserId } = await adminCtx()
+    const entityType = String(formData.get('entityType') ?? '') as VerifyEntityType
+    if (!VERIFY_ENTITY_TYPES.includes(entityType)) throw new Error(`unknown entity type: ${entityType}`)
+    await setVerification(db, adminUserId, {
+      entityType,
+      entityKey: String(formData.get('entityKey') ?? ''),
+      verified: formData.get('verified') === 'true',
+      note: String(formData.get('note') ?? '').trim() || undefined,
+    })
+  } catch (e) {
+    backWithError(back, e)
+  }
+  revalidatePath(back)
+  revalidatePath('/admin/kb')
+  redirect(back)
 }
 
 export async function approveProposal(formData: FormData) {
