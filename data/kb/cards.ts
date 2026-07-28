@@ -766,8 +766,8 @@ export const CARDS: SeedCard[] = [
       ],
       exclusions: ['fuel', 'rent', 'wallet'],
       excludedMccs: [],
-      verified: false,
-      notes: 'Single card (Avios Visa Infinite) — no separate Signature/Infinite tiers. ~₹0.80-1.0/Avios (community). Reduced 1 Avios/₹200 on utilities/govt/education/insurance. Welcome 20k + milestones 18k at ₹8L/₹16L (M3). Official T&C image-based; MCCs unavailable.',
+      verified: true,
+      notes: 'OFFICIAL — indusind.bank.in Avios Visa Infinite page + earn table (browser-verified Jul-2026): base 3 Avios/₹200 (domestic, other international, ONLINE at preferred international destination, and all other spends); 6 Avios/₹200 on POS at the selected preferred INTERNATIONAL destination; 5 Avios/₹200 on Qatar Airways / British Airways website & app; 1 Avios/₹200 on Utilities/Govt/Education/Insurance. Fuel earns 0. Avios earned ONLY up to the assigned credit limit each cycle; credited 10 days after statement. Welcome 20,000 Avios; up to 36,000 bonus Avios/yr milestones (exact tiers per MITC). The 6x (geography) and 5x (QR/BA merchant) rates are condition-specific — M3 matching. ~₹0.80–1.0/Avios (community).',
     }],
   },
   {
