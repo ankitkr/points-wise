@@ -35,10 +35,25 @@ describe('content-hash entity keys', () => {
     expect(k1).not.toBe(k2)
   })
 
-  it('rule key ignores notes/sub-entities but tracks the base rate', () => {
+  it('rule key ignores notes but tracks the rate AND the accelerated cap', () => {
     const base = keyOf(rule({ notes: 'x' }), 'rule')
     expect(keyOf(rule({ notes: 'totally different note' }), 'rule')).toBe(base) // notes don't matter
     expect(keyOf(rule({ base: { points: 5, per: 200 } }), 'rule')).not.toBe(base) // rate does
+    expect(keyOf(rule({ acceleratedMonthlyCapPoints: 5000 }), 'rule')).not.toBe(base) // cap is material
+  })
+
+  it('identity ignores the bootstrap `verified` flag (a reseed flip must NOT detach an override)', () => {
+    const a = keyOf(rule({ surcharges: [{ kind: 'rent', percent: 1 }] }), 'surcharge')
+    const b = keyOf(rule({ surcharges: [{ kind: 'rent', percent: 1, verified: true }] }), 'surcharge')
+    const c = keyOf(rule({ surcharges: [{ kind: 'rent', percent: 1, notes: 'cosmetic' }] }), 'surcharge')
+    expect(a).toBe(b) // verified flip → same key
+    expect(a).toBe(c) // notes edit → same key
+  })
+
+  it('treats unordered arrays as sets (reordering exclusions/MCCs keeps identity)', () => {
+    const x = keyOf(rule({ exclusions: ['fuel', 'rent'], excludedMccs: ['5541', '6513'] }), 'rule')
+    const y = keyOf(rule({ exclusions: ['rent', 'fuel'], excludedMccs: ['6513', '5541'] }), 'rule')
+    expect(x).toBe(y)
   })
 })
 

@@ -20,13 +20,20 @@ import type { EarnRule } from './schema'
 export const VERIFY_ENTITY_TYPES = ['rule', 'surcharge', 'milestone', 'redemption', 'tax', 'valuation'] as const
 export type VerifyEntityType = (typeof VERIFY_ENTITY_TYPES)[number]
 
-// Deterministic stringify: object keys sorted recursively so key order in the
-// source can't change the hash. (Arrays keep their order — order is content.)
+// Canonical form for IDENTITY hashing. Deliberately excludes fields that are
+// metadata, not identity (Codex review):
+//   • `verified` — the bootstrap flag. If it were hashed, a seed that merely flips
+//     it would change the key and silently DETACH an admin override.
+//   • `notes` — cosmetic; a wording edit must not invalidate a verification.
+// Object keys are sorted (source order can't matter) and arrays are treated as
+// SETS (elements sorted by canonical form), so reordering an unordered list —
+// MCCs, exclusions, accelerators, methods — doesn't change identity either.
 function canonical(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null'
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
+  if (Array.isArray(value)) return `[${value.map(canonical).sort().join(',')}]`
   const obj = value as Record<string, unknown>
   return `{${Object.keys(obj)
+    .filter((k) => k !== 'verified' && k !== 'notes')
     .sort()
     .map((k) => `${JSON.stringify(k)}:${canonical(obj[k])}`)
     .join(',')}}`
@@ -72,12 +79,15 @@ export type VerifiableEntity = {
   label: string
 }
 
-// Only the earn-rate identity fields — NOT notes/fees or the merged sub-entities
-// (those verify independently), so a surcharge edit doesn't invalidate the rule.
+// The earn-RATE identity: base, accelerators (+ the umbrella accelerated cap —
+// materially rewards-affecting), spend tiers, and exclusions. NOT fees or the
+// merged sub-entities (those verify independently), and `canonical()` further
+// drops nested notes/verified so cosmetic edits don't invalidate the rule.
 function ruleCore(rule: EarnRule) {
   return {
     base: rule.base,
     accelerators: rule.accelerators,
+    acceleratedMonthlyCapPoints: rule.acceleratedMonthlyCapPoints,
     spendTiers: rule.spendTiers,
     exclusions: rule.exclusions,
     excludedMccs: rule.excludedMccs,
