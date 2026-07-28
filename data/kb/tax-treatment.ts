@@ -23,27 +23,29 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     countsToMilestone: true,
     verified: false,
     notes:
-      'Personal HDFC: tax (MCC 9311/9399) earns 0. Community/@RushilM_ say it counts toward the ₹18L annual milestone; other reports say fee-waiver/milestone spend excludes the same categories as earning. DISPUTED — verify on MITC.',
+      'Personal HDFC: TAX (MCC 9311, IT/GST) earns 0 but IS counted as spend toward the ₹18L annual retention milestone — CONFIRMED (CardExpert: "no exclusions for the 18L spend criteria"); the "milestone excludes the same categories as earning" theory is refuted. NOTE the govt-vs-tax split: Infinia still EARNS on non-tax GOVERNMENT (MCC 9399) and utility spend — only tax earns 0. Community-sourced (no issuer T&C), so verified:false.',
   },
   'hdfc-diners-black': {
     earns: false,
     countsToMilestone: true,
     verified: false,
-    notes: 'Tax earns 0; @RushilM_ says it counts toward the ₹4L quarterly milestone (10K RP). DISPUTED — verify on MITC.',
+    notes:
+      'Tax earns 0; counts toward the ₹4L quarterly milestone (10K RP) — consistent with HDFC\'s "counts as spend, earns 0" framework (Infinia), but NOT explicitly confirmed on issuer T&C. community/unconfirmed.',
   },
   'hdfc-regalia-gold': {
     earns: false,
     countsToMilestone: true,
     verified: false,
-    notes: 'Tax earns 0; @RushilM_ says it counts toward the ₹1.5L quarterly milestone (₹1.5K GV). DISPUTED — verify on MITC.',
+    notes:
+      'Tax earns 0; counts toward the ₹1.5L quarterly milestone (₹1.5K GV) — consistent with HDFC\'s "counts as spend" framework, but NOT explicitly confirmed on issuer T&C. community/unconfirmed.',
   },
   // ---- HDFC business: tax/GST NOT excluded → earns AND counts to milestone ----
   'hdfc-bizblack': {
     earns: true,
     countsToMilestone: true,
-    verified: false,
+    verified: true,
     notes:
-      'Business card — govt/tax is NOT in the RP-exclusion list (only petrol/wallet/rent/education/EMI are). Earns 5 RP/₹150 base, 5X (25 RP/₹150) on >₹50k/cycle, cap ~7,500 RP/cycle; and counts toward the ₹5L→₹5K voucher milestone (max ₹20K/yr). community.',
+      'OFFICIAL (HDFC BizBlack tax blog): govt/tax is NOT excluded — earns 5 RP/₹150 base, 5X (25 RP/₹150) above ₹50k/cycle, cap ~7,500 RP/cycle, AND counts toward the ₹5L→₹5K voucher milestone (max ₹20K/yr). The one issuer-confirmed tax-earning card here.',
   },
 
   // ---- Amex: tax earns 0 MR but counts toward the spend milestones ----
@@ -52,23 +54,23 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     countsToMilestone: true,
     verified: false,
     notes:
-      'Tax earns 0 MR (@RushilM_ / @bigulchugh) but counts toward the ₹1.9L (7.5K MR) / ₹4L (10K MR) / ₹7L (22.5K MR + ₹10K Taj GV) milestones. Pay via the Canara or Axis payment gateway (accept Amex). community.',
+      'CONFIRMED (community, well-established): tax earns 0 MR but counts toward the ₹1.9L (7.5K MR) / ₹4L (10K MR) / ₹7L (22.5K MR + ₹10K Taj GV) milestones — values current post the 9-Mar-2026 devaluation. Pay via the Canara or Axis gateway (accept Amex). The main "use tax to hit a milestone" card.',
   },
   'amex-mrcc': {
     earns: false,
     countsToMilestone: true,
     verified: false,
     notes:
-      'Tax earns ~0 base MR but counts toward the ₹20K/mo (1K MR) + 4×₹1.5K txn (1K MR) milestones. (Some sources claim 1 MR/₹50 on tax — conflicting; treat earn as 0.) community.',
+      'CONFIRMED (community): tax earns ~0 base MR but counts toward the ₹20K/mo (1K MR) + 4×₹1.5K txn (1K MR) milestones. (Some sources claim 1 MR/₹50 on tax — conflicting; treat earn as 0.)',
   },
 
-  // ---- ICICI: Emeralde PM excludes tax from earning; milestone counts ----
+  // ---- ICICI: Emeralde PM excludes tax from earning; milestone counting UNCONFIRMED ----
   'icici-emeralde': {
     earns: false,
     countsToMilestone: true,
     verified: false,
     notes:
-      '2026 notice excludes Govt/Fuel/Rent/Tax from reward points; but @RushilM_ says tax counts toward the ₹4L & ₹8L milestones (₹3K EaseMyTrip GV). DISPUTED on the milestone side — verify on MITC.',
+      '2026 notice (eff ~15-Jan-2026) excludes Govt/Fuel/Rent/Tax from EARNING — confirmed. @RushilM_ lists tax counting toward the ₹4L & ₹8L milestones (₹3K EaseMyTrip GV), but verification found NO evidence either way — unlike HDFC/Amex, ICICI has no known "counts-but-earns-zero" statement. Treat countsToMilestone as UNCONFIRMED; do not rely on it.',
   },
 
   // ---- HSBC / SC: earn on tax (community), milestone-counting unconfirmed ----
@@ -76,7 +78,8 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     earns: true,
     countsToMilestone: false,
     verified: false,
-    notes: 'Community: earns 3 RP/₹100 on tax, capped ~₹1L (@bigulchugh netted ~2.1% via ICICI gateway, ~5% via Accor). Milestone-counting not established. community.',
+    notes:
+      'Community: an outlier that still EARNS on tax AND government (3 RP/₹100), subject to a shared ~₹1L/month cumulative cap across govt/tax/utility/insurance/education/wallet/real-estate. @bigulchugh netted ~2.1% via the ICICI gateway (~5% in Accor terms). Milestone-counting not established.',
   },
   'sc-ultimate': {
     earns: true,
