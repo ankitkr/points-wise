@@ -26,12 +26,23 @@ const cashback = (notes: string): CommodityValueInput => ({
 
 export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
   // ---- Bank reward points (transferable / portal) ----
+  // HDFC RP split into two commodities because realised ₹/point is card-tier
+  // dependent and the ticker IS the ledger commodity: premium cards (Infinia/
+  // Diners/BizBlack) redeem SmartBuy at 1 RP=₹1 → HDFC_RP_PREMIUM; the rest
+  // (Regalia Gold + biz CashPoint cards) stay on HDFC_RP at ~₹0.5.
   HDFC_RP: {
     floorInr: 0.2,
     realisticInr: 0.5,
+    bestInr: 0.65,
+    notes:
+      'Regalia Gold + biz CashPoint cards (Infinia/Diners/BizBlack moved to HDFC_RP_PREMIUM). Floor: cashback. Realistic: SmartBuy on Regalia (₹0.50). Best: Regalia Gold Catalogue ₹0.65. (BizGrow/BizPower CashPoints realise ~₹0.20–0.30 — modelled on this ticker, see their notes.)',
+  },
+  HDFC_RP_PREMIUM: {
+    floorInr: 0.2,
+    realisticInr: 1.0,
     bestInr: 1.0,
     notes:
-      'Floor: cashback. Realistic: SmartBuy on Regalia/Millennia. Best: Infinia/Diners Black — SmartBuy 1 RP=₹1 or 1:1 airline transfer (KrisFlyer/Flying Blue) for intl premium cabin. Card-dependent; premium cards realise the top end.',
+      'Infinia / Diners Club Black / BizBlack — SmartBuy 1 RP=₹1 is the routine (realistic) redemption; best is the same ₹1 or 1:1 airline transfer (KrisFlyer/Flying Blue) for intl premium cabin. Distinct ledger commodity from HDFC_RP so these cards value their balance at ₹1.',
   },
   HDFC_CB: {
     floorInr: 0.3,
