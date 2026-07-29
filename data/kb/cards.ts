@@ -143,12 +143,13 @@ export const CARDS: SeedCard[] = [
       effectiveFrom: '2025-07-01',
       base: { points: 5, per: 150 },
       accelerators: [
-        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 10000, notes: '5x business accel needs >=₹50k/mo spend; umbrella cap 10,000 RP/cycle. SmartBuy brand-voucher purchases capped 3,000 accel RP/mo (eff 1-Jul-2026; full 5X voucher rate ~₹22,500/mo) — cardinsider.' },
+        { category: 'travel-portal', label: 'SmartBuy (hotels 10x / flights 5x)', multiplier: 2, monthlyCapPoints: 10000, notes: 'SmartBuy travel: hotels 10x / flights 5x. Brand-voucher purchases capped 3,000 accel RP/mo (eff 1-Jul-2026) — cardinsider.' },
+        { mccs: ['9311', '4814', '4899', '4900'], label: 'Business 5X (Tax/GST, Utility/Telecom, MMT MyBiz, Business Tools)', multiplier: 5, monthlyCapPoints: 7500, notes: 'User verification 2025-07-01: 5X (25 RP/₹150) on Tax/GST (MCC 9311), Utility/Telecom, MMT MyBiz and Business Tools, capped 7,500 accel RP/statement cycle; triggers only once ≥₹50,000/cycle is spent in these categories. MMT MyBiz + Business Tools are merchant programmes (not MCC-mappable) — captured here in notes.' },
       ],
       exclusions: ['fuel', 'rent', 'wallet'],
       excludedMccs: HDFC_BIZ_EXCL,
       verified: true,
-      notes: 'Base 5 RP/₹150; 5X (25 RP/₹150) on SmartBuy above ₹50k/mo — confirmed against HDFC\'s official BizBlack tax blog (per the earlier verification round; hdfc.bank.in page is JS-rendered). Insurance 5,000 RP/mo, grocery 2,000 RP/mo. SmartBuy brand-voucher cap 3,000 RP/mo (cardinsider). Tax/GST (MCC 9311) IS an eligible earn category (HDFC_BIZ_EXCL omits the government block) — see tax-treatment.ts.',
+      notes: 'Base 5 RP/₹150. Two distinct accelerators: SmartBuy travel (hotels 10x / flights 5x), and a separate Business 5X (25 RP/₹150) on Tax/GST + Utility/Telecom + MMT MyBiz + Business Tools — cap 7,500 accel RP/cycle with a ₹50k/cycle trigger (user verification 2025-07-01; corrects the earlier 2x modelling). Insurance capped 5,000 RP/mo, grocery 2,000 RP/mo (not machine-encoded). SmartBuy brand-voucher cap 3,000 RP/mo (cardinsider). Tax/GST (MCC 9311) IS an eligible earn category (HDFC_BIZ_EXCL omits the government block) — see tax-treatment.ts.',
     }],
   },
   {
