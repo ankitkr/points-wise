@@ -826,7 +826,24 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'rent', 'education', 'government', 'commute'],
       excludedMccs: [],
       verified: true,
-      notes: 'Official AU Zenith 1-Jan-2026 devaluation, confirmed via Google against au.bank.in figures (page 403s to direct fetch): base 5→3 RP/₹100, dining 20→5, international 10→5, grocery/dept 10→5 (all per ₹100). Utilities/telecom/insurance 1 RP/₹100. Overall cap 25,000 RP/cycle; 1 RP = ₹0.25. New milestone from 1-Jan-2026: ₹50k/cycle → 1,000 bonus RP (old milestones discontinued) — M3. MCCs category-only.',
+      notes: 'Official AU Zenith 1-Jan-2026 devaluation, confirmed via Google against au.bank.in figures (page 403s to direct fetch): base 5→3 RP/₹100, dining 20→5, international 10→5, grocery/dept 10→5 (all per ₹100). Utilities/telecom/insurance 1 RP/₹100. Overall cap 25,000 RP/cycle; 1 RP = ₹0.25. New milestone from 1-Jan-2026: ₹50k/cycle → 1,000 bonus RP (old milestones discontinued) — M3. MCCs category-only. Zenith+ (higher milestones, ₹4,999 metal) is the separate card au-zenith-plus.',
+    }],
+  },
+  {
+    card: {
+      slug: 'au-zenith-plus', bankSlug: 'au', name: 'AU Zenith+', beancountName: 'ZenithPlus',
+      network: 'visa', pool: { ticker: 'AU_RP', programme: 'AU Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-01-01',
+      base: { points: 3, per: 100 },
+      accelerators: [
+        { category: 'dining', label: 'Dining', multiplier: 1.67, monthlyCapPoints: 5000, notes: '5 RP/₹100, capped 5,000 RP/cycle (cloned from base Zenith; Zenith+ earn not separately confirmed).' },
+      ],
+      exclusions: ['fuel', 'rent', 'education', 'government', 'commute'],
+      excludedMccs: [],
+      verified: false,
+      notes: 'AU Zenith+ (₹4,999 metal) — the higher-milestone sibling of AU Zenith. Earn structure CLONED from base Zenith (3 RP/₹100, dining 5/₹100, overall 25k RP/cycle cap, 1 RP = ₹0.25) and NOT separately confirmed for Zenith+ → verified:false. Distinct milestones vs base: ₹75k/cycle → 1,000 RP, fee waiver at ₹8L, Taj Epicure at ₹12L (mid-2026 audit). Forex 0.99% (vs base 1.99%).',
     }],
   },
   {
@@ -938,19 +955,36 @@ export const CARDS: SeedCard[] = [
   },
   {
     card: {
-      slug: 'bob-etihad', bankSlug: 'bob', name: 'BoB Etihad Guest', beancountName: 'EtihadGuest',
+      slug: 'bob-etihad', bankSlug: 'bob', name: 'BoB Etihad Guest Premium', beancountName: 'EtihadGuest',
+      network: 'visa', pool: { ticker: 'ETIHAD_MILES', programme: 'Etihad Guest Miles' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [
+        { category: 'travel', label: 'Etihad Airways spends', multiplier: 3, notes: 'Premium: 6 Miles/₹100 on Etihad, 2/₹100 other (double the standard card).' },
+      ],
+      exclusions: ['fuel', 'telecom', 'rent', 'wallet', 'insurance', 'government', 'education', 'groceries'],
+      excludedMccs: BOB_EXCL,
+      verified: false,
+      notes: 'BoB Etihad Guest PREMIUM (fee ₹5,000, fee-waiver ₹5L): 6/₹100 Etihad, 2/₹100 other. The standard variant (bob-etihad-standard) earns half and has different milestones/fee. Full published MCC exclusion table. Earn reconciled to the Premium variant per the mid-2026 audit — community-sourced → verified:false.',
+    }],
+  },
+  {
+    card: {
+      slug: 'bob-etihad-standard', bankSlug: 'bob', name: 'BoB Etihad Guest', beancountName: 'EtihadStd',
       network: 'visa', pool: { ticker: 'ETIHAD_MILES', programme: 'Etihad Guest Miles' }, active: true,
     },
     rules: [{
       effectiveFrom: '2024-01-01',
       base: { points: 1, per: 100 },
       accelerators: [
-        { category: 'travel', label: 'Etihad Airways spends', multiplier: 3, notes: '3 Miles/₹100 on Etihad (Premium variant: 6/₹100 Etihad, 2/₹100 other)' },
+        { category: 'travel', label: 'Etihad Airways spends', multiplier: 3, notes: 'Standard: 3 Miles/₹100 on Etihad, 1/₹100 other.' },
       ],
       exclusions: ['fuel', 'telecom', 'rent', 'wallet', 'insurance', 'government', 'education', 'groceries'],
       excludedMccs: BOB_EXCL,
-      verified: true,
-      notes: 'Etihad Guest Miles. Standard: 3/₹100 Etihad, 1/₹100 other. Premium variant doubles both. Full published MCC exclusion table (BoBCard standard) — corroborated across multiple sources.',
+      verified: false,
+      notes: 'BoB Etihad Guest STANDARD: 3/₹100 Etihad, 1/₹100 other. The Premium variant (bob-etihad) doubles both. Milestones per mid-2026 audit (fee-waiver ₹3L). Annual fee UNCONFIRMED (~₹750 estimate). Community-sourced → verified:false.',
     }],
   },
 

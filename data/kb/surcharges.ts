@@ -203,6 +203,7 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   // --- AU: fuel + forex only. Rent/utility surcharge unconfirmed (official PDF binary) — omitted.
   'au-ixigo': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, verified: true, notes: 'Confirmed Jul-2026: AU ixigo 1% fuel waiver ₹400–5,000, cap ₹250/cycle.' }), forex(0, true, 'Official AU: ixigo 0% forex.')],
   'au-zenith': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'AU Zenith 1% fuel waiver, cap ~₹250/cycle (community; Zenith+ higher).' }), forex(1.99, true, 'Confirmed Jul-2026 (cardinsider/paisabazaar): Zenith 1.99% forex (Zenith+ 0.99%).')],
+  'au-zenith-plus': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'AU Zenith+ 1% fuel waiver, cap ~₹250/cycle (community).' }), forex(0.99, true, 'Confirmed Jul-2026 (cardinsider/paisabazaar): Zenith+ 0.99% forex.')],
   'au-lit': [{ kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'AU LIT: no fuel-surcharge waiver; standard 1% applies (secondary).' }, forex(3.5, true, 'Confirmed Jul-2026: AU standard ~3.5% forex.')],
 
   // --- IDFC FIRST: Wealth/Mayura carry rent/util/edu; Vistara is exempt (winding down)
@@ -213,7 +214,8 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   // --- BoB: utility/wallet/fuel + forex. Rent/education earn nothing; no surcharge confirmed.
   'bob-eterna': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider/paisabazaar): 1% on utility above ₹50,000/mo.' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Eterna fuel waiver ₹400–5,000, cap ₹250/cycle (secondary).' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Eterna 2% forex.')],
   'bob-premier': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider): 1% on utility above ₹50,000/mo (same as Eterna).' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Premier fuel waiver ₹400–5,000, cap ₹250/mo (secondary).' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Premier 3.5% forex.')],
-  'bob-etihad': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(0, true, 'Confirmed Jul-2026 (cardinsider): Etihad Guest Premium 0% forex.')],
+  'bob-etihad': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad Premium fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(0, true, 'Confirmed Jul-2026 (cardinsider): Etihad Guest Premium 0% forex.')],
+  'bob-etihad-standard': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad Standard fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(3.5, false, 'Standard Etihad forex ~3.5% assumed (Premium is 0%) — UNCONFIRMED.')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.

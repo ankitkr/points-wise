@@ -64,10 +64,10 @@ export const CARD_FEES: Record<string, Fees> = {
   'indusind-eazydiner': { joiningInr: 2999, annualInr: 2999 },
   // AU (Eterna/Premier LTF for eligible; Zenith+ fee shown)
   'au-ixigo': { joiningInr: 0, annualInr: 0 },
-  // au-zenith = AU Zenith (₹7,999); Zenith+ is the separate ₹4,999 metal card.
-  // NOTE: some au-zenith milestone entries below were sourced for Zenith+ —
-  // flagged for admin re-check (welcome/waiver may differ for base Zenith).
+  // au-zenith = base AU Zenith (₹7,999); au-zenith-plus = Zenith+ (₹4,999 metal).
+  // Milestones reconciled to their respective variants per the mid-2026 audit.
   'au-zenith': { joiningInr: 7999, annualInr: 7999 },
+  'au-zenith-plus': { joiningInr: 4999, annualInr: 4999 },
   'au-lit': { joiningInr: 0, annualInr: 0 },
   // IDFC FIRST
   'idfc-wealth': { joiningInr: 0, annualInr: 0 },
@@ -263,16 +263,21 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
   'indusind-legend': [{ spendThreshold: 500000, period: 'anniversary-year', kind: 'points', points: 3000, verified: true, label: '3,000 pts at ₹5L', notes: 'cardinsider. Lifetime-free card.' }],
   'indusind-eazydiner': [{ period: 'welcome', kind: 'points', points: 2000, verified: false, label: '2,000 EazyPoints on fee-pay', notes: 'VARIANT AMBIGUITY — Signature (₹1,999, has quarterly/annual milestones) vs Platinum (LTF, no milestones). Confirm which variant this row models before verifying (Jul-2026 pass).' }],
 
-  // ---- AU (cardinsider/paisabazaar; au-zenith = Zenith+) ----
+  // ---- AU (cardinsider/paisabazaar; au-zenith = base Zenith, au-zenith-plus = Zenith+) ----
   'au-ixigo': [
     { period: 'welcome', kind: 'voucher', valueInr: 1000, verified: true, label: '₹1k ixigo voucher + 1,000 RP on first txn/30d', notes: 'cardinsider + au.bank.in.' },
     { spendThreshold: 75000, period: 'quarter', kind: 'points', points: 5000, repeatable: true, verified: false, label: '5,000 RP per ₹75k quarterly', notes: 'UNCONFIRMED — the Jul-2026 AU verification found no RP spend-milestone on ixigo (only spend-gated lounge perks); this ₹75k/qtr→5k figure is from cardinsider and conflicts. Verify against AU T&C.' },
   ],
   'au-zenith': [
-    { period: 'welcome', kind: 'voucher', valueInr: 5000, verified: true, label: '₹5k vouchers or 5,000 RP on activation', notes: 'cardinsider (Zenith+ metal).' },
-    { spendThreshold: 75000, period: 'statement-cycle', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 RP on ₹75k/month', notes: 'VARIANT DISCREPANCY — the Jul-2026 verification gives base AU Zenith ₹50k/cycle→1,000 RP + fee-waiver ₹5L; this block (₹75k/mo, fw ₹8L, Taj Epicure) matches Zenith+, not base Zenith. Resolve which variant this card row represents.' },
-    fw(800000, 4999, '₹8L/yr → waiver (cardinsider).'),
-    { spendThreshold: 1200000, period: 'anniversary-year', kind: 'other', repeatable: true, verified: true, label: 'Taj Epicure membership at ₹12L', notes: 'cardinsider.' },
+    { period: 'welcome', kind: 'voucher', valueInr: 5000, verified: true, label: '₹5k vouchers or 5,000 RP on activation', notes: 'cardinsider.' },
+    { spendThreshold: 50000, period: 'statement-cycle', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 RP on ₹50k/cycle', notes: 'Base AU Zenith: ₹50k/cycle → 1,000 RP (matches the card rule note; Gemini audit mid-2026 + AU Jul-2026 verification). The ₹75k/mo tier, ₹8L waiver and Taj Epicure belong to Zenith+ (au-zenith-plus).' },
+    fw(500000, 7999, '₹5L/yr → waiver, base AU Zenith (Gemini audit mid-2026 + cardinsider). Zenith+ waiver is ₹8L.'),
+  ],
+  'au-zenith-plus': [
+    { period: 'welcome', kind: 'voucher', valueInr: 5000, verified: false, label: '₹5k vouchers or 5,000 RP on activation', notes: 'cardinsider (Zenith+ metal).' },
+    { spendThreshold: 75000, period: 'statement-cycle', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 RP on ₹75k/cycle', notes: 'Zenith+ (₹4,999 metal): ₹75k/cycle → 1,000 RP (Gemini audit mid-2026 + cardinsider).' },
+    fw(800000, 4999, '₹8L/yr → waiver, Zenith+ (cardinsider + Gemini audit).'),
+    { spendThreshold: 1200000, period: 'anniversary-year', kind: 'other', repeatable: true, verified: false, label: 'Taj Epicure membership at ₹12L', notes: 'Zenith+ only (cardinsider).' },
   ],
   'au-lit': [{ spendThreshold: 10000, period: 'statement-cycle', kind: 'voucher', valueInr: 500, repeatable: true, verified: true, label: 'up to ₹500 milestone cashback on ₹10k/30d', notes: 'paisabazaar. Only if the paid Milestone-Cashback module (₹199/qtr) is active.' }],
 
@@ -298,11 +303,19 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
     { spendThreshold: 500000, period: 'anniversary-year', kind: 'points', points: 20000, repeatable: true, verified: true, label: '20,000 pts at ₹5L', notes: 'cardmaven (₹5,000 value).' },
   ],
   'bob-premier': [{ spendThreshold: 5000, period: 'welcome', kind: 'points', points: 500, verified: true, label: '500 pts on ₹5k/60d', notes: 'cardinsider. LTF limited-period; else ₹1,000 fee, waiver at ₹1.2L.' }],
+  // bob-etihad = Premium (fee ₹5,000, fw ₹5L); bob-etihad-standard = Standard.
   'bob-etihad': [
-    { period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 Etihad miles on fee-pay', notes: 'VARIANT DISCREPANCY — the Jul-2026 verification gives BoB Etihad *Premium* ₹50k/mo→1k, ₹1.5L/qtr→2k, ₹6L/yr→12k (fw ₹5L); *standard* ₹25k/mo→250, ₹2L/qtr→2k, ₹7.5L/yr→12k (fw ₹3L). This block (₹4L/qtr→4k, ₹12L→24k) matches neither — resolve the variant + tiers against the official benefit sheet.' },
-    { spendThreshold: 400000, period: 'quarter', kind: 'points', points: 4000, repeatable: true, verified: false, label: '4,000 miles per ₹4L quarterly', notes: 'See welcome-row note: variant/tier unresolved (Jul-2026).' },
-    { spendThreshold: 1200000, period: 'anniversary-year', kind: 'points', points: 24000, repeatable: true, verified: false, label: '24,000 miles at ₹12L', notes: 'See welcome-row note: variant/tier unresolved (Jul-2026).' },
-    fw(500000, 5000, '₹5L/yr → waiver (livefromalounge).'),
+    { period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 Etihad miles on fee-pay', notes: 'BoB Etihad Premium; welcome per cardinsider (unconfirmed by the Gemini mid-2026 audit).' },
+    { spendThreshold: 50000, period: 'statement-cycle', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 miles on ₹50k/cycle', notes: 'BoB Etihad Premium tiers (Gemini audit mid-2026): ₹50k/mo→1k, ₹1.5L/qtr→2k, ₹6L/yr→12k, fw ₹5L.' },
+    { spendThreshold: 150000, period: 'quarter', kind: 'points', points: 2000, repeatable: true, verified: false, label: '2,000 miles per ₹1.5L quarterly', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
+    { spendThreshold: 600000, period: 'anniversary-year', kind: 'points', points: 12000, repeatable: true, verified: false, label: '12,000 miles at ₹6L', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
+    fw(500000, 5000, '₹5L/yr → waiver, Premium (livefromalounge + Gemini audit).'),
+  ],
+  'bob-etihad-standard': [
+    { spendThreshold: 25000, period: 'statement-cycle', kind: 'points', points: 250, repeatable: true, verified: false, label: '250 miles on ₹25k/cycle', notes: 'BoB Etihad Standard tiers (Gemini audit mid-2026): ₹25k/mo→250, ₹2L/qtr→2k, ₹7.5L/yr→12k, fw ₹3L.' },
+    { spendThreshold: 200000, period: 'quarter', kind: 'points', points: 2000, repeatable: true, verified: false, label: '2,000 miles per ₹2L quarterly', notes: 'BoB Etihad Standard (Gemini audit mid-2026).' },
+    { spendThreshold: 750000, period: 'anniversary-year', kind: 'points', points: 12000, repeatable: true, verified: false, label: '12,000 miles at ₹7.5L', notes: 'BoB Etihad Standard (Gemini audit mid-2026).' },
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 750, repeatable: true, verified: false, label: 'annual fee waiver', notes: 'Standard fee-waiver at ₹3L (Gemini audit). Annual fee ~₹750 UNCONFIRMED — verify against the BoB benefit sheet.' },
   ],
 }
 
@@ -331,6 +344,7 @@ export const CARD_ACCEL_CAP: Record<string, number> = {
   'hsbc-premier': 18000, // Travel-With-Points portal accelerated
   'au-ixigo': 10000, // overall RP/mo (base + accel)
   'au-zenith': 25000, // overall/cycle; 5X category sub-capped 5,000
+  'au-zenith-plus': 25000, // cloned from base Zenith; Zenith+ cap not separately confirmed
   'au-lit': 10000, // overall/cycle
   'idfc-mayura': 25000, // app travel bonus/mo
   'bob-eterna': 5000, // 15X categories

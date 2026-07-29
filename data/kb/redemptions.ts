@@ -539,6 +539,17 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     verified: false,
     notes: 'Catalog ₹0.25; Air India 6:1. ₹99+GST fee. Jan-2026 earn devaluation.',
   },
+  'au-zenith-plus': {
+    methods: [
+      { method: 'catalog', valuePerPoint: 0.25 },
+      { method: 'gift-voucher', valuePerPoint: 0.2 },
+      { method: 'airmiles-transfer', valuePerPoint: 0.17, notes: 'Air India Maharaja 6:1.' },
+    ],
+    transferPartners: [{ partner: 'Air India Maharaja Club', kind: 'airline', ratio: '6:1' }],
+    pointExpiryMonths: 24,
+    verified: false,
+    notes: 'Same AU_RP redemption as base Zenith (catalog ₹0.25; Air India 6:1; ₹99+GST fee).',
+  },
   'au-lit': {
     methods: [
       { method: 'catalog', valuePerPoint: 0.25 },
@@ -599,6 +610,12 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
     verified: false,
     notes: 'Earns Etihad miles directly; no other transfer. Expiry per Etihad Guest activity rules.',
+  },
+  'bob-etihad-standard': {
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.5, notes: 'Earns Etihad Guest Miles directly (Standard 1/₹100, 3/₹100 on Etihad); redeem on Etihad Guest only (~₹0.50–0.60/mile).' }],
+    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
+    verified: false,
+    notes: 'Same ETIHAD_MILES redemption as the Premium card; earn rate is half. Expiry per Etihad Guest activity rules.',
   },
 }
 
