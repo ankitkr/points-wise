@@ -78,6 +78,7 @@ export const CARD_FEES: Record<string, Fees> = {
   'bob-eterna': { joiningInr: 0, annualInr: 0 },
   'bob-premier': { joiningInr: 0, annualInr: 0 },
   'bob-etihad': { joiningInr: 5000, annualInr: 5000 },
+  'bob-etihad-standard': { joiningInr: 2500, annualInr: 2500 }, // Gemini audit (corrects ~₹750 estimate)
 }
 
 const fw = (spendThreshold: number, valueInr: number, notes: string): MilestoneInput => ({
@@ -167,7 +168,7 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
     { spendThreshold: 800000, period: 'anniversary-year', kind: 'voucher', valueInr: 6000, repeatable: true, verified: true, label: '2× EaseMyTrip vouchers (₹6k) at ₹8L', notes: 'icici.bank.in.' },
     fw(1000000, 12499, '₹10L/yr → waiver (icici.bank.in).'),
   ],
-  // Legacy non-metal ICICI Emeralde (discontinued); secondary sources → verified:false.
+  // ICICI Emeralde normal (non-metal, still issued) variant; secondary sources → verified:false.
   'icici-emeralde': [
     { spendThreshold: 1000000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 12000, repeatable: true, verified: false, label: 'annual fee waiver', notes: '₹10L/yr → ₹12,000 fee waived (cardinsider/paisabazaar). Alternatively ₹1,000/mo, waived at ₹1L/mo.' },
     { spendThreshold: 50000, period: 'statement-cycle', kind: 'other', repeatable: true, verified: false, label: '1 golf round/lesson per month at ₹50k', notes: 'cardinsider; max 4/mo. Legacy Emeralde.' },
@@ -310,18 +311,21 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
   ],
   'bob-premier': [{ spendThreshold: 5000, period: 'welcome', kind: 'points', points: 500, verified: true, label: '500 pts on ₹5k/60d', notes: 'cardinsider. LTF limited-period; else ₹1,000 fee, waiver at ₹1.2L.' }],
   // bob-etihad = Premium (fee ₹5,000, fw ₹5L); bob-etihad-standard = Standard.
+  // BoB Etihad tiers corrected per the Gemini audit mid-2026 (2nd pass).
   'bob-etihad': [
-    { period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 Etihad miles on fee-pay', notes: 'BoB Etihad Premium; welcome per cardinsider (unconfirmed by the Gemini mid-2026 audit).' },
-    { spendThreshold: 50000, period: 'statement-cycle', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 miles on ₹50k/cycle', notes: 'BoB Etihad Premium tiers (Gemini audit mid-2026): ₹50k/mo→1k, ₹1.5L/qtr→2k, ₹6L/yr→12k, fw ₹5L.' },
-    { spendThreshold: 150000, period: 'quarter', kind: 'points', points: 2000, repeatable: true, verified: false, label: '2,000 miles per ₹1.5L quarterly', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
-    { spendThreshold: 600000, period: 'anniversary-year', kind: 'points', points: 12000, repeatable: true, verified: false, label: '12,000 miles at ₹6L', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
+    { period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 Etihad miles on fee-pay', notes: 'BoB Etihad Premium base welcome. Current promo grants up to 15,000 (10k on ₹25k/60d + 5k on ₹50k cumulative) — not modelled as base.' },
+    { spendThreshold: 50000, period: 'statement-cycle', kind: 'points', points: 500, repeatable: true, verified: false, label: '500 miles on 4 txns totalling ₹50k/cycle', notes: 'BoB Etihad Premium (Gemini audit mid-2026): ₹50k/mo→500, ₹3L/qtr→4k, ₹12L/yr→24k, fw ₹5L.' },
+    { spendThreshold: 300000, period: 'quarter', kind: 'points', points: 4000, repeatable: true, verified: false, label: '4,000 miles per ₹3L quarterly', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
+    { spendThreshold: 1200000, period: 'anniversary-year', kind: 'points', points: 24000, repeatable: true, verified: false, label: '24,000 miles at ₹12L', notes: 'BoB Etihad Premium (Gemini audit mid-2026).' },
+    { period: 'anniversary-year', kind: 'points', points: 1000, verified: false, label: '1,000 miles travel-goal bonus', notes: 'Fly twice a year with Etihad on tickets booked on this card (Gemini audit mid-2026).' },
     fw(500000, 5000, '₹5L/yr → waiver, Premium (livefromalounge + Gemini audit).'),
   ],
   'bob-etihad-standard': [
-    { spendThreshold: 25000, period: 'statement-cycle', kind: 'points', points: 250, repeatable: true, verified: false, label: '250 miles on ₹25k/cycle', notes: 'BoB Etihad Standard tiers (Gemini audit mid-2026): ₹25k/mo→250, ₹2L/qtr→2k, ₹7.5L/yr→12k, fw ₹3L.' },
+    { spendThreshold: 25000, period: 'statement-cycle', kind: 'points', points: 250, repeatable: true, verified: false, label: '250 miles on 4 txns totalling ₹25k/cycle', notes: 'BoB Etihad Standard (Gemini audit mid-2026): ₹25k/mo→250, ₹2L/qtr→2k, ₹7.5L/yr→12k, fw ₹3L.' },
     { spendThreshold: 200000, period: 'quarter', kind: 'points', points: 2000, repeatable: true, verified: false, label: '2,000 miles per ₹2L quarterly', notes: 'BoB Etihad Standard (Gemini audit mid-2026).' },
     { spendThreshold: 750000, period: 'anniversary-year', kind: 'points', points: 12000, repeatable: true, verified: false, label: '12,000 miles at ₹7.5L', notes: 'BoB Etihad Standard (Gemini audit mid-2026).' },
-    { spendThreshold: 300000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 750, repeatable: true, verified: false, label: 'annual fee waiver', notes: 'Standard fee-waiver at ₹3L (Gemini audit). Annual fee ~₹750 UNCONFIRMED — verify against the BoB benefit sheet.' },
+    { period: 'anniversary-year', kind: 'points', points: 500, verified: false, label: '500 miles travel-goal bonus', notes: 'Fly twice a year with Etihad on tickets booked on this card (Gemini audit mid-2026).' },
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 2500, repeatable: true, verified: false, label: 'annual fee waiver', notes: 'Standard fee-waiver at ₹3L; annual fee ₹2,500 + GST (Gemini audit mid-2026, corrects the earlier ~₹750 estimate).' },
   ],
 }
 

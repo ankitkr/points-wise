@@ -77,7 +77,7 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     earns: false,
     countsToMilestone: false,
     verified: false,
-    notes: 'Legacy Emeralde: tax/govt (MCC 9311/9399) excluded from earning via ICICI_EXCL. Milestone-counting not established; set false (conservative). Discontinued card.',
+    notes: 'ICICI Emeralde (normal, non-metal variant — still issued): tax/govt (MCC 9311/9399) excluded from earning via ICICI_EXCL. Milestone-counting not established; set false (conservative — banking gateways re-classify tax portals).',
   },
 
   // ---- HSBC / SC: earn on tax (community), milestone-counting unconfirmed ----

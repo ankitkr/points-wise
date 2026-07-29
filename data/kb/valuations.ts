@@ -98,7 +98,14 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
     realisticInr: 0.25,
     bestInr: 0.5,
     notes:
-      'Floor: e-vouchers ₹0.20. Realistic: ₹0.25 standard. Best: ixigo Money ₹0.50 (ixigo card) or Air India Maharaja 6:1 transfer. Limited.',
+      'Base AU cards (ixigo/Zenith/LIT). Floor: e-vouchers ₹0.20. Realistic: ₹0.25 standard. Best: ixigo Money ₹0.50 (ixigo card) or Air India Maharaja 6:1 transfer. Limited. (AU Zenith+ is a distinct ₹1 model → AU_RP_PREMIUM.)',
+  },
+  AU_RP_PREMIUM: {
+    floorInr: 1.0,
+    realisticInr: 1.0,
+    bestInr: 1.0,
+    notes:
+      'AU Zenith+ Reward Points — a flat 1 RP = ₹1 for direct redemption / catalogue (Gemini audit mid-2026), making Zenith+ a ~1–2% flat-return card rather than a point-multiplier. Distinct ledger commodity from base AU_RP (₹0.25). Airline transfer (CV historically; Air India 6:1) is worse than direct and unconfirmed post-Vistara.',
   },
   INDUS_RP: {
     floorInr: 0.5,
@@ -152,10 +159,10 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
   },
   ETIHAD_MILES: {
     floorInr: 0.6,
-    realisticInr: 0.85,
+    realisticInr: 0.8,
     bestInr: 1.5,
     notes:
-      'Etihad Guest miles (BOB Etihad earns directly; not transferable onward). Economy realistic; Etihad-metal business/first best. India-specific data sparse.',
+      'Etihad Guest miles (BoB Etihad Premium + Standard earn directly; not transferable onward). Realistic ~₹0.80 standard redemption (Gemini audit mid-2026); Etihad-metal business/first stretches to ₹1.50+. Same currency for both variants — the cards differ on EARN rate, not mile value.',
   },
   NEUCOINS: {
     floorInr: 1.0,
