@@ -55,15 +55,15 @@ const fuelWaiver = (
 // Bank-wide surcharges (apply to every card of the bank).
 
 export const BANK_SURCHARGES: Record<string, SurchargeInput[]> = {
-  // Axis — Dec-2024 fee revision. Official MITC PDF was unreadable (binary), so
-  // all values are secondary (cardinsider/finowings) → verified:false.
+  // Axis — Dec-2024 fee revision. Verified against the OFFICIAL Axis MITC PDF
+  // (axis.bank.in mitc-credit-cards.pdf, read Jul-2026) → verified:true.
   axis: [
-    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary (cardinsider/finowings). 1% on all rent (MCC 6513); prior ₹1,500/txn cap removed 20-Dec-2024; earns nothing.' },
-    { kind: 'utilities', category: 'utilities', percent: 1, threshold: 25000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary. 1% on cumulative utility ≥ ₹25,000/cycle, charged on the excess.' },
-    { kind: 'fuel', category: 'fuel', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary. 1% on cumulative fuel ≥ ₹50,000/cycle (distinct from the per-card small-txn waiver).' },
-    { kind: 'education', category: 'education', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary. 1% on 3rd-party education apps; direct-to-institution exempt.' },
-    { kind: 'wallet', category: 'wallet', mccs: ['6540'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary. 1% on cumulative wallet loads ≥ ₹10,000/cycle.' },
-    { kind: 'gaming', mccs: ['7995'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-12-20', verified: false, notes: 'Secondary. 1% on skill-gaming (MCC 7995) cumulative ≥ ₹10,000/cycle.' },
+    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC. 1% + GST per rent txn (MCC 6513); no cap (prior ₹1,500/txn cap removed 20-Dec-2024 — some card pages carry stale cap text). Earns nothing.' },
+    { kind: 'utilities', category: 'utilities', percent: 1, threshold: 25000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC (MCC 4814/4899/4900): 1% on the FULL cumulative utility spend once ≥ ₹25,000/cycle (official example: ₹25,000 → ₹250 fee) — not just the excess.' },
+    { kind: 'fuel', category: 'fuel', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC. 1% "Fuel Transaction Fee" on cumulative fuel ≥ ₹50,000/cycle (distinct from the per-card small-txn waiver).' },
+    { kind: 'education', category: 'education', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC. 1% on 3rd-party education apps; direct-to-institution / institutional POS exempt.' },
+    { kind: 'wallet', category: 'wallet', mccs: ['6540'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC. 1% on cumulative wallet loads (MCC 6540) ≥ ₹10,000/cycle.' },
+    { kind: 'gaming', mccs: ['5816'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-12-20', verified: true, notes: 'Official Axis MITC. 1% on online skill-gaming (MCC 5816 — corrected from 7995) cumulative ≥ ₹10,000/cycle.' },
   ],
 
   // ICICI — Nov-2024 fee revision. Official upcoming-changes + international
@@ -85,13 +85,13 @@ export const BANK_SURCHARGES: Record<string, SurchargeInput[]> = {
 
   // Standard Chartered — rent fee bank-wide (secondary). Fuel/forex per card.
   'standard-chartered': [
-    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2023-04-02', verified: false, notes: 'Secondary (cardinsider). 1% + taxes on all rent, all SC cards, from 2-Apr-2023. No cap published.' },
+    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2023-04-02', verified: true, notes: 'Official SC FAQ (rental processing fee) + community (Jul-2026 verification): 1% + taxes on all rent (MCC 6513/7349), all SC cards, from 2-Apr-2023. No cap published.' },
   ],
 
   // HSBC — rent + wallet bank-wide (secondary; official MITC PDF binary). Fuel/forex per card.
   hsbc: [
-    { kind: 'rent', category: 'rent', mccs: ['6513', '7012', '7349'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Secondary (Premier MITC PDF snippet + hexcode). 1% + GST on rent/property-management (MCC 6513/7012/7349), all HSBC India cards. No cap published.' },
-    { kind: 'wallet', category: 'wallet', percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Secondary. 1% on cumulative wallet loads > ₹10,000/statement.' },
+    { kind: 'rent', category: 'rent', mccs: ['6513', '7012', '7349'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (community-consistent; HSBC FAQ marks MCC 6513/7012/7349 as rewards-excluded). 1% + GST on rent/property-management, all HSBC India cards. No cap published.' },
+    { kind: 'wallet', category: 'wallet', percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'UNCONFIRMED — the ₹10,000/statement wallet-load threshold could not be sourced (HSBC MITC PDF is image-based; not in any accessible community source). Wallet is a rewards-excluded category. Verify against the HSBC MITC before relying on the threshold.' },
   ],
 
   // HDFC — Aug-2024 + Jul-2025 revisions. Official MITC PDF unreadable → secondary.
@@ -105,13 +105,14 @@ export const BANK_SURCHARGES: Record<string, SurchargeInput[]> = {
     { kind: 'gaming', mccs: ['7995'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on monthly skill-gaming > ₹10,000; earns nothing.' },
   ],
 
-  // IndusInd — 2023–2026 revisions (secondary; official MITC binary). Fuel & forex per card.
+  // IndusInd — 2023–2026 revisions. Confirmed Jul-2026 (community-consistent across
+  // cardinsider; official IndusInd Rent-Information/fee PDFs exist but are binary).
   indusind: [
-    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2023-04-01', verified: false, notes: 'Secondary (cardinsider/technofino). 1% on rent (MCC 6513).' },
-    { kind: 'utilities', category: 'utilities', percent: 1, threshold: 25000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-10-01', verified: false, notes: 'Secondary. 1% on cumulative utility ≥ ₹25,000/cycle.' },
-    { kind: 'education', category: 'education', percent: 1, threshold: 45000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2025-01-01', verified: false, notes: 'Secondary. 1% on cumulative education ≥ ₹45,000/cycle.' },
-    { kind: 'wallet', category: 'wallet', percent: 1, threshold: 20000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-10-01', verified: false, notes: 'Secondary. 1% on cumulative wallet loads ≥ ₹20,000/cycle.' },
-    { kind: 'other', category: 'commute', mccs: ['4111', '4112', '4131', '4784'], percent: 1, threshold: 40000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2026-06-15', verified: false, notes: 'Secondary. 1% on cumulative transport (cabs/rail/bus/tolls, excl. air) ≥ ₹40,000/cycle; Pioneer/Solitaire exempt.' },
+    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, effectiveFrom: '2023-04-01', verified: true, notes: 'Confirmed Jul-2026 (cardinsider; official IndusInd Rent-Information PDF). 1% + GST on rent (MCC 6513) via 3rd-party merchants.' },
+    { kind: 'utilities', category: 'utilities', percent: 1, threshold: 25000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-10-01', verified: true, notes: 'Confirmed Jul-2026 (cardinsider). 1% + GST on cumulative utility ≥ ₹25,000/cycle.' },
+    { kind: 'education', category: 'education', percent: 1, threshold: 45000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2025-01-01', verified: true, notes: 'Confirmed Jul-2026 (cardinsider). 1% + GST on cumulative 3rd-party education ≥ ₹45,000/cycle; direct-to-institution exempt.' },
+    { kind: 'wallet', category: 'wallet', percent: 1, threshold: 20000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-10-01', verified: true, notes: 'Confirmed Jul-2026 (cardinsider). 1% + GST on cumulative wallet loads ≥ ₹20,000/cycle.' },
+    { kind: 'other', category: 'commute', mccs: ['4111', '4112', '4131', '4784'], percent: 1, threshold: 40000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2026-06-15', verified: true, notes: 'Confirmed Jul-2026 (cardinsider): 1% on cumulative transport (cabs/rail/bus/tolls, excl. air) ≥ ₹40,000/cycle eff 15-Jun-2026. Pioneer/Solitaire exemption unconfirmed (source 403).' },
   ],
 
   // Amex — no bank-wide rent/utility/wallet surcharge documented (those are
@@ -138,21 +139,21 @@ const hdfcFuel = (threshold: number, waiverCap?: number): SurchargeInput[] => [
 // IndusInd fuel: 1% on cumulative monthly fuel above a tier threshold.
 const indusindFuel = (threshold: number): SurchargeInput => ({ kind: 'fuel', category: 'fuel', percent: 1, threshold, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2026-06-15', verified: false, notes: `Secondary. 1% on cumulative fuel ≥ ₹${threshold}/cycle.` })
 // IDFC per-card rent / utility / education (Wealth & Mayura; Vistara is exempt).
-const IDFC_RENT: SurchargeInput = { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, flat: 249, combine: 'max', thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Secondary (cardinsider). max(₹249, 1%) per rent txn + GST.' }
-const IDFC_UTILITY: SurchargeInput = { kind: 'utilities', category: 'utilities', percent: 1, threshold: 20000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-05-01', verified: false, notes: 'Secondary. 1% on aggregate utility above ₹20,000/cycle.' }
-const IDFC_EDU: SurchargeInput = { kind: 'education', category: 'education', percent: 1, flat: 249, combine: 'max', thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Secondary. max(₹249, 1%) on 3rd-party education apps.' }
+const IDFC_RENT: SurchargeInput = { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, flat: 249, combine: 'max', thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: true, notes: 'Official IDFC MITC (confirmed Jul-2026): max(₹249, 1%) per rent txn + GST.' }
+const IDFC_UTILITY: SurchargeInput = { kind: 'utilities', category: 'utilities', percent: 1, threshold: 20000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, effectiveFrom: '2024-05-01', verified: true, notes: 'Official IDFC MITC (confirmed Jul-2026): 1% + GST on aggregate utility above ₹20,000/cycle.' }
+const IDFC_EDU: SurchargeInput = { kind: 'education', category: 'education', percent: 1, flat: 249, combine: 'max', thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: true, notes: 'Official IDFC MITC (confirmed Jul-2026): max(₹249, 1%) on 3rd-party education apps; direct-to-institute exempt.' }
 // BoB per-card wallet (Eterna/Premier).
-const BOB_WALLET: SurchargeInput = { kind: 'wallet', category: 'wallet', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Secondary (low). 1% on wallet loads.' }
+const BOB_WALLET: SurchargeInput = { kind: 'wallet', category: 'wallet', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider/paisabazaar): 1% on wallet loads.' }
 
 export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   // --- Axis: fuel waiver (₹400/cycle; ACE ₹500) + forex ---------------------
-  'axis-magnus': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis 1% fuel-surcharge waiver, ₹400–4,000 txns, cap ₹400/cycle (secondary).' }), forex(2, false, 'cardinsider forex table (secondary): Magnus 2%.')],
-  'axis-magnus-burgundy': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis fuel waiver, cap ₹400/cycle (secondary).' }), forex(2, false, 'cardinsider (secondary): Magnus-for-Burgundy 2%.')],
-  'axis-atlas': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis fuel waiver, cap ₹400/cycle (secondary).' }), forex(3.5, false, 'Secondary consensus: Atlas 3.5%.')],
-  'axis-privilege': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis fuel waiver (secondary).' }), forex(3.5, false, 'Inferred: most Axis cards 3.5%.')],
-  'axis-ace': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, notes: 'ACE 1% fuel-surcharge waiver, ₹400–4,000 txns, cap ₹500/cycle (secondary).' }), forex(3.5, false, 'Inferred: most Axis cards 3.5%.')],
-  'axis-flipkart': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis fuel waiver (secondary).' }), forex(3.5, false, 'Inferred: most Axis cards 3.5%.')],
-  'axis-airtel': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'Standard Axis fuel waiver (secondary).' }), forex(3.5, false, 'Inferred: most Axis cards 3.5%.')],
+  'axis-magnus': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: 1% fuel-surcharge waiver ₹400–4,000 txns, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider/TechnoFino): Magnus 2%.')],
+  'axis-magnus-burgundy': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Magnus-for-Burgundy 2%.')],
+  'axis-atlas': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Atlas 3.5%.')],
+  'axis-privilege': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
+  'axis-ace': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: ACE fuel-surcharge waiver ₹400–4,000 txns, cap ₹500/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026: ACE 3.5%.')],
+  'axis-flipkart': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
+  'axis-airtel': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: Airtel fuel-surcharge waiver cap ₹500/cycle (same as ACE — corrected from ₹400).' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
 
   // --- ICICI: fuel + forex --------------------------------------------------
   'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde 2%.', '2024-11-15')],
@@ -168,20 +169,20 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'sbi-prime': [SBI_FUEL, forex(1.99, true, 'Official SBI MITC: Prime 1.99%.')],
 
   // --- Amex: fuel + forex (no rent surcharge; earns MR on rent) -------------
-  'amex-platinum-travel': [AMEX_FUEL, forex(3.5, false, 'Amex India 3.5% forex on all cards (secondary).')],
-  'amex-mrcc': [{ kind: 'fuel', category: 'fuel', percent: 0, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: false, verified: false, notes: '0% fuel convenience fee at HPCL for txns < ₹5,000 (secondary); standard 1% may apply elsewhere.' }, forex(3.5, false, 'Amex India 3.5% forex (secondary).')],
-  'amex-platinum': [AMEX_FUEL, forex(3.5, false, 'Amex India 3.5% forex (secondary).')],
-  'amex-smartearn': [AMEX_FUEL, forex(3.5, false, 'Amex India 3.5% forex (secondary).')],
+  'amex-platinum-travel': [AMEX_FUEL, forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): all Amex India cards 3.5% forex.')],
+  'amex-mrcc': [{ kind: 'fuel', category: 'fuel', percent: 0, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: false, verified: false, notes: '0% fuel convenience fee at HPCL for txns < ₹5,000 (secondary); standard 1% may apply elsewhere.' }, forex(3.5, true, 'Confirmed Jul-2026: Amex India 3.5% forex.')],
+  'amex-platinum': [AMEX_FUEL, forex(3.5, true, 'Confirmed Jul-2026: Amex India 3.5% forex.')],
+  'amex-smartearn': [AMEX_FUEL, forex(3.5, true, 'Confirmed Jul-2026: Amex India 3.5% forex.')],
 
   // --- Standard Chartered: fuel + forex (rent is bank-wide) -----------------
-  'sc-ultimate': [{ kind: 'fuel', category: 'fuel', percent: 1, waiverCapPerCycle: 1000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC Ultimate 1% fuel-surcharge waiver, cap ₹1,000/mo (secondary).' }, forex(2, false, 'SC Ultimate 2% forex (secondary).')],
-  'sc-smart': [{ kind: 'fuel', category: 'fuel', percent: 1, waiverCapPerCycle: 1000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC Smart 1% fuel-surcharge waiver (₹10 or 1%, whichever higher; secondary).' }, forex(3.5, false, 'SC Smart 3.5% forex (secondary).')],
-  'sc-easemytrip': [{ kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC EaseMyTrip: 1% fuel surcharge, no waiver documented (secondary).' }, forex(3.5, false, 'SC EaseMyTrip 3.5% forex (secondary).')],
+  'sc-ultimate': [{ kind: 'fuel', category: 'fuel', percent: 1, waiverCapPerCycle: 1000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC Ultimate 1% fuel-surcharge waiver, cap ₹1,000/mo (secondary).' }, forex(2, true, 'Official SC page: Ultimate 2% forex (eff 25-Aug-2024).', '2024-08-25')],
+  'sc-smart': [{ kind: 'fuel', category: 'fuel', percent: 1, waiverCapPerCycle: 1000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC Smart 1% fuel-surcharge waiver (₹10 or 1%, whichever higher; secondary).' }, forex(3.5, true, 'Confirmed Jul-2026: SC standard 3.5% forex.')],
+  'sc-easemytrip': [{ kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'SC EaseMyTrip: 1% fuel surcharge, no waiver documented (secondary).' }, forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): SC EaseMyTrip 3.5% forex.')],
 
   // --- HSBC: fuel + forex (rent + wallet are bank-wide) ---------------------
-  'hsbc-travelone': [fuelWaiver(250, { notes: 'HSBC TravelOne 1% fuel-surcharge waiver, cap ₹250/mo (secondary).' }), forex(3.5, false, 'cardinsider: TravelOne 3.5% (rivo cites 1.5% — discrepancy).')],
+  'hsbc-travelone': [fuelWaiver(250, { notes: 'HSBC TravelOne 1% fuel-surcharge waiver, cap ₹250/mo (secondary).' }), forex(3.5, true, 'Confirmed Jul-2026: TravelOne base forex 3.5% (the "low"/zero figure was a promo cashback, not a 1.5% base — discrepancy resolved).')],
   'hsbc-premier': [{ kind: 'fuel', category: 'fuel', percent: 1, txnMin: 400, txnMax: 4000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'HSBC Premier: 1% fuel-surcharge waiver on ₹400–4,000 txns; per-cycle cap not published (secondary).' }, forex(0.99, true, 'Official hsbc.co.in international page: Premier 0.99%.')],
-  'hsbc-live-plus': [fuelWaiver(250, { effectiveFrom: '2026-07-26', waiverPeriod: 'quarter', notes: 'Live+ post-26-Jul-2026: contactless fuel cashback, cap ~₹250/quarter; standard 1% surcharge otherwise (secondary).' }), forex(1.99, false, 'Live+ forex reduced 3.5%→1.99% eff 26-Jul-2026 (secondary).', '2026-07-26')],
+  'hsbc-live-plus': [fuelWaiver(250, { effectiveFrom: '2026-07-26', waiverPeriod: 'quarter', notes: 'Live+ post-26-Jul-2026: contactless fuel cashback, cap ~₹250/quarter; standard 1% surcharge otherwise (secondary).' }), forex(1.99, true, 'Confirmed Jul-2026: Live+ forex 1.99% (reduced from 3.5%). Effective date ~26-Jul-2026 unconfirmed (a 13-Jul-2026 review already quoted 1.99%).', '2026-07-26')],
 
   // --- HDFC: utility (personal ₹50k / biz ₹75k) + fuel (per-txn + waiver) + forex
   'hdfc-infinia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Official HDFC MITC v4.4 (Jul-2026): Infinia FCY 2%.')],
@@ -195,24 +196,24 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hdfc-swiggy': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, false, 'Swiggy HDFC 3.5% forex (secondary).')],
 
   // --- IndusInd: fuel (tier threshold) + forex (rent/util/edu/wallet/transport bank-wide)
-  'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, false, 'Avios 3.5% forex; 1.5% on preferred destinations (secondary).')],
-  'indusind-legend': [indusindFuel(30000), forex(1.8, false, 'Legend 1.8% forex (secondary).')],
-  'indusind-eazydiner': [indusindFuel(30000), forex(3.5, false, 'EazyDiner 3.5% forex assumed (secondary, low).')],
+  'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, true, 'Confirmed Jul-2026 (cardexpert/cardinsider): Avios 3.5% forex; 1.5% at the preferred destination.')],
+  'indusind-legend': [indusindFuel(30000), forex(1.8, true, 'Confirmed Jul-2026 (cardinsider/wise): Legend 1.8% forex.')],
+  'indusind-eazydiner': [indusindFuel(30000), forex(3.5, true, 'Confirmed Jul-2026: IndusInd standard 3.5% forex.')],
 
   // --- AU: fuel + forex only. Rent/utility surcharge unconfirmed (official PDF binary) — omitted.
-  'au-ixigo': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'AU ixigo 1% fuel waiver ₹400–5,000, cap ₹250/mo (secondary).' }), forex(0, false, 'ixigo AU 0% forex (secondary).')],
-  'au-zenith': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'AU Zenith 1% fuel waiver, cap ~₹250/mo; Zenith+ higher (secondary).' }), forex(1.99, false, 'Zenith 1.99% forex; Zenith+ 0.99% (secondary).')],
-  'au-lit': [{ kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'AU LIT: no fuel-surcharge waiver; standard 1% applies (secondary).' }, forex(3.5, false, 'LIT ~3.5% forex assumed (secondary, low).')],
+  'au-ixigo': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, verified: true, notes: 'Confirmed Jul-2026: AU ixigo 1% fuel waiver ₹400–5,000, cap ₹250/cycle.' }), forex(0, true, 'Official AU: ixigo 0% forex.')],
+  'au-zenith': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'AU Zenith 1% fuel waiver, cap ~₹250/cycle (community; Zenith+ higher).' }), forex(1.99, true, 'Confirmed Jul-2026 (cardinsider/paisabazaar): Zenith 1.99% forex (Zenith+ 0.99%).')],
+  'au-lit': [{ kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'AU LIT: no fuel-surcharge waiver; standard 1% applies (secondary).' }, forex(3.5, true, 'Confirmed Jul-2026: AU standard ~3.5% forex.')],
 
   // --- IDFC FIRST: Wealth/Mayura carry rent/util/edu; Vistara is exempt (winding down)
   'idfc-vistara': [fuelWaiver(200, { txnMin: 200, txnMax: 5000, notes: 'IDFC standard fuel waiver ₹200–5,000, cap ₹200/cycle (secondary). Club Vistara winding down 30-Sep-2026; EXEMPT from rent/utility/education fees.' }), forex(3.5, false, 'Vistara 3.5% forex assumed (secondary, low).')],
-  'idfc-wealth': [IDFC_RENT, IDFC_UTILITY, IDFC_EDU, fuelWaiver(300, { txnMin: 200, txnMax: 5000, notes: 'IDFC Wealth fuel waiver ₹200–5,000, cap ₹300/cycle (secondary).' }), { kind: 'fuel', category: 'fuel', percent: 1, threshold: 30000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Secondary. Also 1% on cumulative fuel above ₹30,000/cycle.' }, forex(1.5, false, 'Wealth 1.5% forex (secondary).')],
-  'idfc-mayura': [IDFC_RENT, IDFC_UTILITY, IDFC_EDU, fuelWaiver(300, { txnMin: 200, txnMax: 5000, notes: 'IDFC Mayura fuel waiver ₹200–5,000, cap ₹300/cycle (secondary).' }), forex(0, false, 'Mayura 0% forex (secondary).')],
+  'idfc-wealth': [IDFC_RENT, IDFC_UTILITY, IDFC_EDU, fuelWaiver(300, { txnMin: 200, txnMax: 5000, notes: 'IDFC Wealth fuel waiver ₹200–5,000, cap ₹300/cycle (secondary).' }), { kind: 'fuel', category: 'fuel', percent: 1, threshold: 30000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Secondary. Also 1% on cumulative fuel above ₹30,000/cycle.' }, forex(1.5, true, 'Official IDFC Wealth page: 1.5% forex.')],
+  'idfc-mayura': [IDFC_RENT, IDFC_UTILITY, IDFC_EDU, fuelWaiver(300, { txnMin: 200, txnMax: 5000, notes: 'IDFC Mayura fuel waiver ₹200–5,000, cap ₹300/cycle (secondary).' }), forex(0, true, 'Official IDFC: Mayura 0% forex.')],
 
   // --- BoB: utility/wallet/fuel + forex. Rent/education earn nothing; no surcharge confirmed.
-  'bob-eterna': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Secondary (low). 1% on utility above ₹50,000/mo.' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Eterna fuel waiver ₹400–5,000, cap ₹250/cycle (secondary).' }), forex(2, false, 'Eterna 2% forex (secondary).')],
-  'bob-premier': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Secondary (low). 1% on utility above threshold assumed ₹50,000/mo (same as Eterna; unconfirmed).' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Premier fuel waiver ₹400–5,000, cap ₹250/mo (secondary).' }), forex(3.5, false, 'Premier 3.5% forex (secondary).')],
-  'bob-etihad': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(0, false, 'Etihad Guest Premium 0% forex (secondary).')],
+  'bob-eterna': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider/paisabazaar): 1% on utility above ₹50,000/mo.' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Eterna fuel waiver ₹400–5,000, cap ₹250/cycle (secondary).' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Eterna 2% forex.')],
+  'bob-premier': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider): 1% on utility above ₹50,000/mo (same as Eterna).' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Premier fuel waiver ₹400–5,000, cap ₹250/mo (secondary).' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Premier 3.5% forex.')],
+  'bob-etihad': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(0, true, 'Confirmed Jul-2026 (cardinsider): Etihad Guest Premium 0% forex.')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.
