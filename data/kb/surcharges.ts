@@ -157,9 +157,9 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
 
   // --- ICICI: fuel + forex --------------------------------------------------
   'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde 2%.', '2024-11-15')],
-  'icici-sapphiro': [ICICI_FUEL, forex(3.5, false, 'Default 3.5%; Sapphiro not listed among reduced-rate cards on official page.')],
+  'icici-sapphiro': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Sapphiro not among the reduced-rate cards).')],
   'icici-amazon-pay': [ICICI_FUEL, forex(1.99, true, 'Official: Amazon Pay ICICI 1.99% from 11-Oct-2025.', '2025-10-11')],
-  'icici-coral': [ICICI_FUEL, forex(3.5, false, 'Default 3.5%; Coral not listed among reduced-rate cards on official page.')],
+  'icici-coral': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Coral not among the reduced-rate cards).')],
   'icici-makemytrip': [ICICI_FUEL, forex(0.99, true, 'Official ICICI international page: MakeMyTrip ICICI 0.99%.')],
 
   // --- SBI: fuel + forex (Elite/Prime 1.99%, others 3.5%) -------------------
@@ -186,14 +186,14 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
 
   // --- HDFC: utility (personal ₹50k / biz ₹75k) + fuel (per-txn + waiver) + forex
   'hdfc-infinia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Official HDFC MITC v4.4 (Jul-2026): Infinia FCY 2%.')],
-  'hdfc-diners-black': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, false, 'Diners Black 2% forex (secondary).')],
-  'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 75000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-08-01', verified: false, notes: 'Secondary. Business card: 1% on full monthly utility once > ₹75,000.' }, ...hdfcFuel(30000), forex(2, false, 'BizBlack 2% forex (secondary).')],
+  'hdfc-diners-black': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC Diners Black 2%.')],
+  'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 75000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-08-01', verified: false, notes: 'Secondary. Business card: 1% on full monthly utility once > ₹75,000.' }, ...hdfcFuel(30000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC premium/business 2%.')],
   'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%; DCC markup 1.75% eff 15-May-2026 (separate from FCY).', '2026-05-15')],
-  'hdfc-millennia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(3.5, false, 'Millennia 3.5% forex (secondary).')],
-  'hdfc-marriott': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, false, 'Marriott 3.5% forex assumed (secondary, low).')],
-  'hdfc-neu-infinity': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(2, false, 'Tata Neu Infinity 2% forex (secondary).')],
-  'hdfc-neu-plus': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, false, 'Tata Neu Plus 3.5% forex assumed (secondary, low).')],
-  'hdfc-swiggy': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, false, 'Swiggy HDFC 3.5% forex (secondary).')],
+  'hdfc-millennia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
+  'hdfc-marriott': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): co-brand 3.5%.')],
+  'hdfc-neu-infinity': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(2, true, 'Confirmed Jul-2026 (cardinsider/search): Tata Neu Infinity 2%.')],
+  'hdfc-neu-plus': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
+  'hdfc-swiggy': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): Swiggy HDFC 3.5%.')],
 
   // --- IndusInd: fuel (tier threshold) + forex (rent/util/edu/wallet/transport bank-wide)
   'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, true, 'Confirmed Jul-2026 (cardexpert/cardinsider): Avios 3.5% forex; 1.5% at the preferred destination.')],
