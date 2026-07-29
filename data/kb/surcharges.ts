@@ -156,7 +156,9 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'axis-airtel': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: Airtel fuel-surcharge waiver cap ₹500/cycle (same as ACE — corrected from ₹400).' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
 
   // --- ICICI: fuel + forex --------------------------------------------------
-  'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde 2%.', '2024-11-15')],
+  'icici-emeralde-private-metal': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde PM: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde PM 2%.', '2024-11-15')],
+  // Legacy non-metal ICICI Emeralde: 1% fuel-surcharge waiver (all stations) + 2% forex.
+  'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Legacy Emeralde: 1% fuel-surcharge waiver across fuel stations (cardinsider; per-cycle cap not published).' }, forex(2, true, 'Legacy Emeralde 2% forex (cardinsider).')],
   'icici-sapphiro': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Sapphiro not among the reduced-rate cards).')],
   'icici-amazon-pay': [ICICI_FUEL, forex(1.99, true, 'Official: Amazon Pay ICICI 1.99% from 11-Oct-2025.', '2025-10-11')],
   'icici-coral': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Coral not among the reduced-rate cards).')],

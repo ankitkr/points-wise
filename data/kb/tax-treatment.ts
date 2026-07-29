@@ -65,12 +65,19 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
   },
 
   // ---- ICICI: Emeralde PM excludes tax from earning; milestone counting UNCONFIRMED ----
-  'icici-emeralde': {
+  'icici-emeralde-private-metal': {
     earns: false,
     countsToMilestone: false,
     verified: false,
     notes:
       '2026 notice (eff ~15-Jan-2026) excludes Govt/Fuel/Rent/Tax from EARNING — confirmed. @RushilM_ lists tax counting toward the ₹4L & ₹8L milestones (₹3K EaseMyTrip GV), but verification found NO evidence either way — unlike HDFC/Amex, ICICI has no known "counts-but-earns-zero" statement. The mid-2026 audit concurs: do not rely on it. Set countsToMilestone=false (conservative) until an official ICICI source confirms otherwise.',
+  },
+  // Legacy non-metal Emeralde: govt/tax excluded via ICICI_EXCL (earns 0); milestone counting unknown.
+  'icici-emeralde': {
+    earns: false,
+    countsToMilestone: false,
+    verified: false,
+    notes: 'Legacy Emeralde: tax/govt (MCC 9311/9399) excluded from earning via ICICI_EXCL. Milestone-counting not established; set false (conservative). Discontinued card.',
   },
 
   // ---- HSBC / SC: earn on tax (community), milestone-counting unconfirmed ----

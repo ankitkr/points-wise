@@ -399,7 +399,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'hsbc-live-plus': cashbackAuto('10% dining/grocery/food (₹1,200/mo) + 1.5% base, auto statement credit; no points.'),
 
   // ---- ICICI (iShop; RP 3-yr expiry; ₹99+GST fee, waived Emeralde PM) ----
-  'icici-emeralde': {
+  'icici-emeralde-private-metal': {
     methods: [
       { method: 'travel-portal', valuePerPoint: 1.0, notes: 'iShop flights ≤95% / hotels ≤90% of cart at 1 RP=₹1; redemption fee waived for Emeralde PM.' },
       { method: 'gift-voucher', valuePerPoint: 0.6, notes: 'iShop vouchers 1 RP=₹0.60, ≤50% of cart; ₹12k/mo Amazon/Flipkart.' },
@@ -410,6 +410,19 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     pointExpiryMonths: 36,
     verified: false,
     notes: 'iShop 1 RP=₹1 flights (best); Air India 1:1. iShop earn cap ~18k RP/mo. Fee waived for Emeralde PM.',
+  },
+  // Legacy non-metal ICICI Emeralde: programme-wide iShop, but NO airline transfer
+  // (Air India 1:1 is Emeralde PM / Times Black only).
+  'icici-emeralde': {
+    methods: [
+      { method: 'travel-portal', valuePerPoint: 1.0, notes: 'iShop flights at 1 RP=₹1 (programme-wide).' },
+      { method: 'gift-voucher', valuePerPoint: 0.6, notes: 'iShop vouchers ~1 RP=₹0.60.' },
+      { method: 'catalog', valuePerPoint: 0.25, notes: 'Flat 1 RP=₹0.25 cash/gifts (cardinsider).' },
+    ],
+    transferPartners: [],
+    pointExpiryMonths: 36,
+    verified: false,
+    notes: 'Legacy Emeralde: ICICI RP flat ₹0.25 (cardinsider); iShop 1 RP=₹1 on flights. No confirmed airline transfer (that is Metal/Times Black).',
   },
   'icici-sapphiro': {
     methods: [

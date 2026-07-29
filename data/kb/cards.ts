@@ -397,7 +397,7 @@ export const CARDS: SeedCard[] = [
   // =========================================================================
   {
     card: {
-      slug: 'icici-emeralde', bankSlug: 'icici', name: 'ICICI Emeralde Private Metal', beancountName: 'Emeralde',
+      slug: 'icici-emeralde-private-metal', bankSlug: 'icici', name: 'ICICI Emeralde Private Metal', beancountName: 'Emeralde',
       network: 'mastercard', pool: { ticker: 'ICICI_RP', programme: 'ICICI Reward Points' }, active: true,
     },
     rules: [{
@@ -407,7 +407,22 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'rent', 'wallet', 'government'],
       excludedMccs: ICICI_EXCL,
       verified: true,
-      notes: 'Official MITC. 6 RP/₹200; up to ₹1/RP on air-miles/premium redemption. Per-cycle point caps: grocery/education/utility 1,000 RP each, insurance 5,000 RP; transport capped ₹20k spend/mo (eff 15-Jan-2026).',
+      notes: 'Official MITC. 6 RP/₹200; up to ₹1/RP on air-miles/premium redemption. Per-cycle point caps: grocery/education/utility 1,000 RP each, insurance 5,000 RP; transport capped ₹20k spend/mo (eff 15-Jan-2026). Invite-only Mastercard World Elite metal card; replaced the (non-metal) ICICI Emeralde — that legacy card is icici-emeralde.',
+    }],
+  },
+  {
+    card: {
+      slug: 'icici-emeralde', bankSlug: 'icici', name: 'ICICI Emeralde', beancountName: 'EmeraldeLegacy',
+      network: 'visa', pool: { ticker: 'ICICI_RP', programme: 'ICICI Reward Points' }, active: false,
+    },
+    rules: [{
+      effectiveFrom: '2021-01-01',
+      base: { points: 4, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: ICICI_EXCL,
+      verified: false,
+      notes: 'ICICI Emeralde (non-metal, Visa Signature) — the legacy flagship discontinued for new applicants when Emeralde Private Metal launched; active:false. Base 4 RP/₹100 on all except fuel/utilities/insurance; utilities & insurance earn a reduced 1 RP/₹100 (not machine-encoded). ₹12,000 fee, waiver ₹10L/yr (or ₹1,000/mo, waived ₹1L/mo). 2% forex, unlimited lounge, 1 golf round/lesson per month on ₹50k prior-month spend. Sources: cardinsider + paisabazaar (secondary) → verified:false. Network Visa assumed (Amex variant also existed historically).',
     }],
   },
   {

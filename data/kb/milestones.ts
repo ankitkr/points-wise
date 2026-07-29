@@ -35,7 +35,8 @@ export const CARD_FEES: Record<string, Fees> = {
   'axis-flipkart': { joiningInr: 500, annualInr: 500 },
   'axis-airtel': { joiningInr: 500, annualInr: 500 },
   // ICICI
-  'icici-emeralde': { joiningInr: 12499, annualInr: 12499 },
+  'icici-emeralde-private-metal': { joiningInr: 12499, annualInr: 12499 },
+  'icici-emeralde': { joiningInr: 12000, annualInr: 12000 }, // legacy non-metal Emeralde
   'icici-sapphiro': { joiningInr: 6500, annualInr: 3500 },
   'icici-amazon-pay': { joiningInr: 0, annualInr: 0 },
   'icici-coral': { joiningInr: 500, annualInr: 500 },
@@ -161,10 +162,15 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
   ],
 
   // ---- ICICI (official icici.bank.in pages) ----
-  'icici-emeralde': [
+  'icici-emeralde-private-metal': [
     { period: 'welcome', kind: 'points', points: 12500, verified: true, label: '12,500 welcome pts on fee-pay', notes: 'icici.bank.in.' },
     { spendThreshold: 800000, period: 'anniversary-year', kind: 'voucher', valueInr: 6000, repeatable: true, verified: true, label: '2× EaseMyTrip vouchers (₹6k) at ₹8L', notes: 'icici.bank.in.' },
     fw(1000000, 12499, '₹10L/yr → waiver (icici.bank.in).'),
+  ],
+  // Legacy non-metal ICICI Emeralde (discontinued); secondary sources → verified:false.
+  'icici-emeralde': [
+    { spendThreshold: 1000000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 12000, repeatable: true, verified: false, label: 'annual fee waiver', notes: '₹10L/yr → ₹12,000 fee waived (cardinsider/paisabazaar). Alternatively ₹1,000/mo, waived at ₹1L/mo.' },
+    { spendThreshold: 50000, period: 'statement-cycle', kind: 'other', repeatable: true, verified: false, label: '1 golf round/lesson per month at ₹50k', notes: 'cardinsider; max 4/mo. Legacy Emeralde.' },
   ],
   'icici-sapphiro': [
     { period: 'welcome', kind: 'voucher', valueInr: 13000, verified: true, label: 'welcome voucher bundle ~₹13k (TataCliQ/EaseMyTrip/DaMilano/Croma)', notes: 'icici.bank.in.' },
@@ -331,7 +337,7 @@ export const CARD_ACCEL_CAP: Record<string, number> = {
   'hdfc-diners-black': 7500, // plastic; Diners Black Metal is 10,000
   'hdfc-bizblack': 10000,
   'hdfc-regalia-gold': 4000,
-  'icici-emeralde': 12000, // iShop bonus/mo (+ per-cycle category sub-caps on accelerators)
+  'icici-emeralde-private-metal': 12000, // iShop bonus/mo (+ per-cycle category sub-caps on accelerators)
   'icici-sapphiro': 9000, // iShop bonus/mo
   'icici-coral': 9000, // iShop bonus/mo
   'icici-amazon-pay': 1100, // iShop co-brand cap; primary 5/3/2/1% cashback uncapped
