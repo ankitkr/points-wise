@@ -554,14 +554,13 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   },
   'au-zenith-plus': {
     methods: [
-      { method: 'catalog', valuePerPoint: 0.25 },
-      { method: 'gift-voucher', valuePerPoint: 0.2 },
-      { method: 'airmiles-transfer', valuePerPoint: 0.17, notes: 'Air India Maharaja 6:1.' },
+      { method: 'catalog', valuePerPoint: 1.0, notes: 'Direct redemption / catalogue at a flat 1 RP = ₹1 (Gemini audit mid-2026).' },
+      { method: 'gift-voucher', valuePerPoint: 1.0, notes: 'Brand vouchers ~1 RP = ₹1.' },
     ],
-    transferPartners: [{ partner: 'Air India Maharaja Club', kind: 'airline', ratio: '6:1' }],
+    transferPartners: [],
     pointExpiryMonths: 24,
     verified: false,
-    notes: 'Same AU_RP redemption as base Zenith (catalog ₹0.25; Air India 6:1; ₹99+GST fee).',
+    notes: 'AU Zenith+ RP = ₹1 flat for direct/catalogue (distinct from base Zenith ₹0.25 → AU_RP_PREMIUM). Airline transfer (CV historically; Air India 6:1) is worse than direct and needs re-verification post-Vistara wind-down.',
   },
   'au-lit': {
     methods: [
@@ -619,16 +618,16 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     notes: 'RP ₹0.25; 24-mo expiry; no transfer.',
   },
   'bob-etihad': {
-    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.5, notes: 'Earns Etihad Guest Miles directly (Premium 2/₹100, 6/₹100 on Etihad); redeem on Etihad Guest only (~₹0.50–0.60/mile).' }],
-    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.8, notes: 'Earns Etihad Guest Miles directly (Premium 2/₹100, 6/₹100 on Etihad); ~₹0.80/mile standard, ₹1.50+ premium-cabin Etihad metal (Gemini audit mid-2026).' }],
+    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.8, notes: 'Miles credited directly; NOT transferable onward, no statement cashback.' }],
     verified: false,
-    notes: 'Earns Etihad miles directly; no other transfer. Expiry per Etihad Guest activity rules.',
+    notes: 'Earns Etihad miles directly; no onward transfer. Expiry per Etihad Guest activity rules.',
   },
   'bob-etihad-standard': {
-    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.5, notes: 'Earns Etihad Guest Miles directly (Standard 1/₹100, 3/₹100 on Etihad); redeem on Etihad Guest only (~₹0.50–0.60/mile).' }],
-    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.8, notes: 'Earns Etihad Guest Miles directly (Standard 1/₹100, 3/₹100 on Etihad); ~₹0.80/mile standard, ₹1.50+ premium-cabin (Gemini audit mid-2026).' }],
+    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.8, notes: 'Miles credited directly; NOT transferable onward, no statement cashback.' }],
     verified: false,
-    notes: 'Same ETIHAD_MILES redemption as the Premium card; earn rate is half. Expiry per Etihad Guest activity rules.',
+    notes: 'Same ETIHAD_MILES currency as the Premium card (earn rate is half). Expiry per Etihad Guest activity rules.',
   },
 }
 

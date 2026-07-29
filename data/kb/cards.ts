@@ -848,18 +848,19 @@ export const CARDS: SeedCard[] = [
   {
     card: {
       slug: 'au-zenith-plus', bankSlug: 'au', name: 'AU Zenith+', beancountName: 'ZenithPlus',
-      network: 'visa', pool: { ticker: 'AU_RP', programme: 'AU Reward Points' }, active: true,
+      network: 'visa', pool: { ticker: 'AU_RP_PREMIUM', programme: 'AU Reward Points' }, active: true,
     },
     rules: [{
       effectiveFrom: '2026-01-01',
-      base: { points: 3, per: 100 },
+      base: { points: 1, per: 100 },
       accelerators: [
-        { category: 'dining', label: 'Dining', multiplier: 1.67, monthlyCapPoints: 5000, notes: '5 RP/₹100, capped 5,000 RP/cycle (cloned from base Zenith; Zenith+ earn not separately confirmed).' },
+        { category: 'travel', label: 'Travel', multiplier: 2, notes: '2 RP/₹100 on travel (Gemini audit mid-2026).' },
+        { category: 'dining', label: 'Dining', multiplier: 2, notes: '2 RP/₹100 on dining (Gemini audit mid-2026).' },
       ],
-      exclusions: ['fuel', 'rent', 'education', 'government', 'commute'],
+      exclusions: ['fuel'],
       excludedMccs: [],
       verified: false,
-      notes: 'AU Zenith+ (₹4,999 metal) — the higher-milestone sibling of AU Zenith. Earn structure CLONED from base Zenith (3 RP/₹100, dining 5/₹100, overall 25k RP/cycle cap, 1 RP = ₹0.25) and NOT separately confirmed for Zenith+ → verified:false. Distinct milestones vs base: ₹75k/cycle → 1,000 RP, fee waiver at ₹8L, Taj Epicure at ₹12L (mid-2026 audit). Forex 0.99% (vs base 1.99%).',
+      notes: 'AU Zenith+ (₹4,999 metal) — a DISTINCT reward model from base Zenith (Gemini audit mid-2026), NOT a clone: 1 RP/₹100 retail, 2 RP/₹100 on travel/dining/international, and 1 RP = ₹1 (a flat ~1–2% return card, not a multiplier card) → priced on its own AU_RP_PREMIUM commodity. Cash advances/EMIs/fuel earn nothing. Milestones: ₹75k/cycle → 1,000 RP, fee waiver ₹8L, Taj Epicure ₹12L. Forex 0.99%. Community-sourced → verified:false.',
     }],
   },
   {
@@ -1000,7 +1001,7 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'telecom', 'rent', 'wallet', 'insurance', 'government', 'education', 'groceries'],
       excludedMccs: BOB_EXCL,
       verified: false,
-      notes: 'BoB Etihad Guest STANDARD: 3/₹100 Etihad, 1/₹100 other. The Premium variant (bob-etihad) doubles both. Milestones per mid-2026 audit (fee-waiver ₹3L). Annual fee UNCONFIRMED (~₹750 estimate). Community-sourced → verified:false.',
+      notes: 'BoB Etihad Guest STANDARD: 3/₹100 Etihad, 1/₹100 other. The Premium variant (bob-etihad) doubles both. Milestones per Gemini audit mid-2026 (fee-waiver ₹3L). Annual fee ₹2,500 + GST; reduced 1% forex (a key Standard feature). Community-sourced → verified:false.',
     }],
   },
 
