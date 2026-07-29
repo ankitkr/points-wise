@@ -168,7 +168,7 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
     { spendThreshold: 800000, period: 'anniversary-year', kind: 'voucher', valueInr: 6000, repeatable: true, verified: true, label: '2× EaseMyTrip vouchers (₹6k) at ₹8L', notes: 'icici.bank.in.' },
     fw(1000000, 12499, '₹10L/yr → waiver (icici.bank.in).'),
   ],
-  // Legacy non-metal ICICI Emeralde (discontinued); secondary sources → verified:false.
+  // ICICI Emeralde normal (non-metal, still issued) variant; secondary sources → verified:false.
   'icici-emeralde': [
     { spendThreshold: 1000000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 12000, repeatable: true, verified: false, label: 'annual fee waiver', notes: '₹10L/yr → ₹12,000 fee waived (cardinsider/paisabazaar). Alternatively ₹1,000/mo, waived at ₹1L/mo.' },
     { spendThreshold: 50000, period: 'statement-cycle', kind: 'other', repeatable: true, verified: false, label: '1 golf round/lesson per month at ₹50k', notes: 'cardinsider; max 4/mo. Legacy Emeralde.' },

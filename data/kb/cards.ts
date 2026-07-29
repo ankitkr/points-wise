@@ -413,8 +413,8 @@ export const CARDS: SeedCard[] = [
   },
   {
     card: {
-      slug: 'icici-emeralde', bankSlug: 'icici', name: 'ICICI Emeralde', beancountName: 'EmeraldeLegacy',
-      network: 'visa', pool: { ticker: 'ICICI_RP', programme: 'ICICI Reward Points' }, active: false,
+      slug: 'icici-emeralde', bankSlug: 'icici', name: 'ICICI Emeralde', beancountName: 'EmeraldeNormal',
+      network: 'visa', pool: { ticker: 'ICICI_RP', programme: 'ICICI Reward Points' }, active: true,
     },
     rules: [{
       effectiveFrom: '2021-01-01',
@@ -423,7 +423,7 @@ export const CARDS: SeedCard[] = [
       exclusions: ['fuel', 'rent', 'wallet', 'government'],
       excludedMccs: ICICI_EXCL,
       verified: false,
-      notes: 'ICICI Emeralde (non-metal, Visa Signature) — the legacy flagship discontinued for new applicants when Emeralde Private Metal launched; active:false. Base 4 RP/₹100 on all except fuel/utilities/insurance; utilities & insurance earn a reduced 1 RP/₹100 (not machine-encoded). ₹12,000 fee, waiver ₹10L/yr (or ₹1,000/mo, waived ₹1L/mo). 2% forex, unlimited lounge, 1 golf round/lesson per month on ₹50k prior-month spend. Sources: cardinsider + paisabazaar (secondary) → verified:false. Network Visa assumed (Amex variant also existed historically).',
+      notes: 'ICICI Emeralde (non-metal, Visa Signature) — the "normal" variant, STILL ISSUED alongside Emeralde Private Metal (icici-emeralde-private-metal is the metal variant); active. Base 4 RP/₹100 on all except fuel/utilities/insurance; utilities & insurance earn a reduced 1 RP/₹100 (not machine-encoded). ₹12,000 fee, waiver ₹10L/yr (or ₹1,000/mo, waived ₹1L/mo). 2% forex, unlimited lounge, 1 golf round/lesson per month on ₹50k prior-month spend. Sources: cardinsider + paisabazaar + Gemini audit (secondary) → verified:false. Network Visa assumed (Amex variant existed historically).',
     }],
   },
   {
