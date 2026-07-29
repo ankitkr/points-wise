@@ -399,7 +399,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'hsbc-live-plus': cashbackAuto('10% dining/grocery/food (₹1,200/mo) + 1.5% base, auto statement credit; no points.'),
 
   // ---- ICICI (iShop; RP 3-yr expiry; ₹99+GST fee, waived Emeralde PM) ----
-  'icici-emeralde': {
+  'icici-emeralde-private-metal': {
     methods: [
       { method: 'travel-portal', valuePerPoint: 1.0, notes: 'iShop flights ≤95% / hotels ≤90% of cart at 1 RP=₹1; redemption fee waived for Emeralde PM.' },
       { method: 'gift-voucher', valuePerPoint: 0.6, notes: 'iShop vouchers 1 RP=₹0.60, ≤50% of cart; ₹12k/mo Amazon/Flipkart.' },
@@ -410,6 +410,19 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     pointExpiryMonths: 36,
     verified: false,
     notes: 'iShop 1 RP=₹1 flights (best); Air India 1:1. iShop earn cap ~18k RP/mo. Fee waived for Emeralde PM.',
+  },
+  // Legacy non-metal ICICI Emeralde: programme-wide iShop, but NO airline transfer
+  // (Air India 1:1 is Emeralde PM / Times Black only).
+  'icici-emeralde': {
+    methods: [
+      { method: 'travel-portal', valuePerPoint: 1.0, notes: 'iShop flights at 1 RP=₹1 (programme-wide).' },
+      { method: 'gift-voucher', valuePerPoint: 0.6, notes: 'iShop vouchers ~1 RP=₹0.60.' },
+      { method: 'catalog', valuePerPoint: 0.25, notes: 'Flat 1 RP=₹0.25 cash/gifts (cardinsider).' },
+    ],
+    transferPartners: [],
+    pointExpiryMonths: 36,
+    verified: false,
+    notes: 'Legacy Emeralde: ICICI RP flat ₹0.25 (cardinsider); iShop 1 RP=₹1 on flights. No confirmed airline transfer (that is Metal/Times Black).',
   },
   'icici-sapphiro': {
     methods: [
@@ -539,6 +552,17 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     verified: false,
     notes: 'Catalog ₹0.25; Air India 6:1. ₹99+GST fee. Jan-2026 earn devaluation.',
   },
+  'au-zenith-plus': {
+    methods: [
+      { method: 'catalog', valuePerPoint: 0.25 },
+      { method: 'gift-voucher', valuePerPoint: 0.2 },
+      { method: 'airmiles-transfer', valuePerPoint: 0.17, notes: 'Air India Maharaja 6:1.' },
+    ],
+    transferPartners: [{ partner: 'Air India Maharaja Club', kind: 'airline', ratio: '6:1' }],
+    pointExpiryMonths: 24,
+    verified: false,
+    notes: 'Same AU_RP redemption as base Zenith (catalog ₹0.25; Air India 6:1; ₹99+GST fee).',
+  },
   'au-lit': {
     methods: [
       { method: 'catalog', valuePerPoint: 0.25 },
@@ -599,6 +623,12 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
     verified: false,
     notes: 'Earns Etihad miles directly; no other transfer. Expiry per Etihad Guest activity rules.',
+  },
+  'bob-etihad-standard': {
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 0.5, notes: 'Earns Etihad Guest Miles directly (Standard 1/₹100, 3/₹100 on Etihad); redeem on Etihad Guest only (~₹0.50–0.60/mile).' }],
+    transferPartners: [{ partner: 'Etihad Guest', kind: 'airline', ratio: '1:1', valuePerPoint: 0.5, notes: 'Miles credited directly; NOT transferable onward.' }],
+    verified: false,
+    notes: 'Same ETIHAD_MILES redemption as the Premium card; earn rate is half. Expiry per Etihad Guest activity rules.',
   },
 }
 
