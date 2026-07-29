@@ -101,7 +101,7 @@ export const CARDS: SeedCard[] = [
   {
     card: {
       slug: 'hdfc-infinia', bankSlug: 'hdfc', name: 'HDFC Infinia', beancountName: 'Infinia',
-      network: 'visa', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
+      network: 'visa', pool: { ticker: 'HDFC_RP_PREMIUM', programme: 'HDFC Reward Points' }, active: true,
     },
     rules: [{
       effectiveFrom: '2026-07-01',
@@ -119,7 +119,7 @@ export const CARDS: SeedCard[] = [
   {
     card: {
       slug: 'hdfc-diners-black', bankSlug: 'hdfc', name: 'HDFC Diners Club Black', beancountName: 'DinersBlack',
-      network: 'diners', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
+      network: 'diners', pool: { ticker: 'HDFC_RP_PREMIUM', programme: 'HDFC Reward Points' }, active: true,
     },
     rules: [{
       effectiveFrom: '2026-07-01',
@@ -137,7 +137,7 @@ export const CARDS: SeedCard[] = [
   {
     card: {
       slug: 'hdfc-bizblack', bankSlug: 'hdfc', name: 'HDFC BizBlack Metal', beancountName: 'BizBlack',
-      network: 'visa', pool: { ticker: 'HDFC_RP', programme: 'HDFC Reward Points' }, active: true,
+      network: 'visa', pool: { ticker: 'HDFC_RP_PREMIUM', programme: 'HDFC Reward Points' }, active: true,
     },
     rules: [{
       effectiveFrom: '2025-07-01',
