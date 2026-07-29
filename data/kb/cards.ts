@@ -93,6 +93,11 @@ const AU_IXIGO_EXCL = [
 ]
 const SC_EXCL = ['5172', '5541', '5542', '5983', '6513', '7349'] // fuel + rent
 const HSBC_LIVEPLUS_EXCL = ['8062', '4111'] // hospitals + local transit (eff 26-Jul-2026); rest category-only
+// New banks (Jul-2026 onboarding; earn/exclusions community-sourced → verified:false).
+const KOTAK_EXCL = ['5541', '5542', '5983', '6513', '6540', '5816', '7995', '9311', '9399', '9222', '9402'] // fuel/rent/wallet/gaming/govt
+const FEDERAL_EXCL = ['5541', '5542', '5983', '6513', '6540', '6050', '6051', '6012', '9311', '9399', '9222', '9402', '9405', '9211'] // fuel/rent/wallet/quasi-cash/govt (federal MITC)
+const RBL_EXCL = ['5541', '5542', '5983', '6513', '6540', '4900', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299', '9311', '9399', '9222', '9402'] // fuel/rent/wallet/utility/insurance/education/govt
+const EQUITAS_EXCL = ['5541', '5542', '5983', '6513', '6540', '8211', '8220', '8241', '8244', '8249', '8299', '9311', '9399', '9222', '9402'] // fuel/rent/wallet/education/govt
 
 export const CARDS: SeedCard[] = [
   // =========================================================================
@@ -1095,6 +1100,334 @@ export const CARDS: SeedCard[] = [
       excludedMccs: ['5541', '5542', '5983', '6513'],
       verified: true,
       notes: 'OFFICIAL idfcfirst.bank.in Business Max page: base 4 RP/₹200 offline, 6 RP/₹200 online, GST/tax up to 6 RP/₹200 (accelerated — corrects the earlier "no tax rate" assumption). FD-backed (min FD ₹10k), requires active GST. Lifetime-free. No milestone. 1 RP = ₹0.25, ₹99+GST redemption, 24-mo expiry, forex 1.5%.',
+    }],
+  },
+
+  // =========================================================================
+  // KOTAK (Jul-2026 onboarding; kotak.bank.in + cardinsider — mostly community)
+  // =========================================================================
+  {
+    card: {
+      slug: 'kotak-zen-signature', bankSlug: 'kotak', name: 'Kotak Zen Signature', beancountName: 'ZenSignature',
+      network: 'mastercard', pool: { ticker: 'KOTAK_RP', programme: 'Kotak Zen Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-06-01',
+      base: { points: 5, per: 150 },
+      accelerators: [{ category: 'shopping', label: 'Shopping (apparel/lifestyle/dept/jewellery)', multiplier: 2, notes: '10 Zen Points/₹150.' }],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: KOTAK_EXCL,
+      verified: false,
+      notes: 'kotak.bank.in (base/fees OFFICIAL) + cardinsider. 5 Zen Points/₹150; 10/₹150 shopping. Overall 6,500 pts/cycle cap (CARD_ACCEL_CAP). Education/insurance capped ₹70k/cycle, utility/telecom ₹50k, govt ₹40k. 1 pt = ₹0.25. Forex 3.5% (community). Network unconfirmed.',
+    }],
+  },
+  {
+    card: {
+      slug: 'kotak-white-reserve', bankSlug: 'kotak', name: 'Kotak White Reserve', beancountName: 'WhiteReserve',
+      network: 'visa', pool: { ticker: 'KOTAK_WP', programme: 'Kotak White Pass' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 0, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'utilities', 'insurance', 'education', 'commute'],
+      excludedMccs: KOTAK_EXCL,
+      verified: false,
+      notes: 'SLAB model (not per-txn): White Pass earned on cumulative annual spend — modelled as milestones (₹3L→₹5k WP, ₹10L→+₹15k, ₹20L→+₹22k, up to ~₹2.5L at ₹1Cr). base points:0. 1 WP = ₹1 vouchers/travel, ₹0.70 cashback. Fee ₹12,500, waiver ₹10L. Forex 2%. Club Marriott + unlimited lounge. Community (cardinsider/cardmaven).',
+    }],
+  },
+  {
+    card: {
+      slug: 'kotak-league-platinum', bankSlug: 'kotak', name: 'Kotak League Platinum', beancountName: 'LeaguePlatinum',
+      network: 'visa', pool: { ticker: 'KOTAK_RP', programme: 'Kotak Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-06-01',
+      base: { points: 4, per: 150 },
+      accelerators: [{ category: 'travel', label: 'Travel / dept stores / consumer durables', multiplier: 2, notes: '8 RP/₹150.' }],
+      exclusions: ['fuel', 'rent', 'wallet', 'education', 'government', 'insurance'],
+      excludedMccs: KOTAK_EXCL,
+      verified: false,
+      notes: 'kotak.bank.in (OFFICIAL base/fees) + community. 4 RP/₹150 (8 RP/₹150 once annual spend > ₹2L — not machine-encoded). Fee ₹499, waiver ₹50k. Milestone: 4 PVR tickets OR 10,000 RP per ₹1.25L/6-mo. 1 RP = ₹0.07 cash / ₹0.10 catalog (LOW; revised down 1-Jun-2025). Forex unconfirmed.',
+    }],
+  },
+  {
+    card: {
+      slug: 'kotak-indianoil', bankSlug: 'kotak', name: 'IndianOil Kotak', beancountName: 'IndianOilKotak',
+      network: 'rupay', pool: { ticker: 'KOTAK_RP', programme: 'Kotak Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 3, per: 150 },
+      accelerators: [
+        { category: 'fuel', label: 'IndianOil fuel', multiplier: 8, monthlyCapPoints: 1200, notes: '24 RP/₹150 at IndianOil; cap 1,200 pts/cycle.' },
+        { category: 'groceries', label: 'Grocery', multiplier: 4, monthlyCapPoints: 800, notes: '12 RP/₹150; grocery+dining share 800 pts/cycle.' },
+        { category: 'dining', label: 'Dining', multiplier: 4, notes: '12 RP/₹150 (within grocery cap).' },
+      ],
+      exclusions: ['rent', 'wallet'],
+      excludedMccs: ['6513', '6540'],
+      verified: false,
+      notes: 'kotak.bank.in (OFFICIAL): 24 RP/₹150 IndianOil fuel (cap 1,200/cycle), 12 RP/₹150 grocery+dining (cap 800), 3 RP/₹150 else incl UPI. Fee ₹449, waiver ₹50k. 1 RP = ₹0.25 (₹0.20 cashback). Fuel earns (co-brand). Forex 3.5% (community).',
+    }],
+  },
+
+  // =========================================================================
+  // FEDERAL (federal.bank.in + cardinsider; MCC exclusions OFFICIAL, rates community)
+  // =========================================================================
+  {
+    card: {
+      slug: 'federal-celesta', bankSlug: 'federal', name: 'Federal Celesta', beancountName: 'Celesta',
+      network: 'visa', pool: { ticker: 'FED_RP', programme: 'Federal Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [
+        { category: 'dining', label: 'Dining', multiplier: 2, notes: '2 pts/₹100.' },
+        { category: 'travel', label: 'Travel & international', multiplier: 3, notes: '3 pts/₹100.' },
+      ],
+      exclusions: ['fuel', 'wallet', 'rent', 'government'],
+      excludedMccs: FEDERAL_EXCL,
+      verified: false,
+      notes: 'Lifetime-free (OFFICIAL). 1 pt/₹100 base, 2 dining, 3 travel/intl. 1 pt = ₹0.25 portal, ₹99+GST/redemption, 3-yr expiry. Forex 2%. Tax/govt (MCC 9311) excluded from earning (OFFICIAL MITC). Community rates (cardinsider).',
+    }],
+  },
+  {
+    card: {
+      slug: 'federal-imperio', bankSlug: 'federal', name: 'Federal Imperio', beancountName: 'Imperio',
+      network: 'visa', pool: { ticker: 'FED_RP', programme: 'Federal Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 150 },
+      accelerators: [
+        { category: 'utilities', label: 'Utility / bill pay', multiplier: 2, notes: '2 pts/₹150.' },
+        { category: 'groceries', label: 'Grocery & healthcare', multiplier: 3, notes: '3 pts/₹150.' },
+      ],
+      exclusions: ['fuel', 'wallet', 'rent', 'government'],
+      excludedMccs: FEDERAL_EXCL,
+      verified: false,
+      notes: 'Lifetime-free (OFFICIAL). 1 pt/₹150 base, 2 utility, 3 grocery/healthcare. 1 pt = ₹0.25 portal, ₹99+GST/redemption, 3-yr expiry. Forex 3.5%. Tax/govt excluded (OFFICIAL). Community rates.',
+    }],
+  },
+  {
+    card: {
+      slug: 'federal-signet', bankSlug: 'federal', name: 'Federal Signet', beancountName: 'Signet',
+      network: 'visa', pool: { ticker: 'FED_RP', programme: 'Federal Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 200 },
+      accelerators: [
+        { category: 'entertainment', label: 'Entertainment', multiplier: 2, notes: '2 pts/₹200.' },
+        { category: 'shopping', label: 'Electronics & apparel', multiplier: 3, notes: '3 pts/₹200.' },
+      ],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: FEDERAL_EXCL,
+      verified: false,
+      notes: 'Lifetime-free (OFFICIAL). 1 pt/₹200 base, 2 entertainment, 3 electronics/apparel. 1 pt = ₹0.25 portal / ₹0.10 statement, ₹99+GST/redemption. Forex 3.5%. Tax/govt excluded (OFFICIAL). Community rates.',
+    }],
+  },
+  {
+    card: {
+      slug: 'federal-scapia', bankSlug: 'federal', name: 'Scapia (Federal)', beancountName: 'Scapia',
+      network: 'visa', pool: { ticker: 'SCAPIA_COINS', programme: 'Scapia Coins' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 10, per: 100 },
+      accelerators: [{ category: 'travel-portal', label: 'Scapia app travel', multiplier: 2, notes: '20% coins on in-app travel.' }],
+      exclusions: ['fuel', 'rent', 'utilities', 'wallet', 'education', 'government'],
+      excludedMccs: FEDERAL_EXCL,
+      verified: false,
+      notes: 'Federal-issued co-brand. 10% Scapia Coins on eligible spend ≥₹20 (=10 coins/₹100), 20% on Scapia-app travel. 5 coins = ₹1, redeemable ONLY in-app for travel (no cash-out). Lifetime-free, 0% forex (but no coins on intl). Lounge on ₹10k/mo spend. 36-mo coin validity. Community (cardinsider/1finance).',
+    }],
+  },
+
+  // =========================================================================
+  // RBL (rbl.bank.in + cardinsider/cardexpert; some T&C OFFICIAL, rates community)
+  // =========================================================================
+  {
+    card: {
+      slug: 'rbl-world-safari', bankSlug: 'rbl', name: 'RBL World Safari', beancountName: 'WorldSafari',
+      network: 'mastercard', pool: { ticker: 'RBL_RP', programme: 'RBL Travel Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [{ category: 'travel', label: 'Travel', multiplier: 2.5, notes: '5 Travel Points/₹100.' }],
+      exclusions: ['fuel', 'utilities', 'insurance', 'rent', 'wallet', 'government'],
+      excludedMccs: RBL_EXCL,
+      verified: false,
+      notes: 'RBL travel flagship. 5 TP/₹100 travel, 2/₹100 else; NO points on international spend (despite 0% forex). Fee ₹3,000 (offset by ₹3k MMT voucher). Milestones ₹2.5L→10k, ₹5L→+15k, ₹7.5L→₹10k voucher. 1 TP ≈ ₹0.25, ₹99+GST/redemption, 24-mo expiry. 0% forex (OFFICIAL). Community rates.',
+    }],
+  },
+  {
+    card: {
+      slug: 'rbl-icon', bankSlug: 'rbl', name: 'RBL Icon', beancountName: 'Icon',
+      network: 'mastercard', pool: { ticker: 'RBL_RP', programme: 'RBL Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [
+        { category: 'travel', label: 'International spends', multiplier: 10, monthlyCapPoints: 2000, notes: '20 RP/₹100 on intl; cap 2,000/mo.' },
+        { category: 'dining', label: 'Weekend dining', multiplier: 10, monthlyCapPoints: 2000, notes: '20 RP/₹100 weekend dining; cap 2,000/mo.' },
+      ],
+      exclusions: ['fuel', 'rent', 'utilities', 'wallet', 'government', 'insurance', 'education'],
+      excludedMccs: RBL_EXCL,
+      verified: false,
+      notes: 'RBL Icon T&C PDF (OFFICIAL exclusions): 2 RP/₹100 base, 20 RP/₹100 intl + weekend dining (each cap 2,000/mo). Fee ₹5,000, welcome 20,000 RP. Milestones ₹3L→10k, ₹5L→+15k, ₹8L→+20k. 1 RP = ₹0.25, 24-mo expiry. Forex 3.5%.',
+    }],
+  },
+  {
+    card: {
+      slug: 'rbl-shoprite', bankSlug: 'rbl', name: 'RBL ShopRite', beancountName: 'ShopRite',
+      network: 'mastercard', pool: { ticker: 'RBL_RP', programme: 'RBL Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [{ category: 'groceries', label: 'Grocery', multiplier: 20, monthlyCapPoints: 1000, notes: '20 RP/₹100 grocery; cap 1,000/mo.' }],
+      exclusions: ['fuel', 'utilities', 'insurance', 'rent', 'wallet', 'government'],
+      excludedMccs: RBL_EXCL,
+      verified: false,
+      notes: 'Lifetime-free entry card. 20 RP/₹100 grocery (cap 1,000/mo), 1/₹100 else. Welcome 2,000 RP. BookMyShow 10% (max ₹100) up to 15×/yr. 1 RP = ₹0.25, ₹99+GST/redemption, 24-mo expiry. Forex 3.5%. Community rates.',
+    }],
+  },
+  {
+    card: {
+      slug: 'rbl-indianoil-xtra', bankSlug: 'rbl', name: 'IndianOil RBL XTRA', beancountName: 'IndianOilXtra',
+      network: 'rupay', pool: { ticker: 'RBL_FP', programme: 'RBL Fuel Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [{ category: 'fuel', label: 'IndianOil fuel', multiplier: 7.5, monthlyCapPoints: 2000, notes: '15 Fuel Points/₹100 at IndianOil; cap 2,000/mo.' }],
+      exclusions: ['utilities', 'insurance', 'rent', 'education', 'wallet', 'government'],
+      excludedMccs: ['4900', '5960', '6300', '6513', '6540', '9311', '9399'],
+      verified: false,
+      notes: 'rbl.bank.in (OFFICIAL): 15 FP/₹100 IndianOil fuel (cap 2,000/mo), 2/₹100 else. Fee ₹1,500, waiver ₹2.75L. Welcome 3,000 FP. Milestone ₹75k/qtr → 1,000 FP. 1 FP = ₹0.50 redeemable ONLY at IndianOil XTRA. Forex 3.5% (community).',
+    }],
+  },
+
+  // =========================================================================
+  // SBI — additional cards (sbicard.com pages JS-rendered → community-sourced)
+  // =========================================================================
+  {
+    card: {
+      slug: 'sbi-bpcl-octane', bankSlug: 'sbi', name: 'BPCL SBI Card Octane', beancountName: 'BpclOctane',
+      network: 'visa', pool: { ticker: 'SBI_RP', programme: 'SBI Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [
+        { category: 'fuel', label: 'BPCL fuel', multiplier: 25, monthlyCapPoints: 2500, notes: '25 RP/₹100 at BPCL; cap 2,500/cycle (7.25% value incl. surcharge waiver).' },
+        { category: 'groceries', label: 'Grocery / dept / dining / movies', multiplier: 10, monthlyCapPoints: 7500, notes: '10 RP/₹100; cap 7,500/mo.' },
+        { category: 'dining', label: 'Dining', multiplier: 10, notes: '10 RP/₹100 (within 10X cap).' },
+      ],
+      exclusions: ['rent', 'wallet', 'government'],
+      excludedMccs: ['6513', '7349', '6540', '6541', '9311', '9399', '9222', '9402'],
+      verified: false,
+      notes: 'BPCL fuel card. 25 RP/₹100 BPCL fuel (cap 2,500/cycle), 10 RP/₹100 grocery/dept/dining/movies (cap 7,500/mo), 1/₹100 else. Fee ₹1,499, waiver ₹2L; ₹3L→₹2k voucher. Welcome 6,000 RP. 1 RP = ₹0.25, ₹99/redemption. Forex 3.5% (community).',
+    }],
+  },
+  {
+    card: {
+      slug: 'sbi-aurum', bankSlug: 'sbi', name: 'SBI Aurum', beancountName: 'Aurum',
+      network: 'mastercard', pool: { ticker: 'SBI_RP', programme: 'SBI Aurum Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 4, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: SBI_EXCL,
+      verified: false,
+      notes: 'Ultra-premium. 4 RP/₹100 non-fuel (≈1%). Fee ₹9,999, waiver ₹12L. Milestones: ₹1L/mo→₹1.5k TataCliQ, ₹5L→₹5k, ₹10L→₹10k Taj, ₹20L→₹20k Apple. Welcome 40,000 RP. Points NEVER expire. Transfers: Air India/Qatar Avios/Club ITC 5:1, AirAsia/Adani 4:1. 1 RP = ₹0.25 base. Forex 1.99% (official-adjacent). Unlimited intl lounge.',
+    }],
+  },
+  {
+    card: {
+      slug: 'sbi-miles-elite', bankSlug: 'sbi', name: 'SBI Card Miles Elite', beancountName: 'MilesElite',
+      network: 'visa', pool: { ticker: 'SBI_TC', programme: 'SBI Travel Credits' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [{ category: 'travel', label: 'Travel (OTA/taxi/transport)', multiplier: 3, notes: '6 Travel Credits/₹200 = 3/₹100.' }],
+      exclusions: ['fuel', 'wallet', 'rent', 'utilities', 'insurance'],
+      excludedMccs: ['5541', '5542', '5983', '6540', '6541', '6513', '4900', '5960', '6300', '6381'],
+      verified: false,
+      notes: 'Travel card. 2 TC/₹200 (1/₹100) base, 6 TC/₹200 (3/₹100) travel. Fee ₹4,999, waiver ₹15L. Welcome 5,000 TC (₹1L/60d); ₹12L→20,000 TC. 25 transfer partners (Air India/Avios/Flying Blue/Asia Miles 1:1; Emirates/United 2:1). TC: ₹0.25 catalog / ₹0.50 portal / ₹1 transfer. Forex 1.99%. Priority Pass 6 intl/yr. Community (magnify/cardexpert).',
+    }],
+  },
+  {
+    card: {
+      slug: 'sbi-miles-prime', bankSlug: 'sbi', name: 'SBI Card Miles Prime', beancountName: 'MilesPrime',
+      network: 'visa', pool: { ticker: 'SBI_TC', programme: 'SBI Travel Credits' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [{ category: 'travel', label: 'Travel (OTA/taxi/transport)', multiplier: 2, notes: '4 Travel Credits/₹200 = 2/₹100.' }],
+      exclusions: ['fuel', 'wallet', 'rent', 'utilities', 'insurance'],
+      excludedMccs: ['5541', '5542', '5983', '6540', '6541', '6513', '4900', '5960', '6300', '6381'],
+      verified: false,
+      notes: 'Travel card (mid tier). 2 TC/₹200 (1/₹100) base, 4 TC/₹200 (2/₹100) travel. Fee ₹2,999, waiver ₹10L. Welcome 3,000 TC + 3,000 on ₹60k/60d; ₹8L→10,000 TC. Same 25 transfer partners as Elite. TC: ₹0.25 catalog / ₹0.50 portal / ₹1 transfer; 2-yr expiry. Forex 2.5%. Community (magnify).',
+    }],
+  },
+
+  // =========================================================================
+  // EQUITAS (small finance bank; all COMMUNITY — official pages 503'd)
+  // =========================================================================
+  {
+    card: {
+      slug: 'equitas-tiga', bankSlug: 'equitas', name: 'Equitas Tiga', beancountName: 'Tiga',
+      pool: { ticker: 'EQUITAS_RP', programme: 'Equitas Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'education', 'government'],
+      excludedMccs: EQUITAS_EXCL,
+      verified: false,
+      notes: 'Entry digital card. 1 RP/₹100 base; 3 RP/₹100 on UPI/contactless/Pay-by-3 (not MCC-modelled). Lifetime-free join, ₹500 annual (waiver ₹50k). 1 RP = ₹0.35 vouchers / ₹0.10–0.15 cashback, 2-yr expiry. Forex 3.4%. Network unconfirmed. Community (cardinsider/piceapp).',
+    }],
+  },
+  {
+    card: {
+      slug: 'equitas-selfe', bankSlug: 'equitas', name: 'Equitas Selfe', beancountName: 'Selfe',
+      network: 'visa', pool: { ticker: 'EQUITAS_RP', programme: 'Equitas Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [
+        { category: 'groceries', label: 'Chosen 5X category', multiplier: 5, monthlyCapPoints: 2000, notes: '10 RP/₹100 on any 2 chosen of apparel/dining/grocery/taxi/utility; grocery/utility cap 2,000/mo.' },
+        { category: 'dining', label: 'Chosen 5X category', multiplier: 5, notes: '10 RP/₹100 (cardholder-chosen).' },
+      ],
+      exclusions: ['fuel', 'wallet', 'rent'],
+      excludedMccs: EQUITAS_EXCL,
+      verified: false,
+      notes: 'Customisable. 2 RP/₹100 base, 5X (10/₹100) on any 2 chosen categories. Tier-linked point VALUE ₹0.35 (Blue) → ₹1.00 (Diamond, ₹1L/mo×3) and forex 3.5% → 0%. Fee ₹1,000 (waiver ₹2.4L). Visa/RuPay choice. OTT welcome. Community (cardinsider/cardmaven).',
+    }],
+  },
+  {
+    card: {
+      slug: 'equitas-powermiles', bankSlug: 'equitas', name: 'Equitas PowerMiles', beancountName: 'PowerMiles',
+      pool: { ticker: 'EQUITAS_RP', programme: 'Equitas Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 3, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'education', 'government'],
+      excludedMccs: EQUITAS_EXCL,
+      verified: false,
+      notes: 'Premium travel. 3 RP/₹100 domestic, 9 RP/₹100 international (intl not MCC-modelled). Tier-linked value ₹0.50 → ₹1.00 (Diamond). Fee ₹5,000 (join waiver ₹1.2L/90d, annual waiver ₹4.8L). Forex 2% (0% net at Diamond via refund). 1:1 airline transfers (BA/United/Finnair/Aeroplan/Etihad/Air India/JAL/IHG/Wyndham) ANNOUNCED for Sep-2026, NOT yet live. Club Marriott + EazyDiner welcome. Network unconfirmed. Community.',
     }],
   },
 ]

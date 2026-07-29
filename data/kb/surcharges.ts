@@ -218,6 +218,27 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'bob-premier': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: true, notes: 'Confirmed Jul-2026 (cardinsider): 1% on utility above ₹50,000/mo (same as Eterna).' }, BOB_WALLET, fuelWaiver(250, { txnMin: 400, txnMax: 5000, notes: 'BoB Premier fuel waiver ₹400–5,000, cap ₹250/mo (secondary).' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Premier 3.5% forex.')],
   'bob-etihad': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad Premium fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(0, true, 'Confirmed Jul-2026 (cardinsider): Etihad Guest Premium 0% forex.')],
   'bob-etihad-standard': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad Standard fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(1, false, 'Gemini audit mid-2026: reduced 1% forex (a key Standard-card feature; corrects the earlier 3.5% assumption).')],
+
+  // --- New banks (Jul-2026 onboarding; community unless noted) ---------------
+  'kotak-zen-signature': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'Kotak Zen 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'Kotak Zen 3.5% forex (community).')],
+  'kotak-white-reserve': [fuelWaiver(4500, { txnMin: 400, txnMax: 7500, waiverPeriod: 'year', notes: 'White Reserve 1% fuel waiver ₹400–7,500, cap ₹4,500/year (cardinsider).' }), forex(2, false, 'White Reserve 2% forex (cardinsider).')],
+  'kotak-league-platinum': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'League Platinum 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'League Platinum forex unconfirmed (assumed 3.5%).')],
+  'kotak-indianoil': [fuelWaiver(100, { txnMin: 100, txnMax: 5000, notes: 'IndianOil Kotak 1% fuel waiver at IndianOil ₹100–5,000, cap ₹100/cycle (kotak.bank.in).' }), forex(3.5, false, 'IndianOil Kotak 3.5% forex (community).')],
+  'federal-celesta': [forex(2, false, 'Federal Celesta 2% forex (cardinsider); 1% fuel surcharge waived, no cap published.')],
+  'federal-imperio': [forex(3.5, false, 'Federal Imperio 3.5% forex (cardinsider); 1% fuel surcharge waived.')],
+  'federal-signet': [fuelWaiver(150, { txnMin: 400, txnMax: 5000, notes: 'Federal Signet 1% fuel waiver ₹400–5,000, cap ₹150/mo (cardinsider).' }), forex(3.5, false, 'Federal Signet 3.5% forex (cardinsider).')],
+  'federal-scapia': [forex(0, false, 'Scapia 0% forex (its core USP; but no coins on intl spend).')],
+  'rbl-world-safari': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'World Safari 1% fuel waiver ₹500–4,000, cap ₹250/mo (rbl.bank.in).' }), forex(0, false, 'World Safari 0% forex (its USP).')],
+  'rbl-icon': [fuelWaiver(200, { txnMin: 500, txnMax: 4000, notes: 'RBL Icon 1% fuel waiver ₹500–4,000, cap ₹200/mo (rbl.bank.in).' }), forex(3.5, false, 'RBL Icon 3.5% forex (cardinsider).')],
+  'rbl-shoprite': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'ShopRite 1% fuel waiver ₹400–5,000, cap ₹100/mo (rbl.bank.in).' }), forex(3.5, false, 'ShopRite 3.5% forex (cardinsider).')],
+  'rbl-indianoil-xtra': [fuelWaiver(200, { txnMin: 500, txnMax: 4000, notes: 'IndianOil RBL XTRA 1% fuel waiver, cap ₹200/mo (rbl.bank.in).' }), forex(3.5, false, 'IndianOil RBL XTRA 3.5% forex (community).')],
+  'sbi-bpcl-octane': [fuelWaiver(100, { txnMin: 500, txnMax: 4000, notes: 'BPCL Octane 1% fuel-surcharge waiver at BPCL, cap ₹100/mo (community).' }), forex(3.5, false, 'BPCL Octane 3.5% forex (community).')],
+  'sbi-aurum': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Aurum 1% fuel waiver ₹500–4,000, cap ₹250/cycle (community).' }), forex(1.99, false, 'SBI Aurum 1.99% forex (official-adjacent; verify).')],
+  'sbi-miles-elite': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Elite 1% fuel waiver, cap ₹250/cycle (community).' }), forex(1.99, false, 'Miles Elite 1.99% forex (community).')],
+  'sbi-miles-prime': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Prime 1% fuel waiver, cap ₹250/cycle (community).' }), forex(2.5, false, 'Miles Prime 2.5% forex (community).')],
+  'equitas-tiga': [fuelWaiver(3000, { txnMin: 500, txnMax: 3000, notes: 'Equitas Tiga 1% fuel waiver ₹500–3,000, cap ₹3,000/cycle (cardinsider).' }), forex(3.4, false, 'Equitas Tiga 3.4% forex (cardinsider).')],
+  'equitas-selfe': [fuelWaiver(250, { txnMin: 500, txnMax: 3000, notes: 'Equitas Selfe 1% fuel waiver ₹500–3,000, cap ₹250/mo (cardmaven).' }), forex(3.5, false, 'Selfe forex 3.5% at Blue → 0% at Diamond tier (community).')],
+  'equitas-powermiles': [fuelWaiver(450, { txnMin: 500, txnMax: 3000, notes: 'Equitas PowerMiles 1% fuel waiver ₹500–3,000, cap ₹450/cycle (cardmaven).' }), forex(2, false, 'PowerMiles 2% forex, net 0% at Diamond via 90-day refund (community).')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.

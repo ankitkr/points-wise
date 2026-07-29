@@ -79,6 +79,30 @@ export const CARD_FEES: Record<string, Fees> = {
   'bob-premier': { joiningInr: 0, annualInr: 0 },
   'bob-etihad': { joiningInr: 5000, annualInr: 5000 },
   'bob-etihad-standard': { joiningInr: 2500, annualInr: 2500 }, // Gemini audit (corrects ~₹750 estimate)
+  // Kotak
+  'kotak-zen-signature': { joiningInr: 1500, annualInr: 1500 },
+  'kotak-white-reserve': { joiningInr: 12500, annualInr: 12500 },
+  'kotak-league-platinum': { joiningInr: 499, annualInr: 499 },
+  'kotak-indianoil': { joiningInr: 449, annualInr: 449 },
+  // Federal (all lifetime-free)
+  'federal-celesta': { joiningInr: 0, annualInr: 0 },
+  'federal-imperio': { joiningInr: 0, annualInr: 0 },
+  'federal-signet': { joiningInr: 0, annualInr: 0 },
+  'federal-scapia': { joiningInr: 0, annualInr: 0 },
+  // RBL
+  'rbl-world-safari': { joiningInr: 3000, annualInr: 3000 },
+  'rbl-icon': { joiningInr: 5000, annualInr: 5000 },
+  'rbl-shoprite': { joiningInr: 0, annualInr: 0 },
+  'rbl-indianoil-xtra': { joiningInr: 1500, annualInr: 1500 },
+  // SBI (additional)
+  'sbi-bpcl-octane': { joiningInr: 1499, annualInr: 1499 },
+  'sbi-aurum': { joiningInr: 9999, annualInr: 9999 },
+  'sbi-miles-elite': { joiningInr: 4999, annualInr: 4999 },
+  'sbi-miles-prime': { joiningInr: 2999, annualInr: 2999 },
+  // Equitas
+  'equitas-tiga': { joiningInr: 0, annualInr: 500 },
+  'equitas-selfe': { joiningInr: 1000, annualInr: 1000 },
+  'equitas-powermiles': { joiningInr: 5000, annualInr: 5000 },
 }
 
 const fw = (spendThreshold: number, valueInr: number, notes: string): MilestoneInput => ({
@@ -327,6 +351,70 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
     { period: 'anniversary-year', kind: 'points', points: 500, verified: false, label: '500 miles travel-goal bonus', notes: 'Fly twice a year with Etihad on tickets booked on this card (Gemini audit mid-2026).' },
     { spendThreshold: 300000, period: 'anniversary-year', kind: 'fee-waiver', valueInr: 2500, repeatable: true, verified: false, label: 'annual fee waiver', notes: 'Standard fee-waiver at ₹3L; annual fee ₹2,500 + GST (Gemini audit mid-2026, corrects the earlier ~₹750 estimate).' },
   ],
+
+  // ---- New banks (Jul-2026 onboarding; community-sourced → verified:false) ----
+  'kotak-zen-signature': [
+    fw(150000, 1500, '₹1.5L/yr → renewal waived (kotak.bank.in).'),
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'points', points: 7500, verified: false, label: '7,500 bonus Zen Points at ₹3L', notes: 'kotak.bank.in.' },
+    { spendThreshold: 600000, period: 'anniversary-year', kind: 'points', points: 7500, verified: false, label: 'additional 7,500 at ₹6L (15k total)', notes: 'kotak.bank.in.' },
+  ],
+  'kotak-white-reserve': [
+    fw(1000000, 12500, '₹10L/yr → waiver (community).'),
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'voucher', valueInr: 5000, verified: false, label: '₹5k White Pass at ₹3L', notes: 'Slab White Pass earn (cardinsider/cardmaven).' },
+    { spendThreshold: 1000000, period: 'anniversary-year', kind: 'voucher', valueInr: 15000, verified: false, label: '+₹15k White Pass at ₹10L', notes: 'Cumulative slab.' },
+    { spendThreshold: 2000000, period: 'anniversary-year', kind: 'voucher', valueInr: 22000, verified: false, label: '+₹22k White Pass at ₹20L', notes: 'Cumulative slab; up to ~₹2.5L at ₹1Cr.' },
+  ],
+  'kotak-league-platinum': [
+    fw(50000, 499, '₹50k/yr → waiver (kotak.bank.in).'),
+    { spendThreshold: 125000, period: 'anniversary-year', kind: 'points', points: 10000, repeatable: true, verified: false, label: '10,000 RP or 4 PVR tickets per ₹1.25L/6-mo', notes: 'kotak.bank.in; per 6-month window.' },
+  ],
+  'kotak-indianoil': [fw(50000, 449, '₹50k/yr → waiver (kotak.bank.in).'), { period: 'welcome', kind: 'points', points: 1000, verified: false, label: '1,000 RP on ₹500 in 30d', notes: 'kotak.bank.in.' }],
+  'federal-celesta': [{ spendThreshold: 10000, period: 'welcome', kind: 'voucher', valueInr: 600, verified: false, label: '₹600 Amazon voucher on ₹10k/30d', notes: 'federal.bank.in.' }],
+  'federal-imperio': [{ spendThreshold: 5000, period: 'welcome', kind: 'voucher', valueInr: 400, verified: false, label: '₹400 Amazon voucher on ₹5k/30d', notes: 'federal.bank.in.' }],
+  'federal-signet': [{ spendThreshold: 3000, period: 'welcome', kind: 'voucher', valueInr: 200, verified: false, label: '₹200 Amazon voucher on ₹3k/30d', notes: 'federal.bank.in.' }],
+  'rbl-world-safari': [
+    { spendThreshold: 250000, period: 'anniversary-year', kind: 'points', points: 10000, verified: false, label: '10,000 pts at ₹2.5L', notes: 'rbl.bank.in.' },
+    { spendThreshold: 500000, period: 'anniversary-year', kind: 'points', points: 15000, verified: false, label: '+15,000 pts at ₹5L', notes: 'rbl.bank.in.' },
+    { spendThreshold: 750000, period: 'anniversary-year', kind: 'voucher', valueInr: 10000, verified: false, label: '₹10k e-voucher at ₹7.5L', notes: 'Taj/Amazon/Croma/Myntra/MMT (rbl.bank.in).' },
+  ],
+  'rbl-icon': [
+    { period: 'welcome', kind: 'points', points: 20000, verified: false, label: '20,000 RP welcome', notes: 'rbl.bank.in (usage + fee-pay in 30d).' },
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'points', points: 10000, verified: false, label: '10,000 RP at ₹3L', notes: 'rbl.bank.in.' },
+    { spendThreshold: 500000, period: 'anniversary-year', kind: 'points', points: 15000, verified: false, label: '+15,000 RP at ₹5L', notes: 'rbl.bank.in.' },
+    { spendThreshold: 800000, period: 'anniversary-year', kind: 'points', points: 20000, verified: false, label: '+20,000 RP at ₹8L', notes: 'rbl.bank.in.' },
+  ],
+  'rbl-shoprite': [{ period: 'welcome', kind: 'points', points: 2000, verified: false, label: '2,000 RP on first purchase/30d', notes: 'rbl.bank.in.' }],
+  'rbl-indianoil-xtra': [
+    fw(275000, 1500, '₹2.75L/yr → waiver (rbl.bank.in).'),
+    { period: 'welcome', kind: 'points', points: 3000, verified: false, label: '3,000 FP on ₹500 in 30d', notes: 'rbl.bank.in.' },
+    { spendThreshold: 75000, period: 'quarter', kind: 'points', points: 1000, repeatable: true, verified: false, label: '1,000 FP per ₹75k/qtr', notes: 'rbl.bank.in.' },
+  ],
+  'sbi-bpcl-octane': [
+    fw(200000, 1499, '₹2L/yr → waiver (community).'),
+    { period: 'welcome', kind: 'points', points: 6000, verified: false, label: '6,000 RP welcome', notes: 'community.' },
+    { spendThreshold: 300000, period: 'anniversary-year', kind: 'voucher', valueInr: 2000, verified: false, label: '₹2k e-voucher at ₹3L', notes: 'community.' },
+  ],
+  'sbi-aurum': [
+    fw(1200000, 9999, '₹12L/yr → waiver (community).'),
+    { period: 'welcome', kind: 'points', points: 40000, verified: false, label: '40,000 RP welcome (₹10k value)', notes: 'community.' },
+    { spendThreshold: 100000, period: 'statement-cycle', kind: 'voucher', valueInr: 1500, repeatable: true, verified: false, label: '₹1.5k TataCliQ per ₹1L/mo', notes: 'community.' },
+    { spendThreshold: 1000000, period: 'anniversary-year', kind: 'voucher', valueInr: 10000, verified: false, label: '₹10k Taj at ₹10L', notes: 'community.' },
+    { spendThreshold: 2000000, period: 'anniversary-year', kind: 'voucher', valueInr: 20000, verified: false, label: '₹20k Apple at ₹20L', notes: 'community.' },
+  ],
+  'sbi-miles-elite': [
+    fw(1500000, 4999, '₹15L/yr → waiver (community).'),
+    { spendThreshold: 100000, period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 TC on ₹1L/60d', notes: 'magnify.' },
+    { spendThreshold: 1200000, period: 'anniversary-year', kind: 'points', points: 20000, verified: false, label: '20,000 TC at ₹12L', notes: 'magnify.' },
+  ],
+  'sbi-miles-prime': [
+    fw(1000000, 2999, '₹10L/yr → waiver (community).'),
+    { period: 'welcome', kind: 'points', points: 3000, verified: false, label: '3,000 TC on joining', notes: 'magnify.' },
+    { spendThreshold: 60000, period: 'welcome', kind: 'points', points: 3000, verified: false, label: '+3,000 TC on ₹60k/60d', notes: 'magnify.' },
+    { spendThreshold: 800000, period: 'anniversary-year', kind: 'points', points: 10000, verified: false, label: '10,000 TC at ₹8L', notes: 'magnify.' },
+  ],
+  'equitas-tiga': [fw(50000, 500, '₹50k/yr → waiver (cardinsider).')],
+  'equitas-selfe': [fw(240000, 1000, '₹2.4L/yr → waiver (cardexpert).')],
+  'equitas-powermiles': [fw(480000, 5000, '₹4.8L/yr → waiver; join fee waived on ₹1.2L/90d (cardmaven).')],
 }
 
 // Overall monthly cap on ACCELERATED (bonus-over-base) points — the "umbrella"
@@ -359,6 +447,7 @@ export const CARD_ACCEL_CAP: Record<string, number> = {
   'idfc-mayura': 25000, // app travel bonus/mo
   'bob-eterna': 5000, // 15X categories
   'bob-premier': 2000, // 5X categories
+  'kotak-zen-signature': 6500, // overall Zen Points/cycle cap
 }
 
 // Pure lookups used by the seed generator and its test (mirrors surcharges.ts).

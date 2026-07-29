@@ -629,6 +629,58 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     verified: false,
     notes: 'Same ETIHAD_MILES currency as the Premium card (earn rate is half). Expiry per Etihad Guest activity rules.',
   },
+
+  // ---- New banks (Jul-2026 onboarding; community-sourced → verified:false) ----
+  'kotak-zen-signature': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }, { method: 'cashback', valuePerPoint: 0.25 }], transferPartners: [], verified: false, notes: '1 Zen Point = ₹0.25 catalog/cash. No transfer partners (kotak.bank.in/cardinsider).' },
+  'kotak-white-reserve': { methods: [{ method: 'gift-voucher', valuePerPoint: 1.0, notes: '1 White Pass = ₹1 vouchers/travel.' }, { method: 'cashback', valuePerPoint: 0.7 }], transferPartners: [], verified: false, notes: 'White Pass ₹1 voucher / ₹0.70 cashback (cardinsider).' },
+  'kotak-league-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.1 }, { method: 'statement-credit', valuePerPoint: 0.07, notes: 'min 2,000 pts; revised down 1-Jun-2025.' }], transferPartners: [], verified: false, notes: 'LOW value: ₹0.10 catalog / ₹0.07 cash (kotak.bank.in).' },
+  'kotak-indianoil': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: 'redeem as IndianOil fuel via Kotak portal.' }, { method: 'cashback', valuePerPoint: 0.2 }], transferPartners: [], verified: false, notes: '1 RP = ₹0.25 (₹0.20 cashback) (kotak.bank.in).' },
+  'federal-celesta': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹99+GST/redemption; min 250 pts.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: 'FedRewards ₹0.25 portal, 3-yr expiry, no transfer (cardinsider).' },
+  'federal-imperio': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹99+GST/redemption.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: 'FedRewards ₹0.25 portal, 3-yr expiry (cardinsider).' },
+  'federal-signet': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }, { method: 'statement-credit', valuePerPoint: 0.1 }], transferPartners: [], verified: false, notes: 'FedRewards ₹0.25 portal / ₹0.10 statement; ₹99+GST/redemption (cardinsider).' },
+  'federal-scapia': { methods: [{ method: 'other', valuePerPoint: 0.2, notes: '5 coins = ₹1, in-app travel only; no cash-out.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: 'Scapia Coins locked to in-app travel (cardinsider/1finance).' },
+  'rbl-world-safari': { methods: [{ method: 'travel-portal', valuePerPoint: 0.25, notes: 'flights/hotels via RBL Rewards portal.' }, { method: 'catalog', valuePerPoint: 0.1 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: 'Travel Points ~₹0.25 portal; ₹99+GST/redemption; 24-mo expiry; no airline transfer (community).' },
+  'rbl-icon': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }, { method: 'travel-portal', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: 'RBL RP ₹0.25; ₹99+GST/redemption; 24-mo expiry; no transfer (cardinsider).' },
+  'rbl-shoprite': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: 'RBL RP ₹0.25; 24-mo expiry; no transfer (community).' },
+  'rbl-indianoil-xtra': { methods: [{ method: 'other', valuePerPoint: 0.5, notes: 'redeem ONLY at IndianOil XTRA outlets.' }], transferPartners: [], verified: false, notes: '1 Fuel Point = ₹0.50, IndianOil-only (rbl.bank.in).' },
+  'sbi-bpcl-octane': { methods: [{ method: 'statement-credit', valuePerPoint: 0.25 }, { method: 'gift-voucher', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: '1 RP = ₹0.25; ₹99/redemption; no transfer (community).' },
+  'sbi-aurum': {
+    methods: [{ method: 'statement-credit', valuePerPoint: 0.25 }, { method: 'airmiles-transfer', valuePerPoint: 0.3, notes: 'via 5:1/4:1 transfer.' }],
+    transferPartners: [
+      { partner: 'Air India Maharaja Club', kind: 'airline', ratio: '5:1' },
+      { partner: 'Qatar Airways Privilege Club (Avios)', kind: 'airline', ratio: '5:1' },
+      { partner: 'Club ITC', kind: 'hotel', ratio: '5:1' },
+      { partner: 'AirAsia Rewards', kind: 'airline', ratio: '4:1' },
+    ],
+    verified: false,
+    notes: 'AURUM RP ₹0.25 base; transfers 5:1 (Air India/Qatar/ITC), 4:1 (AirAsia/Adani). Points NEVER expire (community; Air India partner page confirms 5:1).',
+  },
+  'sbi-miles-elite': {
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 1.0, notes: 'up to ₹1/TC at 1:1 partners.' }, { method: 'travel-portal', valuePerPoint: 0.5 }, { method: 'catalog', valuePerPoint: 0.25 }],
+    transferPartners: [
+      { partner: 'Air India Maharaja Club', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'British Airways Executive Club (Avios)', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'Air France-KLM Flying Blue', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'Cathay Asia Miles', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'Emirates Skywards', kind: 'airline', ratio: '2:1', valuePerPoint: 0.5 },
+    ],
+    verified: false,
+    notes: 'Travel Credits: ₹0.25 catalog / ₹0.50 portal / ₹1 at 1:1 transfer. 25 partners (Air India partner page confirms Miles 1:1). Community (magnify/cardexpert).',
+  },
+  'sbi-miles-prime': {
+    methods: [{ method: 'airmiles-transfer', valuePerPoint: 1.0 }, { method: 'travel-portal', valuePerPoint: 0.5 }, { method: 'catalog', valuePerPoint: 0.25 }],
+    transferPartners: [
+      { partner: 'Air India Maharaja Club', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'British Airways Executive Club (Avios)', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+      { partner: 'Air France-KLM Flying Blue', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0 },
+    ],
+    pointExpiryMonths: 24,
+    verified: false,
+    notes: 'Same 25 transfer partners as Miles Elite; TC ₹0.25/₹0.50/₹1; 2-yr expiry. Community (magnify).',
+  },
+  'equitas-tiga': { methods: [{ method: 'gift-voucher', valuePerPoint: 0.35 }, { method: 'cashback', valuePerPoint: 0.15 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: 'Xchange portal ₹0.35 voucher / ₹0.10–0.15 cashback; 2-yr expiry (cardinsider).' },
+  'equitas-selfe': { methods: [{ method: 'gift-voucher', valuePerPoint: 0.35, notes: 'tier-linked ₹0.35 (Blue) → ₹1.00 (Diamond).' }, { method: 'cashback', valuePerPoint: 0.15 }], transferPartners: [], verified: false, notes: 'Tier-linked value ₹0.35→₹1.00 via Xchange portal (cardmaven).' },
+  'equitas-powermiles': { methods: [{ method: 'travel-portal', valuePerPoint: 0.5, notes: 'tier-linked ₹0.50 → ₹1.00 (Diamond).' }, { method: 'cashback', valuePerPoint: 0.25 }], transferPartners: [], verified: false, notes: '₹0.50 base → ₹1.00 Diamond. 1:1 airline transfers (BA/United/Finnair/Aeroplan/Etihad/Air India/JAL/IHG/Wyndham) ANNOUNCED Sep-2026, NOT live (creditcardz/cardmaven).' },
 }
 
 // Pure lookups (mirrors surcharges.ts / milestones.ts).

@@ -12,4 +12,8 @@ export const BANKS: Bank[] = [
   { slug: 'au', name: 'AU Small Finance Bank', beancountName: 'AU' },
   { slug: 'idfc-first', name: 'IDFC FIRST Bank', beancountName: 'IDFCFirst' },
   { slug: 'bob', name: 'Bank of Baroda', beancountName: 'BoB' },
+  { slug: 'kotak', name: 'Kotak Mahindra Bank', beancountName: 'Kotak' },
+  { slug: 'federal', name: 'Federal Bank', beancountName: 'Federal' },
+  { slug: 'rbl', name: 'RBL Bank', beancountName: 'RBL' },
+  { slug: 'equitas', name: 'Equitas Small Finance Bank', beancountName: 'Equitas' },
 ]
