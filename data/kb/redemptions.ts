@@ -171,16 +171,16 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'hdfc-bizblack': {
     methods: [
       { method: 'smartbuy', valuePerPoint: 1.0, notes: 'SmartBuy 1 RP=₹1; ≤70% utilization; 75,000 RP/mo cap; min 2,500 RP/redemption.' },
-      { method: 'airmiles-transfer', valuePerPoint: 1.0, notes: 'ONLY partner: Singapore Airlines KrisFlyer 1:1.' },
-      { method: 'catalog', valuePerPoint: 0.5 },
+      { method: 'airmiles-transfer', valuePerPoint: 1.0, notes: 'ONLY partner: Singapore Airlines KrisFlyer 1:1 (as of late-Jul-2026). BizPower has a wider roster (Flying Blue/Accor/… at 2:1–3:1); BizBlack may follow but has not yet.' },
+      { method: 'catalog', valuePerPoint: 0.5, notes: 'Products / business catalogue — lower-value option ~₹0.5/RP.' },
     ],
-    transferPartners: [{ partner: 'Singapore Airlines KrisFlyer', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0, notes: 'Only transfer partner for BizBlack.' }],
+    transferPartners: [{ partner: 'Singapore Airlines KrisFlyer', kind: 'airline', ratio: '1:1', valuePerPoint: 1.0, notes: 'Only transfer partner for BizBlack as of late-Jul-2026 (BizPower has more).' }],
     portalUtilizationPct: 70,
     monthlyTransferCapPoints: 75000,
     monthlyTransferMaxTxns: 5,
     pointExpiryMonths: 36,
     verified: false,
-    notes: 'cardinsider/pointsmath: KrisFlyer-only transfer; 75k RP/mo, 70% utilization, 5 req/mo (Feb-2026).',
+    notes: 'User-confirmed mid-2026 (cardinsider/pointsmath community tracking): SmartBuy ₹1/RP at ≤70% utilization, 75,000 RP/mo redemption cap (official HDFC T&C references this ceiling), min 2,500 RP/redemption, ~5 requests/mo; KrisFlyer-only 1:1 transfer; catalog ~₹0.5/RP; points expire 36 months. Point values are community estimates → source stays community.',
   },
   'hdfc-regalia-gold': {
     methods: [
