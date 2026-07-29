@@ -96,10 +96,10 @@ export const BANK_SURCHARGES: Record<string, SurchargeInput[]> = {
 
   // HDFC — Aug-2024 + Jul-2025 revisions. Official MITC PDF unreadable → secondary.
   // rent/education/wallet/gaming are bank-wide; utility & fuel vary per card (below).
-  // Official HDFC MITC v4.4 (dated 21-Jul-2026), read via PDF. Consumer per-txn
-  // fee cap ₹4,999 (BizBlack ₹3,000). 1% rent from 1-Jul-2025.
+  // Official HDFC MITC v4.4 (dated 21-Jul-2026), read via PDF. Per-txn fee cap
+  // ₹4,999 across HDFC cards (incl. BizBlack). 1% rent from 1-Jul-2025.
   hdfc: [
-    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4 (Jul-2026), clause j. 1% per rent txn (MCC 6513), cap ₹4,999/txn (BizBlack ₹3,000); earns nothing.' },
+    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4 (Jul-2026), clause j. 1% per rent txn (MCC 6513), cap ₹4,999/txn; earns nothing. (BizBlack is the same ₹4,999 per user verification 2025-07-01 — the earlier ₹3,000 carve-out was incorrect.)' },
     { kind: 'education', category: 'education', mccs: ['8211', '8220', '8241', '8244', '8249', '8299'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2024-08-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on 3rd-party education apps; direct-to-institution & international exempt.' },
     { kind: 'wallet', category: 'wallet', percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on monthly wallet loads > ₹10,000; PayZapp exempt.' },
     { kind: 'gaming', mccs: ['7995'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on monthly skill-gaming > ₹10,000; earns nothing.' },
@@ -129,7 +129,7 @@ const ICICI_FUEL: SurchargeInput = { kind: 'fuel', category: 'fuel', mccs: ['554
 const SBI_FUEL: SurchargeInput = { kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Standard 1% fuel surcharge, waiver band ₹400–5,000; card-specific waiver cap not in bank-wide HTML.' }
 // Amex standard fuel (petroleum-company 1%; Amex adds no extra fee, no waiver documented).
 const AMEX_FUEL: SurchargeInput = { kind: 'fuel', category: 'fuel', percent: 1, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Standard petroleum-company 1% fuel surcharge; Amex adds no extra fee; no waiver documented (secondary).' }
-// HDFC personal utility (₹50k). Business (BizBlack) overrides to ₹75k inline.
+// HDFC personal utility (₹50k). BizBlack also ₹50k, defined inline (user-verified).
 const HDFC_UTIL_50K: SurchargeInput = { kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2024-08-01', verified: true, notes: 'Official HDFC MITC v4.4 (Jul-2026), clause s. Personal: 1% on monthly utility > ₹50,000, cap ₹4,999/mo; insurance excluded.' }
 // HDFC fuel: 1% surcharge on high-value txns (above `threshold`/txn) + optional small-txn waiver.
 const hdfcFuel = (threshold: number, waiverCap?: number): SurchargeInput[] => [
@@ -184,10 +184,10 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hsbc-premier': [{ kind: 'fuel', category: 'fuel', percent: 1, txnMin: 400, txnMax: 4000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'HSBC Premier: 1% fuel-surcharge waiver on ₹400–4,000 txns; per-cycle cap not published (secondary).' }, forex(0.99, true, 'Official hsbc.co.in international page: Premier 0.99%.')],
   'hsbc-live-plus': [fuelWaiver(250, { effectiveFrom: '2026-07-26', waiverPeriod: 'quarter', notes: 'Live+ post-26-Jul-2026: contactless fuel cashback, cap ~₹250/quarter; standard 1% surcharge otherwise (secondary).' }), forex(1.99, true, 'Confirmed Jul-2026: Live+ forex 1.99% (reduced from 3.5%). Effective date ~26-Jul-2026 unconfirmed (a 13-Jul-2026 review already quoted 1.99%).', '2026-07-26')],
 
-  // --- HDFC: utility (personal ₹50k / biz ₹75k) + fuel (per-txn + waiver) + forex
+  // --- HDFC: utility (₹50k personal & BizBlack) + fuel (per-txn + waiver) + forex
   'hdfc-infinia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Official HDFC MITC v4.4 (Jul-2026): Infinia FCY 2%.')],
   'hdfc-diners-black': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC Diners Black 2%.')],
-  'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 75000, thresholdBasis: 'monthly', applies: 'full', plusGst: true, effectiveFrom: '2024-08-01', verified: false, notes: 'Secondary. Business card: 1% on full monthly utility once > ₹75,000.' }, ...hdfcFuel(30000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC premium/business 2%.')],
+  'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on monthly utility > ₹50,000, cap ₹4,999 (corrects the earlier secondary ₹75,000 assumption).' }, { kind: 'fuel', category: 'fuel', percent: 1, threshold: 15000, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on a single fuel txn > ₹15,000, cap ₹4,999.' }, forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC premium/business 2%.')],
   'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%; DCC markup 1.75% eff 15-May-2026 (separate from FCY).', '2026-05-15')],
   'hdfc-millennia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
   'hdfc-marriott': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): co-brand 3.5%.')],
