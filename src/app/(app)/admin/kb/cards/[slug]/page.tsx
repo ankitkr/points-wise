@@ -14,6 +14,7 @@ import {
   type TaxPayments,
 } from '@/lib/kb/schema'
 import { effectiveVerified, ruleEntities, valuationEntity, type VerifiableEntity } from '@/lib/kb/verify'
+import type { KbValuation } from '@/db/schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -91,10 +92,13 @@ export default async function EditCardPage({
             <Button type="submit">Save card</Button>
           </form>
 
-          <div className="flex items-center justify-between rounded-md border p-3 text-sm">
-            <span>{valEntity.label}</span>
-            <VerifyButton cardSlug={card.slug} entity={valEntity} current={cur(valEntity)} />
-          </div>
+          <ExpandableRow
+            cardSlug={card.slug}
+            entity={valEntity}
+            current={cur(valEntity)}
+            detail={<ValuationDetail v={valuation} />}
+            className="rounded-md border p-3 text-sm"
+          />
         </CardContent>
       </Card>
 
@@ -215,14 +219,18 @@ function ExpandableRow({
   entity,
   current,
   detail,
+  className = 'border-t pt-2 text-xs',
 }: {
   cardSlug: string
   entity: VerifiableEntity
   current: boolean
   detail: ReactNode
+  // Wrapper styling — sub-entity rows sit in a list (border-t divider); the
+  // standalone valuation row overrides this to a full bordered box.
+  className?: string
 }) {
   return (
-    <div className="flex items-start justify-between gap-2 border-t pt-2 text-xs">
+    <div className={`flex items-start justify-between gap-2 ${className}`}>
       <details className="group min-w-0 flex-1 [&_summary::-webkit-details-marker]:hidden">
         <summary className="flex cursor-pointer items-center gap-1 [&::marker]:content-none">
           <span aria-hidden className="text-muted-foreground transition-transform group-open:rotate-90">
@@ -350,6 +358,21 @@ function TaxDetail({ t }: { t: TaxPayments }) {
       <Field k="Earns points">{t.earns ? 'yes' : 'no'}</Field>
       <Field k="Counts to milestone">{t.countsToMilestone ? 'yes' : 'no'}</Field>
       <Field k="Notes">{t.notes}</Field>
+    </>
+  )
+}
+
+// The per-ticker point value (₹/point at three redemption qualities). `v` is the
+// D1 row, null when the ticker has no valuation seeded yet.
+function ValuationDetail({ v }: { v: KbValuation | null }) {
+  if (!v) return <Field k="Status">not priced yet — no valuation row for this ticker</Field>
+  return (
+    <>
+      <Field k="Floor">₹{v.floorInr}/pt — cash / statement-credit equivalent</Field>
+      <Field k="Realistic">₹{v.realisticInr}/pt — typical portal / voucher / economy transfer</Field>
+      <Field k="Best">₹{v.bestInr}/pt — optimised premium-cabin / sweet-spot award</Field>
+      <Field k="Source">{v.source}</Field>
+      <Field k="Notes">{v.notes}</Field>
     </>
   )
 }
