@@ -70,10 +70,14 @@ describe('effectiveVerified', () => {
 })
 
 describe('valuationEntity', () => {
-  it('takes seedVerified from the D1 row and defaults false when unseeded', () => {
+  it('takes seedVerified + source from the D1 row and defaults false/community when unseeded', () => {
     const seeded = valuationEntity('HDFC_RP', { floorInr: 0.2, realisticInr: 0.5, bestInr: 1, source: 'community', verified: 1 })
     expect(seeded.seedVerified).toBe(true)
-    expect(valuationEntity('HDFC_RP', null).seedVerified).toBe(false)
+    expect(seeded.source).toBe('community')
+    expect(valuationEntity('NEUCOINS', { floorInr: 1, realisticInr: 1, bestInr: 1, source: 'official', verified: 1 }).source).toBe('official')
+    const unseeded = valuationEntity('HDFC_RP', null)
+    expect(unseeded.seedVerified).toBe(false)
+    expect(unseeded.source).toBe('community')
   })
   it('changes key when the valuation numbers change', () => {
     const a = valuationEntity('X', { floorInr: 0.2, realisticInr: 0.5, bestInr: 1, source: 'community', verified: 0 })

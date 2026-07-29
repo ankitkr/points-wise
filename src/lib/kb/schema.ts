@@ -261,6 +261,11 @@ export const redemptionMethodSchema = z.object({
   notes: z.string().optional(),
 })
 
+// Data provenance for figures that often can't be officially published (community
+// consensus vs an issuer-published number). Shared by redemption + valuations so
+// the UI can show "community estimate" instead of an alarming "unverified".
+export const VALUE_SOURCES = ['official', 'community'] as const
+
 export const redemptionSchema = z.object({
   methods: z.array(redemptionMethodSchema).default([]),
   transferPartners: z.array(transferPartnerSchema).default([]),
@@ -271,6 +276,10 @@ export const redemptionSchema = z.object({
   monthlyTransferMaxTxns: z.number().int().positive().optional(), // e.g. 5
   annualTransferCapPoints: z.number().int().positive().optional(),
   pointExpiryMonths: z.number().int().positive().optional(),
+  // Provenance: 'community' (the ₹/point values are consensus estimates — the usual
+  // case, since no bank publishes point values) or 'official' (issuer-published,
+  // e.g. a fixed 1:1 portal or a cashback rate).
+  source: z.enum(VALUE_SOURCES).default('community'),
   verified: z.boolean().default(false),
   notes: z.string().optional(),
 })
@@ -287,7 +296,7 @@ export type RedemptionInput = z.input<typeof redemptionSchema>
 // community consensus unless an issuer publishes a fixed rate (cashback/1:1
 // portal) → 'official'. NOT merged into earn rules (it is per-currency, not
 // per-card); the earn engine (M3) and the net-worth view read it directly.
-export const VALUE_SOURCES = ['official', 'community'] as const
+// (VALUE_SOURCES is defined above, shared with redemptionSchema.)
 
 export const commodityValueSchema = z
   .object({
