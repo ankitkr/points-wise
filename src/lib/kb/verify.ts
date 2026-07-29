@@ -77,6 +77,10 @@ export type VerifiableEntity = {
   entityKey: string
   seedVerified: boolean
   label: string
+  // Provenance (redemption + valuation only): 'community' means the ₹/point value
+  // is a consensus estimate with no official source — the UI shows "community
+  // estimate" rather than an alarming "unverified".
+  source?: 'official' | 'community'
 }
 
 // The earn-RATE identity: base, accelerators (+ the umbrella accelerated cap —
@@ -122,6 +126,7 @@ export function ruleEntities(cardSlug: string, effectiveFrom: string, rule: Earn
       entityType: 'redemption',
       entityKey: entityKey(scope, rule.redemption),
       seedVerified: rule.redemption.verified,
+      source: rule.redemption.source,
       label: `Redemption · ${rule.redemption.methods.length} method(s), ${rule.redemption.transferPartners.length} partner(s)`,
     })
   }
@@ -148,6 +153,7 @@ export function valuationEntity(
     entityType: 'valuation',
     entityKey: entityKey(ticker, content),
     seedVerified: seed ? seed.verified === 1 : false,
+    source: (seed ? seed.source : 'community') as 'official' | 'community',
     label: `Valuation · ${ticker}`,
   }
 }

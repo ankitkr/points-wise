@@ -157,7 +157,15 @@ function VerifyButton({ cardSlug, entity, current }: { cardSlug: string; entity:
       <input type="hidden" name="entityType" value={entity.entityType} />
       <input type="hidden" name="entityKey" value={entity.entityKey} />
       <input type="hidden" name="verified" value={current ? 'false' : 'true'} />
-      {current ? <Badge variant="secondary">verified</Badge> : <Badge variant="outline">unverified</Badge>}
+      {current ? (
+        <Badge variant="secondary">verified</Badge>
+      ) : entity.source === 'community' ? (
+        // Community estimate (e.g. ₹/point) — no official source exists, so this is
+        // a legitimate state, not a forgotten check. Distinct from "unverified".
+        <Badge variant="outline" className="text-muted-foreground">community estimate</Badge>
+      ) : (
+        <Badge variant="outline">unverified</Badge>
+      )}
       <Button type="submit" size="sm" variant="ghost" className="h-6 px-2 text-xs">
         {current ? 'Un-verify' : 'Verify'}
       </Button>

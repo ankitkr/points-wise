@@ -18,6 +18,7 @@ import type { RedemptionInput } from '@/lib/kb/schema'
 const cashbackAuto = (notes: string): RedemptionInput => ({
   methods: [{ method: 'cashback', valuePerPoint: 1.0, notes }],
   transferPartners: [],
+  source: 'official', // cashback 1 unit = ₹1 is an issuer-designed rate, not an estimate
   verified: false,
   notes: 'Direct cashback / auto statement-credit — 1 point ≈ ₹1; no transfer partners.',
 })
@@ -366,6 +367,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '1 RP=₹0.25 via R360 portal; ₹99 fee; cannot offset outstanding.' }],
     transferPartners: [],
     pointExpiryMonths: 24,
+    source: 'official',
     verified: true,
     notes: 'Official SC FAQ: ₹0.25/RP, 2-yr expiry, no airmiles transfer.',
   },
@@ -379,6 +381,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
     ],
     transferPartners: HSBC_PARTNERS,
     pointExpiryMonths: 36,
+    source: 'official',
     verified: true,
     notes: 'Official hsbc.co.in: 20 transfer partners (15 airlines + 5 hotels) default 1:1 (exceptions AirAsia 1:3 bonus, Hainan/Turkish/United 2:1, Shangri-La 5:1). 3-yr expiry.',
   },
@@ -389,6 +392,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
       { method: 'catalog', valuePerPoint: 1.0, notes: 'Apple products 1 pt=₹1.' },
     ],
     transferPartners: HSBC_PARTNERS,
+    source: 'official',
     verified: true,
     notes: 'Official hsbc.co.in. Same 20-partner roster/ratios as TravelOne; Premier points NEVER expire.',
   },
@@ -422,6 +426,7 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'icici-amazon-pay': {
     methods: [{ method: 'cashback', valuePerPoint: 1.0, notes: 'Auto-credited as Amazon Pay balance (1=₹1); never expires; not encashable.' }],
     transferPartners: [],
+    source: 'official',
     verified: true,
     notes: 'Cashback-to-Amazon-Pay model (official); no points, no transfer, no expiry.',
   },
