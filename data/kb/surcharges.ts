@@ -302,7 +302,33 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
 // deliberate fuel entries — a high-value fee + a small-txn waiver — must both
 // survive), so introduce identity+override semantics before adding overrides.
 export function surchargesFor(bankSlug: string, cardSlug: string): SurchargeInput[] {
-  return [...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])]
+  return withDerivedDcc([...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])])
+}
+
+// A card's DCC markup (charged when a foreign merchant/site bills in INR) defaults
+// to its forex markup — issuers apply the same cross-currency markup whether the
+// txn is billed in foreign currency or INR. So for every card that has a forex
+// ('international') surcharge but no EXPLICIT 'dcc', synthesize a DCC mirroring it
+// (verified:false, since the DCC-specific figure isn't separately published).
+// Cards with an authoritative explicit 'dcc' (Axis Magnus/Burgundy/Privilege,
+// HDFC Regalia Gold — where DCC ≠ forex) keep their own value untouched.
+function withDerivedDcc(surcharges: SurchargeInput[]): SurchargeInput[] {
+  if (surcharges.some((s) => s.kind === 'dcc')) return surcharges
+  const fx = surcharges.find((s) => s.kind === 'international')
+  if (!fx || fx.percent === undefined) return surcharges
+  return [
+    ...surcharges,
+    {
+      kind: 'dcc',
+      percent: fx.percent,
+      thresholdBasis: 'per-transaction',
+      applies: 'full',
+      plusGst: true,
+      verified: false,
+      ...(fx.effectiveFrom ? { effectiveFrom: fx.effectiveFrom } : {}),
+      notes: `Assumed DCC markup = forex markup (${fx.percent}%): the issuer applies its cross-currency markup on INR-billed international/DCC txns too. No DCC-specific figure published — verify.`,
+    },
+  ]
 }
 
 // Guards against a typo silently orphaning a whole surcharge set: every map key
