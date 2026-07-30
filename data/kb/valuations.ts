@@ -134,6 +134,54 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
     notes:
       'HSBC TravelOne/Premier points. Realistic: Travel With Points portal 1 pt=₹1. Best: 1:1 transfer to ~20 airlines/hotels for premium cabin. Premier points never expire.',
   },
+  KOTAK_RP: {
+    floorInr: 0.1,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'Kotak Reward/Zen Points (Zen Signature ₹0.25, IndianOil Kotak ₹0.25, League Platinum only ₹0.07 cash/₹0.10 catalog — floor). No transfer partners. Community (cardinsider/kotak.bank.in).',
+  },
+  KOTAK_WP: {
+    floorInr: 0.7,
+    realisticInr: 1.0,
+    bestInr: 1.0,
+    notes: 'Kotak White Pass (White Reserve): 1 WP = ₹1 vouchers/travel, ₹0.70 cashback. Slab-earned on annual spend, not per-txn. Community (cardinsider/cardmaven).',
+  },
+  FED_RP: {
+    floorInr: 0.1,
+    realisticInr: 0.25,
+    bestInr: 0.3,
+    notes: 'Federal FedRewards (Celesta/Imperio/Signet): ~₹0.25 via rewards portal (₹0.10 statement on Signet); ₹99+GST redemption fee. 3-yr expiry. No transfer partners. Community (cardinsider).',
+  },
+  SCAPIA_COINS: {
+    floorInr: 0.2,
+    realisticInr: 0.2,
+    bestInr: 0.2,
+    notes: 'Scapia Coins (Federal-issued): 5 coins = ₹1, redeemable ONLY for travel in the Scapia app (no cash-out). 36-mo validity. Community (cardinsider/1finance).',
+  },
+  RBL_RP: {
+    floorInr: 0.1,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'RBL Reward/Travel Points (World Safari/Icon/ShopRite): ~₹0.25 vouchers/portal travel, catalog can be ~₹0.10 floor. ₹99+GST/redemption. 24-mo expiry. No airline transfer. Community (cardinsider/cardexpert).',
+  },
+  RBL_FP: {
+    floorInr: 0.5,
+    realisticInr: 0.5,
+    bestInr: 0.5,
+    notes: 'RBL Fuel Points (IndianOil RBL XTRA): 1 FP = ₹0.50, redeemable ONLY at IndianOil XTRA outlets. Official (rbl.bank.in).',
+  },
+  SBI_TC: {
+    floorInr: 0.25,
+    realisticInr: 0.5,
+    bestInr: 1.0,
+    notes: 'SBI Travel Credits (Miles Elite/Prime): catalog ₹0.25, SBI travel portal ₹0.50, up to ₹1 via 1:1 airline/hotel transfer (25 partners incl. Air India/Avios/Flying Blue). Community (magnify/cardexpert; Air India partner page confirms 1:1).',
+  },
+  EQUITAS_RP: {
+    floorInr: 0.15,
+    realisticInr: 0.35,
+    bestInr: 1.0,
+    notes: 'Equitas Reward Points (Tiga/Selfe/PowerMiles) via Xchange portal: tier-linked ₹0.15 cashback → ₹0.35 base voucher → ₹1.0 at Diamond tier (₹1L/mo × 3 mo). PowerMiles 1:1 airline transfers announced but not live (Sep-2026). Community (cardinsider/cardmaven).',
+  },
 
   // ---- Airline / hotel currencies earned DIRECTLY by co-brand cards ----
   MAHARAJA_PTS: {
