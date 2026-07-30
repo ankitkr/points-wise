@@ -118,6 +118,7 @@ export const BANK_SURCHARGES: Record<string, SurchargeInput[]> = {
     { kind: 'education', category: 'education', mccs: ['8211', '8220', '8241', '8244', '8249', '8299'], percent: 1, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2024-08-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on 3rd-party education apps; direct-to-institution & international exempt.' },
     { kind: 'wallet', category: 'wallet', percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on monthly wallet loads > ₹10,000; PayZapp exempt.' },
     { kind: 'gaming', mccs: ['7995'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'Official HDFC MITC v4.4. 1% on monthly skill-gaming > ₹10,000; earns nothing.' },
+    dcc(1, false, 'HDFC flat 1% DCC fee (all card tiers) on INR-billed international txns, eff 5-Feb-2024. MUTUALLY EXCLUSIVE with the forex markup (whichever applies, not both). Community-corroborated; MITC PDF unreadable. (An earlier note claimed 1.75% for Regalia Gold — unresolved; treat as 1% flat pending official read.)', '2024-02-05'),
   ],
 
   // IndusInd — 2023–2026 revisions. Confirmed Jul-2026 (community-consistent across
@@ -164,26 +165,26 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   // --- Axis: fuel waiver (₹400/cycle; ACE ₹500) + forex ---------------------
   'axis-magnus': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: 1% fuel-surcharge waiver ₹400–4,000 txns, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider/TechnoFino): Magnus 2%.'), dcc(2, false, 'Axis 28-Jul-2026 T&C: Magnus DCC markup 1.5% → 2% (eff 28-Aug-2026). Distinct from the 2% forex markup. Community (Moneycontrol/@ccg33k).', '2026-08-28')],
   'axis-magnus-burgundy': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Magnus-for-Burgundy 2%.'), dcc(2, false, 'Axis 28-Jul-2026 T&C: Magnus-for-Burgundy DCC 1.5% → 2% (eff 28-Aug-2026). Community.', '2026-08-28')],
-  'axis-atlas': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Atlas 3.5%.')],
+  'axis-atlas': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Atlas 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: "all others" DCC 1.5% → 3.5% (eff 28-Aug-2026). Community.', '2026-08-28')],
   'axis-privilege': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: mid-tier DCC 1.5% → 3.5% (eff 28-Aug-2026; MyZone/Select/Privilege/Neo). Community (cardinsider).', '2026-08-28')],
-  'axis-ace': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: ACE fuel-surcharge waiver ₹400–4,000 txns, cap ₹500/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026: ACE 3.5%.')],
-  'axis-flipkart': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
-  'axis-airtel': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: Airtel fuel-surcharge waiver cap ₹500/cycle (same as ACE — corrected from ₹400).' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
+  'axis-ace': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: ACE fuel-surcharge waiver ₹400–4,000 txns, cap ₹500/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026: ACE 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: "all others" DCC → 3.5% (eff 28-Aug-2026). Community.', '2026-08-28')],
+  'axis-flipkart': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: "all others" DCC → 3.5% (eff 28-Aug-2026). Community.', '2026-08-28')],
+  'axis-airtel': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: Airtel fuel-surcharge waiver cap ₹500/cycle (same as ACE — corrected from ₹400).' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: "all others" DCC → 3.5% (eff 28-Aug-2026). Community.', '2026-08-28')],
 
   // --- ICICI: fuel + forex --------------------------------------------------
-  'icici-emeralde-private-metal': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde PM: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde PM 2%.', '2024-11-15')],
+  'icici-emeralde-private-metal': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Emeralde PM: fuel-surcharge waiver up to ₹1L/YEAR (businesstoday); annual cap not encoded per-cycle.' }, forex(2, true, 'Official ICICI international page: Emeralde PM 2%.', '2024-11-15'), dcc(2, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): Emeralde tier 2.00% on INR-billed international txns.', '2026-01-15')],
   // Legacy non-metal ICICI Emeralde: 1% fuel-surcharge waiver (all stations) + 2% forex.
-  'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Legacy Emeralde: 1% fuel-surcharge waiver across fuel stations (cardinsider; per-cycle cap not published).' }, forex(2, true, 'Legacy Emeralde 2% forex (cardinsider).')],
-  'icici-sapphiro': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Sapphiro not among the reduced-rate cards).')],
-  'icici-amazon-pay': [ICICI_FUEL, forex(1.99, true, 'Official: Amazon Pay ICICI 1.99% from 11-Oct-2025.', '2025-10-11')],
-  'icici-coral': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Coral not among the reduced-rate cards).')],
-  'icici-makemytrip': [ICICI_FUEL, forex(0.99, true, 'Official ICICI international page: MakeMyTrip ICICI 0.99%.')],
+  'icici-emeralde': [{ kind: 'fuel', category: 'fuel', mccs: ['5541', '5542'], percent: 1, txnMin: 400, txnMax: 5000, thresholdBasis: 'per-transaction', applies: 'full', plusGst: true, verified: false, notes: 'Legacy Emeralde: 1% fuel-surcharge waiver across fuel stations (cardinsider; per-cycle cap not published).' }, forex(2, true, 'Legacy Emeralde 2% forex (cardinsider).'), dcc(2, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): Emeralde tier 2.00%.', '2026-01-15')],
+  'icici-sapphiro': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Sapphiro not among the reduced-rate cards).'), dcc(3.5, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): all-other-cards tier 3.50%.', '2026-01-15')],
+  'icici-amazon-pay': [ICICI_FUEL, forex(1.99, true, 'Official: Amazon Pay ICICI 1.99% from 11-Oct-2025.', '2025-10-11'), dcc(1.99, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): Amazon Pay 1.99%.', '2026-01-15')],
+  'icici-coral': [ICICI_FUEL, forex(3.5, true, 'Official ICICI international page: default 3.5% (Coral not among the reduced-rate cards).'), dcc(3.5, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): all-other-cards tier 3.50%.', '2026-01-15')],
+  'icici-makemytrip': [ICICI_FUEL, forex(0.99, true, 'Official ICICI international page: MakeMyTrip ICICI 0.99%.'), dcc(0.99, true, 'Official ICICI DCC schedule (eff 15-Jan-2026): MakeMyTrip travel card 0.99%.', '2026-01-15')],
 
   // --- SBI: fuel + forex (Elite/Prime 1.99%, others 3.5%) -------------------
-  'sbi-cashback': [SBI_FUEL, forex(3.5, true, 'Official SBI MITC: 3.5%.')],
-  'sbi-elite': [SBI_FUEL, forex(1.99, true, 'Official SBI MITC: Elite 1.99%.')],
-  'sbi-simplyclick': [SBI_FUEL, forex(3.5, true, 'Official SBI MITC: 3.5%.')],
-  'sbi-prime': [SBI_FUEL, forex(1.99, true, 'Official SBI MITC: Prime 1.99%.')],
+  'sbi-cashback': [SBI_FUEL, forex(3.5, true, 'Official SBI MITC: 3.5%.'), dcc(3.5, false, 'SBI DCC schedule: all-other-cards tier 3.50% on INR-billed intl txns (community; MITC PDF unreadable).')],
+  'sbi-elite': [SBI_FUEL, forex(1.99, true, 'Official SBI MITC: Elite 1.99%.'), dcc(1.99, false, 'SBI DCC schedule: Elite tier 1.99% (on txns ≥ ₹1,000). Community.')],
+  'sbi-simplyclick': [SBI_FUEL, forex(3.5, true, 'Official SBI MITC: 3.5%.'), dcc(3.5, false, 'SBI DCC schedule: all-other-cards 3.50%. Community.')],
+  'sbi-prime': [SBI_FUEL, forex(1.99, true, 'Official SBI MITC: Prime 1.99%.'), dcc(3.5, false, 'SBI DCC schedule: regular Prime falls in the 3.50% all-others tier (only Prime NRI Secured gets 1.99%). Community — verify.')],
 
   // --- Amex: fuel + forex (no rent surcharge; earns MR on rent) -------------
   'amex-platinum-travel': [AMEX_FUEL, forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): all Amex India cards 3.5% forex.')],
@@ -205,7 +206,7 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hdfc-infinia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Official HDFC MITC v4.4 (Jul-2026): Infinia FCY 2%.')],
   'hdfc-diners-black': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC Diners Black 2%.')],
   'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on monthly utility > ₹50,000, cap ₹4,999 (corrects the earlier secondary ₹75,000 assumption).' }, { kind: 'fuel', category: 'fuel', percent: 1, threshold: 15000, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on a single fuel txn > ₹15,000, cap ₹4,999.' }, forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC premium/business 2%.')],
-  'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%; DCC markup 1.75% eff 15-May-2026 (separate from FCY).', '2026-05-15'), dcc(1.75, true, 'Official HDFC MITC v4.4: Regalia Gold DCC markup 1.75% (eff 15-May-2026), separate from the 2% FCY/forex markup.', '2026-05-15')],
+  'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%.', '2026-05-15')],
   'hdfc-millennia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
   'hdfc-marriott': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): co-brand 3.5%.')],
   'hdfc-neu-infinity': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(2, true, 'Confirmed Jul-2026 (cardinsider/search): Tata Neu Infinity 2%.')],
@@ -213,9 +214,9 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hdfc-swiggy': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): Swiggy HDFC 3.5%.')],
 
   // --- IndusInd: fuel (tier threshold) + forex (rent/util/edu/wallet/transport bank-wide)
-  'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, true, 'Confirmed Jul-2026 (cardexpert/cardinsider): Avios 3.5% forex; 1.5% at the preferred destination.')],
-  'indusind-legend': [indusindFuel(30000), forex(1.8, true, 'Confirmed Jul-2026 (cardinsider/wise): Legend 1.8% forex.')],
-  'indusind-eazydiner': [indusindFuel(30000), forex(3.5, true, 'Confirmed Jul-2026: IndusInd standard 3.5% forex.')],
+  'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, true, 'Confirmed Jul-2026 (cardexpert/cardinsider): Avios 3.5% forex; 1.5% at the preferred destination.'), dcc(1, false, 'IndusInd DCC (eff 15-Jun-2026): premium tier (Avios Visa Infinite) 1% + GST. Official DCC FAQ (PDF binary); community-corroborated.', '2026-06-15')],
+  'indusind-legend': [indusindFuel(30000), forex(1.8, true, 'Confirmed Jul-2026 (cardinsider/wise): Legend 1.8% forex.'), dcc(2, false, 'IndusInd DCC (eff 15-Jun-2026): standard tier (Legend) 2% + GST. Community.', '2026-06-15')],
+  'indusind-eazydiner': [indusindFuel(30000), forex(3.5, true, 'Confirmed Jul-2026: IndusInd standard 3.5% forex.'), dcc(2, false, 'IndusInd DCC (eff 15-Jun-2026): standard tier (EazyDiner Platinum) 2% + GST. Community.', '2026-06-15')],
 
   // --- AU: fuel + forex only. Rent/utility surcharge unconfirmed (official PDF binary) — omitted.
   'au-ixigo': [fuelWaiver(250, { txnMin: 400, txnMax: 5000, verified: true, notes: 'Confirmed Jul-2026: AU ixigo 1% fuel waiver ₹400–5,000, cap ₹250/cycle.' }), forex(0, true, 'Official AU: ixigo 0% forex.')],
@@ -235,10 +236,10 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'bob-etihad-standard': [fuelWaiver(250, { txnMin: 500, txnMax: 5000, notes: 'BoB Etihad Standard fuel waiver ₹500–5,000, cap ₹250/cycle (secondary).' }), forex(1, false, 'Gemini audit mid-2026: reduced 1% forex (a key Standard-card feature; corrects the earlier 3.5% assumption).')],
 
   // --- New banks (Jul-2026 onboarding; community unless noted) ---------------
-  'kotak-zen-signature': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'Kotak Zen 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'Kotak Zen 3.5% forex (community).')],
-  'kotak-white-reserve': [fuelWaiver(4500, { txnMin: 400, txnMax: 7500, waiverPeriod: 'year', notes: 'White Reserve 1% fuel waiver ₹400–7,500, cap ₹4,500/year (cardinsider).' }), forex(2, false, 'White Reserve 2% forex (cardinsider).')],
-  'kotak-league-platinum': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'League Platinum 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'League Platinum forex unconfirmed (assumed 3.5%).')],
-  'kotak-indianoil': [fuelWaiver(100, { txnMin: 100, txnMax: 5000, notes: 'IndianOil Kotak 1% fuel waiver at IndianOil ₹100–5,000, cap ₹100/cycle (kotak.bank.in).' }), forex(3.5, false, 'IndianOil Kotak 3.5% forex (community).')],
+  'kotak-zen-signature': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'Kotak Zen 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'Kotak Zen 3.5% forex (community).'), dcc(3.5, false, 'Kotak DCC: all-other-cards 3.50% (eff 1-Aug-2026), ADDITIVE to the forex markup (both apply). Community.', '2026-08-01')],
+  'kotak-white-reserve': [fuelWaiver(4500, { txnMin: 400, txnMax: 7500, waiverPeriod: 'year', notes: 'White Reserve 1% fuel waiver ₹400–7,500, cap ₹4,500/year (cardinsider).' }), forex(2, false, 'White Reserve 2% forex (cardinsider).'), dcc(2, false, 'Kotak DCC: White Reserve/Privy/Infinite tier 2% (eff 1-Jun-2025), ADDITIVE to forex. Community.', '2025-06-01')],
+  'kotak-league-platinum': [fuelWaiver(3500, { txnMin: 500, txnMax: 4000, waiverPeriod: 'year', notes: 'League Platinum 1% fuel waiver ₹500–4,000, cap ₹3,500/year (kotak.bank.in).' }), forex(3.5, false, 'League Platinum forex unconfirmed (assumed 3.5%).'), dcc(3.5, false, 'Kotak DCC: all-other-cards 3.50% (eff 1-Aug-2026), ADDITIVE to forex. Community.', '2026-08-01')],
+  'kotak-indianoil': [fuelWaiver(100, { txnMin: 100, txnMax: 5000, notes: 'IndianOil Kotak 1% fuel waiver at IndianOil ₹100–5,000, cap ₹100/cycle (kotak.bank.in).' }), forex(3.5, false, 'IndianOil Kotak 3.5% forex (community).'), dcc(3.5, false, 'Kotak DCC: all-other-cards 3.50% (eff 1-Aug-2026), ADDITIVE to forex. Community.', '2026-08-01')],
   'federal-celesta': [forex(2, false, 'Federal Celesta 2% forex (cardinsider); 1% fuel surcharge waived, no cap published.')],
   'federal-imperio': [forex(3.5, false, 'Federal Imperio 3.5% forex (cardinsider); 1% fuel surcharge waived.')],
   'federal-signet': [fuelWaiver(150, { txnMin: 400, txnMax: 5000, notes: 'Federal Signet 1% fuel waiver ₹400–5,000, cap ₹150/mo (cardinsider).' }), forex(3.5, false, 'Federal Signet 3.5% forex (cardinsider).')],
@@ -247,10 +248,10 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'rbl-icon': [fuelWaiver(200, { txnMin: 500, txnMax: 4000, notes: 'RBL Icon 1% fuel waiver ₹500–4,000, cap ₹200/mo (rbl.bank.in).' }), forex(3.5, false, 'RBL Icon 3.5% forex (cardinsider).')],
   'rbl-shoprite': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'ShopRite 1% fuel waiver ₹400–5,000, cap ₹100/mo (rbl.bank.in).' }), forex(3.5, false, 'ShopRite 3.5% forex (cardinsider).')],
   'rbl-indianoil-xtra': [fuelWaiver(200, { txnMin: 500, txnMax: 4000, notes: 'IndianOil RBL XTRA 1% fuel waiver, cap ₹200/mo (rbl.bank.in).' }), forex(3.5, false, 'IndianOil RBL XTRA 3.5% forex (community).')],
-  'sbi-bpcl-octane': [fuelWaiver(100, { txnMin: 500, txnMax: 4000, notes: 'BPCL Octane 1% fuel-surcharge waiver at BPCL, cap ₹100/mo (community).' }), forex(3.5, false, 'BPCL Octane 3.5% forex (community).')],
-  'sbi-aurum': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Aurum 1% fuel waiver ₹500–4,000, cap ₹250/cycle (community).' }), forex(1.99, false, 'SBI Aurum 1.99% forex (official-adjacent; verify).')],
-  'sbi-miles-elite': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Elite 1% fuel waiver, cap ₹250/cycle (community).' }), forex(1.99, false, 'Miles Elite 1.99% forex (community).')],
-  'sbi-miles-prime': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Prime 1% fuel waiver, cap ₹250/cycle (community).' }), forex(2.5, false, 'Miles Prime 2.5% forex (community).')],
+  'sbi-bpcl-octane': [fuelWaiver(100, { txnMin: 500, txnMax: 4000, notes: 'BPCL Octane 1% fuel-surcharge waiver at BPCL, cap ₹100/mo (community).' }), forex(3.5, false, 'BPCL Octane 3.5% forex (community).'), dcc(3.5, false, 'SBI DCC schedule: all-other-cards 3.50%. Community.')],
+  'sbi-aurum': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Aurum 1% fuel waiver ₹500–4,000, cap ₹250/cycle (community).' }), forex(1.99, false, 'SBI Aurum 1.99% forex (official-adjacent; verify).'), dcc(1.99, false, 'SBI DCC schedule: AURUM tier 1.99% (on txns ≥ ₹1,000). Community.')],
+  'sbi-miles-elite': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Elite 1% fuel waiver, cap ₹250/cycle (community).' }), forex(1.99, false, 'Miles Elite 1.99% forex (community).'), dcc(1.99, false, 'SBI DCC schedule: Miles Elite 1.99% (≥ ₹1,000). Community.')],
+  'sbi-miles-prime': [fuelWaiver(250, { txnMin: 500, txnMax: 4000, notes: 'SBI Miles Prime 1% fuel waiver, cap ₹250/cycle (community).' }), forex(2.5, false, 'Miles Prime 2.5% forex (community).'), dcc(2.5, false, 'SBI DCC schedule: Miles Prime 2.50%. Community.')],
   'equitas-tiga': [fuelWaiver(3000, { txnMin: 500, txnMax: 3000, notes: 'Equitas Tiga 1% fuel waiver ₹500–3,000, cap ₹3,000/cycle (cardinsider).' }), forex(3.4, false, 'Equitas Tiga 3.4% forex (cardinsider).')],
   'equitas-selfe': [fuelWaiver(250, { txnMin: 500, txnMax: 3000, notes: 'Equitas Selfe 1% fuel waiver ₹500–3,000, cap ₹250/mo (cardmaven).' }), forex(3.5, false, 'Selfe forex 3.5% at Blue → 0% at Diamond tier (community).')],
   'equitas-powermiles': [fuelWaiver(450, { txnMin: 500, txnMax: 3000, notes: 'Equitas PowerMiles 1% fuel waiver ₹500–3,000, cap ₹450/cycle (cardmaven).' }), forex(2, false, 'PowerMiles 2% forex, net 0% at Diamond via 90-day refund (community).')],
@@ -302,34 +303,16 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
 // deliberate fuel entries — a high-value fee + a small-txn waiver — must both
 // survive), so introduce identity+override semantics before adding overrides.
 export function surchargesFor(bankSlug: string, cardSlug: string): SurchargeInput[] {
-  return withDerivedDcc([...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])])
+  return [...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])]
 }
-
-// A card's DCC markup (charged when a foreign merchant/site bills in INR) defaults
-// to its forex markup — issuers apply the same cross-currency markup whether the
-// txn is billed in foreign currency or INR. So for every card that has a forex
-// ('international') surcharge but no EXPLICIT 'dcc', synthesize a DCC mirroring it
-// (verified:false, since the DCC-specific figure isn't separately published).
-// Cards with an authoritative explicit 'dcc' (Axis Magnus/Burgundy/Privilege,
-// HDFC Regalia Gold — where DCC ≠ forex) keep their own value untouched.
-function withDerivedDcc(surcharges: SurchargeInput[]): SurchargeInput[] {
-  if (surcharges.some((s) => s.kind === 'dcc')) return surcharges
-  const fx = surcharges.find((s) => s.kind === 'international')
-  if (!fx || fx.percent === undefined) return surcharges
-  return [
-    ...surcharges,
-    {
-      kind: 'dcc',
-      percent: fx.percent,
-      thresholdBasis: 'per-transaction',
-      applies: 'full',
-      plusGst: true,
-      verified: false,
-      ...(fx.effectiveFrom ? { effectiveFrom: fx.effectiveFrom } : {}),
-      notes: `Assumed DCC markup = forex markup (${fx.percent}%): the issuer applies its cross-currency markup on INR-billed international/DCC txns too. No DCC-specific figure published — verify.`,
-    },
-  ]
-}
+// NOTE on DCC (kind:'dcc'): DCC markup is NOT universally equal to the forex
+// markup. Only some issuers levy a SEPARATE issuer-side DCC fee (per Jul-2026
+// research of official MITC / fee schedules): HDFC (flat 1%, MUTUALLY EXCLUSIVE
+// with forex), ICICI (tiered, official), SBI (tiered), Axis (tiered, eff
+// 28-Aug-2026), Kotak (tiered, ADDITIVE to forex, eff 1-Aug-2026), IndusInd
+// (tiered, eff 15-Jun-2026). Every OTHER issuer (Amex/IDFC/HSBC/SC/AU/Yes/
+// Federal/RBL/BoB/PSU/DBS/…) has NO separate DCC fee — an INR-billed intl txn
+// just incurs the normal forex markup — so those cards carry no 'dcc' row.
 
 // Guards against a typo silently orphaning a whole surcharge set: every map key
 // MUST resolve to a real bank/card slug. Returns the offending keys (empty = ok).
