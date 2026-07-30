@@ -23,6 +23,21 @@ const forex = (percent: number, verified: boolean, notes: string, effectiveFrom?
   notes,
 })
 
+// Dynamic Currency Conversion markup — levied when a foreign merchant/website
+// bills the transaction in INR (the cardholder is "offered" INR at POS). This is
+// SEPARATE from the forex markup (which applies when billed in foreign currency)
+// and is often the WORSE of the two. Same shape as forex, kind:'dcc'.
+const dcc = (percent: number, verified: boolean, notes: string, effectiveFrom?: string): SurchargeInput => ({
+  kind: 'dcc',
+  percent,
+  thresholdBasis: 'per-transaction',
+  applies: 'full',
+  plusGst: true,
+  verified,
+  ...(effectiveFrom ? { effectiveFrom } : {}),
+  notes,
+})
+
 // 1% fuel surcharge waived up to `waiverCapPerCycle` ₹/cycle for txns in
 // [txnMin, txnMax]. A waiver ≈ levied then reversed; net fuel cost ~0 in-band.
 const fuelWaiver = (
@@ -147,10 +162,10 @@ const BOB_WALLET: SurchargeInput = { kind: 'wallet', category: 'wallet', percent
 
 export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   // --- Axis: fuel waiver (₹400/cycle; ACE ₹500) + forex ---------------------
-  'axis-magnus': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: 1% fuel-surcharge waiver ₹400–4,000 txns, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider/TechnoFino): Magnus 2%.')],
-  'axis-magnus-burgundy': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Magnus-for-Burgundy 2%.')],
+  'axis-magnus': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: 1% fuel-surcharge waiver ₹400–4,000 txns, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider/TechnoFino): Magnus 2%.'), dcc(2, false, 'Axis 28-Jul-2026 T&C: Magnus DCC markup 1.5% → 2% (eff 28-Aug-2026). Distinct from the 2% forex markup. Community (Moneycontrol/@ccg33k).', '2026-08-28')],
+  'axis-magnus-burgundy': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(2, true, 'Confirmed Jul-2026 (cardinsider): Magnus-for-Burgundy 2%.'), dcc(2, false, 'Axis 28-Jul-2026 T&C: Magnus-for-Burgundy DCC 1.5% → 2% (eff 28-Aug-2026). Community.', '2026-08-28')],
   'axis-atlas': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver, cap ₹400/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider): Atlas 3.5%.')],
-  'axis-privilege': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
+  'axis-privilege': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.'), dcc(3.5, false, 'Axis 28-Jul-2026 T&C: mid-tier DCC 1.5% → 3.5% (eff 28-Aug-2026; MyZone/Select/Privilege/Neo). Community (cardinsider).', '2026-08-28')],
   'axis-ace': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: ACE fuel-surcharge waiver ₹400–4,000 txns, cap ₹500/cycle.' }), forex(3.5, true, 'Confirmed Jul-2026: ACE 3.5%.')],
   'axis-flipkart': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC fuel waiver.' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
   'axis-airtel': [fuelWaiver(500, { txnMin: 400, txnMax: 4000, verified: true, notes: 'Official Axis MITC: Airtel fuel-surcharge waiver cap ₹500/cycle (same as ACE — corrected from ₹400).' }), forex(3.5, true, 'Confirmed Jul-2026: Axis standard 3.5%.')],
@@ -190,7 +205,7 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hdfc-infinia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Official HDFC MITC v4.4 (Jul-2026): Infinia FCY 2%.')],
   'hdfc-diners-black': [HDFC_UTIL_50K, ...hdfcFuel(15000, 1000), forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC Diners Black 2%.')],
   'hdfc-bizblack': [{ kind: 'utilities', category: 'utilities', percent: 1, threshold: 50000, thresholdBasis: 'monthly', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on monthly utility > ₹50,000, cap ₹4,999 (corrects the earlier secondary ₹75,000 assumption).' }, { kind: 'fuel', category: 'fuel', percent: 1, threshold: 15000, thresholdBasis: 'per-transaction', applies: 'full', perTxnCap: 4999, plusGst: true, effectiveFrom: '2025-07-01', verified: true, notes: 'User verification 2025-07-01: 1% on a single fuel txn > ₹15,000, cap ₹4,999.' }, forex(2, true, 'Confirmed Jul-2026 (cardinsider forex page): HDFC premium/business 2%.')],
-  'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%; DCC markup 1.75% eff 15-May-2026 (separate from FCY).', '2026-05-15')],
+  'hdfc-regalia-gold': [HDFC_UTIL_50K, ...hdfcFuel(15000, 500), forex(2, true, 'Official HDFC MITC v4.4: Regalia Gold FCY 2%; DCC markup 1.75% eff 15-May-2026 (separate from FCY).', '2026-05-15'), dcc(1.75, true, 'Official HDFC MITC v4.4: Regalia Gold DCC markup 1.75% (eff 15-May-2026), separate from the 2% FCY/forex markup.', '2026-05-15')],
   'hdfc-millennia': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
   'hdfc-marriott': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): co-brand 3.5%.')],
   'hdfc-neu-infinity': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(2, true, 'Confirmed Jul-2026 (cardinsider/search): Tata Neu Infinity 2%.')],
@@ -287,7 +302,33 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
 // deliberate fuel entries — a high-value fee + a small-txn waiver — must both
 // survive), so introduce identity+override semantics before adding overrides.
 export function surchargesFor(bankSlug: string, cardSlug: string): SurchargeInput[] {
-  return [...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])]
+  return withDerivedDcc([...(BANK_SURCHARGES[bankSlug] ?? []), ...(CARD_SURCHARGES[cardSlug] ?? [])])
+}
+
+// A card's DCC markup (charged when a foreign merchant/site bills in INR) defaults
+// to its forex markup — issuers apply the same cross-currency markup whether the
+// txn is billed in foreign currency or INR. So for every card that has a forex
+// ('international') surcharge but no EXPLICIT 'dcc', synthesize a DCC mirroring it
+// (verified:false, since the DCC-specific figure isn't separately published).
+// Cards with an authoritative explicit 'dcc' (Axis Magnus/Burgundy/Privilege,
+// HDFC Regalia Gold — where DCC ≠ forex) keep their own value untouched.
+function withDerivedDcc(surcharges: SurchargeInput[]): SurchargeInput[] {
+  if (surcharges.some((s) => s.kind === 'dcc')) return surcharges
+  const fx = surcharges.find((s) => s.kind === 'international')
+  if (!fx || fx.percent === undefined) return surcharges
+  return [
+    ...surcharges,
+    {
+      kind: 'dcc',
+      percent: fx.percent,
+      thresholdBasis: 'per-transaction',
+      applies: 'full',
+      plusGst: true,
+      verified: false,
+      ...(fx.effectiveFrom ? { effectiveFrom: fx.effectiveFrom } : {}),
+      notes: `Assumed DCC markup = forex markup (${fx.percent}%): the issuer applies its cross-currency markup on INR-billed international/DCC txns too. No DCC-specific figure published — verify.`,
+    },
+  ]
 }
 
 // Guards against a typo silently orphaning a whole surcharge set: every map key
