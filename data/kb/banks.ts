@@ -26,4 +26,7 @@ export const BANKS: Bank[] = [
   { slug: 'boi', name: 'Bank of India', beancountName: 'BankOfIndia' },
   { slug: 'indian-bank', name: 'Indian Bank', beancountName: 'IndianBank' },
   { slug: 'bom', name: 'Bank of Maharashtra', beancountName: 'BankOfMaharashtra' },
+  { slug: 'dbs', name: 'DBS Bank India', beancountName: 'DBS' },
+  { slug: 'kvb', name: 'Karur Vysya Bank', beancountName: 'KarurVysya' },
+  { slug: 'jupiter', name: 'Jupiter (CSB-issued)', beancountName: 'Jupiter' },
 ]

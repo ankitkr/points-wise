@@ -717,6 +717,23 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'boi-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt not officially disclosed; ~₹0.25 estimate.' }], transferPartners: [], pointExpiryMonths: 12, verified: false, notes: 'BOI Star Rewardz portal; SHORT 1-yr point expiry; ₹/pt undisclosed. Community.' },
   'indian-bank-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt undisclosed (~₹0.25 est; lone ₹1 claim treated as outlier).' }], transferPartners: [], verified: false, notes: 'Indian Bank rewards portal; ₹/pt undisclosed. Very thin data.' },
   'bom-rupay-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt undisclosed (~₹0.25 est).' }], transferPartners: [], verified: false, notes: 'BoM own-brand rewards; ₹/pt undisclosed. Community.' },
+
+  // ---- Tier-3 ----
+  'dbs-vantage': { methods: [{ method: 'travel-portal', valuePerPoint: 1.0, notes: 'DBS Delights.' }, { method: 'statement-credit', valuePerPoint: 1.0 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: '1 VP = ₹1 (DBS Delights/statement); no India airline transfer confirmed. 2-yr expiry. Community.' },
+  'dbs-spark': { methods: [{ method: 'catalog', valuePerPoint: 0.2, notes: 'DBS Delights; ₹99+GST/redemption.' }], transferPartners: [], verified: false, notes: '1 CP = ₹0.20; no transfer. Community.' },
+  'kvb-honour': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt undisclosed (~₹0.25 est); ₹99/redemption, min 2,000 pts.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: 'KVB proprietary card ₹/pt not officially disclosed; 3-yr expiry. Community/thin.' },
+  'jupiter-edge': {
+    methods: [{ method: 'gift-voucher', valuePerPoint: 0.2, notes: 'vouchers/gold/flights.' }, { method: 'statement-credit', valuePerPoint: 0.14, notes: 'devalued 1-Jun-2026.' }, { method: 'airmiles-transfer', valuePerPoint: 0.2, notes: 'Air India Maharaja 6:1.' }],
+    transferPartners: [{ partner: 'Air India Maharaja Club', kind: 'airline', ratio: '6:1' }],
+    verified: false,
+    notes: 'Jewels: ₹0.20 voucher / ₹0.14 statement; Air India 6:1. Non-expiring. Official KFS + community.',
+  },
+  'jupiter-edge-plus': {
+    methods: [{ method: 'gift-voucher', valuePerPoint: 0.2, notes: 'vouchers/gold/flights.' }, { method: 'statement-credit', valuePerPoint: 0.14 }, { method: 'airmiles-transfer', valuePerPoint: 0.2, notes: 'Air India Maharaja 6:1.' }],
+    transferPartners: [{ partner: 'Air India Maharaja Club', kind: 'airline', ratio: '6:1' }],
+    verified: false,
+    notes: 'Same Jewels redemption as Edge (₹0.20 voucher / ₹0.14 statement; Air India 6:1). Non-expiring. Official KFS + community.',
+  },
 }
 
 // Pure lookups (mirrors surcharges.ts / milestones.ts).

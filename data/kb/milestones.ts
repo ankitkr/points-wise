@@ -128,6 +128,12 @@ export const CARD_FEES: Record<string, Fees> = {
   'boi-rupay-select': { joiningInr: 0, annualInr: 800 },
   'indian-bank-rupay-select': { joiningInr: 0, annualInr: 250 },
   'bom-rupay-platinum': { joiningInr: 0, annualInr: 0 },
+  // Tier-3
+  'dbs-vantage': { joiningInr: 10000, annualInr: 10000 }, // Elite tier; Treasures ₹20k / others ₹50k
+  'dbs-spark': { joiningInr: 999, annualInr: 999 }, // Spark10 tier
+  'kvb-honour': { joiningInr: 0, annualInr: 999 },
+  'jupiter-edge': { joiningInr: 0, annualInr: 0 },
+  'jupiter-edge-plus': { joiningInr: 999, annualInr: 0 },
 }
 
 const fw = (spendThreshold: number, valueInr: number, notes: string): MilestoneInput => ({
@@ -484,6 +490,20 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
   'union-rupay-select': [fw(50000, 499, '₹50k/yr → waiver (official).')],
   'union-visa-signature': [fw(270000, 1999, '₹2.7L/yr → waiver (official).')],
   'indian-bank-rupay-select': [fw(50000, 250, '₹50k/yr → waiver (community; fee ₹250–500 unresolved).')],
+  // ---- Tier-3 ----
+  'dbs-vantage': [
+    fw(1000000, 10000, '₹10L/yr → renewal waived (community).'),
+    { period: 'welcome', kind: 'points', points: 10000, verified: false, label: '10,000 VP welcome (₹10k)', notes: 'community.' },
+    { spendThreshold: 300000, period: 'quarter', kind: 'points', points: 5000, repeatable: true, verified: false, label: '5,000 VP at ₹3L/qtr', notes: 'community; quarterly+annual share 40k VP/yr cap.' },
+    { spendThreshold: 500000, period: 'quarter', kind: 'points', points: 10000, repeatable: true, verified: false, label: '10,000 VP at ₹5L/qtr', notes: 'community.' },
+    { spendThreshold: 2000000, period: 'anniversary-year', kind: 'points', points: 40000, verified: false, label: '40,000 VP at ₹20L/yr', notes: 'community; annual cap.' },
+  ],
+  'dbs-spark': [
+    fw(200000, 999, '₹2L/yr → waiver, Spark10 (community).'),
+    { period: 'welcome', kind: 'points', points: 5000, verified: false, label: '5,000 CP welcome (₹1k)', notes: 'Spark10 (community).' },
+    { spendThreshold: 75000, period: 'quarter', kind: 'points', points: 3500, repeatable: true, verified: false, label: '3,500 CP at ₹75k/qtr', notes: 'Spark10 (community).' },
+  ],
+  'kvb-honour': [fw(300000, 999, '₹3L/yr → waiver (KVB).'), { period: 'welcome', kind: 'points', points: 700, verified: false, label: '700 pts welcome', notes: 'KVB.' }],
 }
 
 // Overall monthly cap on ACCELERATED (bonus-over-base) points — the "umbrella"
