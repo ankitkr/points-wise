@@ -115,6 +115,19 @@ export const CARD_FEES: Record<string, Fees> = {
   'idbi-winnings-select': { joiningInr: 899, annualInr: 899 },
   'idbi-aspire-platinum': { joiningInr: 0, annualInr: 0 },
   'idbi-imperium-platinum': { joiningInr: 499, annualInr: 499 },
+  // Tier-2 PSU
+  'pnb-rupay-select': { joiningInr: 500, annualInr: 750 },
+  'pnb-visa-signature': { joiningInr: 1500, annualInr: 2000 },
+  'pnb-luxura': { joiningInr: 4999, annualInr: 1999 },
+  'canara-rupay-select': { joiningInr: 0, annualInr: 0 },
+  'canara-mastercard-world': { joiningInr: 0, annualInr: 0 },
+  'canara-visa-signature': { joiningInr: 0, annualInr: 0 },
+  'union-uni-carbon': { joiningInr: 499, annualInr: 499 },
+  'union-rupay-select': { joiningInr: 0, annualInr: 499 },
+  'union-visa-signature': { joiningInr: 0, annualInr: 1999 },
+  'boi-rupay-select': { joiningInr: 0, annualInr: 800 },
+  'indian-bank-rupay-select': { joiningInr: 0, annualInr: 250 },
+  'bom-rupay-platinum': { joiningInr: 0, annualInr: 0 },
 }
 
 const fw = (spendThreshold: number, valueInr: number, notes: string): MilestoneInput => ({
@@ -459,6 +472,18 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
     { spendThreshold: 100000, period: 'anniversary-year', kind: 'points', points: 1000, verified: false, label: '1,000 pts at ₹1L', notes: 'idbi.bank.in.' },
     { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
   ],
+  // ---- Tier-2 PSU (community/thin) ----
+  'pnb-visa-signature': [fw(300000, 2000, '₹3L/yr → waiver (PNB SOFC).')],
+  'pnb-luxura': [
+    fw(600000, 1999, '₹6L/yr → annual-fee waiver (PNB SOFC).'),
+    { spendThreshold: 500000, period: 'anniversary-year', kind: 'points', points: 10000, verified: false, label: '10,000 RP at ₹5L', notes: 'cardinsider.' },
+    { spendThreshold: 1000000, period: 'anniversary-year', kind: 'points', points: 14000, verified: false, label: '14,000 RP at ₹10L', notes: 'cardinsider.' },
+    { spendThreshold: 1500000, period: 'anniversary-year', kind: 'points', points: 26000, verified: false, label: '26,000 RP at ₹15L', notes: 'cardinsider.' },
+  ],
+  'union-uni-carbon': [fw(100000, 499, '₹1L/yr → waiver (official).'), { spendThreshold: 125000, period: 'anniversary-year', kind: 'points', points: 500, verified: false, label: '500 pts at ₹1.25L', notes: 'official.' }],
+  'union-rupay-select': [fw(50000, 499, '₹50k/yr → waiver (official).')],
+  'union-visa-signature': [fw(270000, 1999, '₹2.7L/yr → waiver (official).')],
+  'indian-bank-rupay-select': [fw(50000, 250, '₹50k/yr → waiver (community; fee ₹250–500 unresolved).')],
 }
 
 // Overall monthly cap on ACCELERATED (bonus-over-base) points — the "umbrella"

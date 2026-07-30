@@ -212,6 +212,43 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
     bestInr: 0.25,
     notes: 'IDBI Delight Points: flat 1 pt = ₹0.25 (portal only, no transfer partners); min 1,000 pts, ₹99+GST/redemption, 3-yr expiry. Official (idbi.bank.in).',
   },
+  // PSU issuers — all flat ~₹0.25, portal-only, no transfer partners (community/PSU-thin).
+  PNB_RP: {
+    floorInr: 0.25,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'PNB Reward Points: flat ₹0.25 (down from ₹0.50 on 1-Sep-2024, OFFICIAL pnbcard.in); min 500 pts, portal pnbrewardz.com, 3-yr expiry. No live transfer partners.',
+  },
+  CANARA_RP: {
+    floorInr: 0.25,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'Canara Rewardz: flat ₹0.25 (canararewardz.com), 3-yr expiry, no transfer partners. RuPay Select adds 5% cashback on utility/dining capped ₹50/mo each (separate from points). Community + official.',
+  },
+  UNION_RP: {
+    floorInr: 0.25,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'Union Rewardz: flat ₹0.25 (4 pts = ₹1), Union Rewardz portal, 36-mo expiry, no transfer partners. Community + official.',
+  },
+  BOI_RP: {
+    floorInr: 0.2,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'BOI Star Rewardz: ₹/point not officially disclosed (~₹0.20–0.25 estimate); 1-yr expiry (short). Portal catalogue/vouchers, no transfer. Community (BOI site 403).',
+  },
+  INDIANBANK_RP: {
+    floorInr: 0.2,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'Indian Bank Reward Points: ₹/point undisclosed (~₹0.25 estimate; a lone aggregator claims ₹1 — treated as an outlier). Portal only, no transfer. Community (very thin).',
+  },
+  BOM_RP: {
+    floorInr: 0.2,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'Bank of Maharashtra (own-brand RuPay) Reward Points: ₹/point undisclosed (~₹0.25 estimate); portal only, no transfer. Community. (BOM also sells SBI co-brands — those use SBI_RP, not modelled here.)',
+  },
 
   // ---- Airline / hotel currencies earned DIRECTLY by co-brand cards ----
   MAHARAJA_PTS: {

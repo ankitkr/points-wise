@@ -103,6 +103,8 @@ const YES_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222'
 const IDBI_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222', '9402', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299', '6211'] // fuel/rent/wallet/govt/insurance/education/MF
 const ONECARD_EXCL = ['5541', '5542', '5983', '6513', '6540', '6050', '6051'] // fuel/rent/wallet/quasi-cash
 const SLICE_EXCL = ['5541', '5542', '5983', '6540', '6513', '5960', '6300', '9311', '9399', '9222', '9402', '8211', '8220', '8241', '8244', '8249', '8299'] // fuel/wallet/rent/insurance/govt/education
+// PSU issuers — standard exclusions (fuel/rent/wallet/govt); most don't publish detailed lists.
+const PSU_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222', '9402']
 
 export const CARDS: SeedCard[] = [
   // =========================================================================
@@ -1614,6 +1616,197 @@ export const CARDS: SeedCard[] = [
       excludedMccs: IDBI_EXCL,
       verified: false,
       notes: 'Visa Platinum, fee ₹499 (waiver ₹75k). 2 Delight Points/₹150. Welcome 500 activation + 500 on ₹1.5k/30d. Milestones ₹1L→1,000, ₹2L→1,500. 1 pt = ₹0.25, 3-yr expiry. Forex 3.5%. Official/community (idbi.bank.in).',
+    }],
+  },
+
+  // =========================================================================
+  // TIER-2 PSU issuers (fees often OFFICIAL; earn/exclusions thin → community)
+  // =========================================================================
+  // ---- PNB (pnbcard.in SOFC/KFS OFFICIAL for fees/forex; earn community) ----
+  {
+    card: {
+      slug: 'pnb-rupay-select', bankSlug: 'pnb', name: 'PNB RuPay Select', beancountName: 'RupaySelect',
+      network: 'rupay', pool: { ticker: 'PNB_RP', programme: 'PNB Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-09-01',
+      base: { points: 2, per: 150 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'PNB RuPay Select. 2 RP/₹150; up to 5X at partner merchants (unlisted). Fee ₹500/₹750 (OFFICIAL SOFC), waiver on quarterly use. 1 RP = ₹0.25 (from 1-Sep-2024, was ₹0.50). Forex 3.5% (OFFICIAL). Fuel waiver ₹500–4k cap ₹350/cycle. 3-yr expiry.',
+    }],
+  },
+  {
+    card: {
+      slug: 'pnb-visa-signature', bankSlug: 'pnb', name: 'PNB Visa Signature', beancountName: 'VisaSignature',
+      network: 'visa', pool: { ticker: 'PNB_RP', programme: 'PNB Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-09-01',
+      base: { points: 2, per: 150 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'PNB Visa Signature. 2 RP/₹150. Fee ₹1,500/₹2,000 (OFFICIAL SOFC), waiver ₹3L. 1 RP = ₹0.25. Forex 3.5%. Fuel waiver cap ₹350/cycle. Community earn.',
+    }],
+  },
+  {
+    card: {
+      slug: 'pnb-luxura', bankSlug: 'pnb', name: 'PNB LUXURA Metal', beancountName: 'Luxura',
+      network: 'visa', pool: { ticker: 'PNB_RP', programme: 'PNB Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-09-01',
+      base: { points: 4, per: 100 },
+      accelerators: [
+        { category: 'dining', label: 'Dining', multiplier: 3, notes: '12 RP/₹100 (community).' },
+        { category: 'travel', label: 'Travel', multiplier: 3, notes: '12 RP/₹100 (community).' },
+      ],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'PNB flagship metal (Visa Infinite). 4 RP/₹100, 12 RP/₹100 dining/travel (community). Fee ₹4,999 join (reimbursed on ₹1.5L/3-cycle) + ₹1,999 annual (waiver ₹6L). NIL forex (OFFICIAL SOFC). Milestones ₹5L→10k, ₹10L→14k, ₹15L→26k RP (community). 1 RP = ₹0.25. Lounge/concierge.',
+    }],
+  },
+  // ---- Canara (canarabank.bank.in; LTF, flat ₹0.25) ----
+  {
+    card: {
+      slug: 'canara-rupay-select', bankSlug: 'canara', name: 'Canara RuPay Select', beancountName: 'RupaySelect',
+      network: 'rupay', pool: { ticker: 'CANARA_RP', programme: 'Canara Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-04-01',
+      base: { points: 2, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Canara RuPay Select. 2 Rewardz/₹100 (₹0.25 → 0.5%). PLUS 5% cashback on utilities + dining, each capped ₹50/mo (separate from points, not modelled). Lifetime-free (₹300 inactivity if <₹1L/yr). Lounge on ₹10k/qtr. Forex ~3%. 3-yr expiry. Official + community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'canara-mastercard-world', bankSlug: 'canara', name: 'Canara Mastercard World', beancountName: 'MastercardWorld',
+      network: 'mastercard', pool: { ticker: 'CANARA_RP', programme: 'Canara Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Canara Mastercard World. 2 Rewardz/₹100 (0.5%). Lifetime-free (₹300 inactivity if <₹1L). 3 domestic (+2 guest)/qtr + 2 intl/yr lounge. Forex 3%. 1 pt = ₹0.25. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'canara-visa-signature', bankSlug: 'canara', name: 'Canara Visa Signature', beancountName: 'VisaSignature',
+      network: 'visa', pool: { ticker: 'CANARA_RP', programme: 'Canara Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Canara Visa Signature. 2 Rewardz/₹100 (0.5%). Lifetime-free (₹1,000 inactivity if <₹2L). 12 domestic + 4 intl lounge/yr. Forex ~3%. 1 pt = ₹0.25, 3-yr expiry. Community + official.',
+    }],
+  },
+  // ---- Union (unionbankofindia.bank.in) ----
+  {
+    card: {
+      slug: 'union-uni-carbon', bankSlug: 'union', name: 'Union Uni-Carbon (HPCL)', beancountName: 'UniCarbon',
+      network: 'rupay', pool: { ticker: 'UNION_RP', programme: 'Union Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [{ category: 'fuel', label: 'HPCL fuel', multiplier: 8, monthlyCapPoints: 150, notes: '16 Rewardz/₹100 at HPCL (≥₹500); cap 150/cycle.' }],
+      exclusions: ['rent', 'wallet', 'government'],
+      excludedMccs: ['6513', '6540', '9311', '9399'],
+      verified: false,
+      notes: 'Union HPCL co-brand. 16 Rewardz/₹100 HPCL fuel (cap 150/cycle) + 1.5% HP Pay cashback, 2/₹100 else. Fee ₹499/₹499, waiver ₹1L. Milestone 500 pts at ₹1.25L. 1 pt = ₹0.25, 36-mo expiry. Forex 3% (OFFICIAL). Fuel earns (co-brand).',
+    }],
+  },
+  {
+    card: {
+      slug: 'union-rupay-select', bankSlug: 'union', name: 'Union RuPay Select', beancountName: 'RupaySelect',
+      network: 'rupay', pool: { ticker: 'UNION_RP', programme: 'Union Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 4, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Union RuPay Select. 4 Rewardz/₹100 (1%). Fee nil join / ₹499 (waiver ₹50k). 8 domestic + 2 intl lounge/yr. 1 pt = ₹0.25, 36-mo expiry. Forex 3%. Community + official.',
+    }],
+  },
+  {
+    card: {
+      slug: 'union-visa-signature', bankSlug: 'union', name: 'Union Visa Signature', beancountName: 'VisaSignature',
+      network: 'visa', pool: { ticker: 'UNION_RP', programme: 'Union Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 4, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Union Visa Signature. 4 Rewardz/₹100 (1%). Fee nil join / ₹1,999 (waiver ₹2.7L). 4 domestic lounge/yr. 1 pt = ₹0.25, 36-mo expiry. Forex 3%. Community + official.',
+    }],
+  },
+  // ---- BOI / Indian Bank / BOM (very thin; estimates) ----
+  {
+    card: {
+      slug: 'boi-rupay-select', bankSlug: 'boi', name: 'BOI RuPay Select', beancountName: 'RupaySelect',
+      network: 'rupay', pool: { ticker: 'BOI_RP', programme: 'BOI Star Rewardz' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'BOI RuPay Select (Star Rewardz). ~2 pts/₹100 (2X POS/ecom; denominator inferred). Fee nil join / ₹800. 8 domestic + 2 intl lounge/yr, Amazon Prime, Swiggy One. 1-yr point expiry (short). ₹/pt undisclosed (~₹0.25 est). Forex 3%. Community (BOI site 403).',
+    }],
+  },
+  {
+    card: {
+      slug: 'indian-bank-rupay-select', bankSlug: 'indian-bank', name: 'Indian Bank RuPay Select', beancountName: 'RupaySelect',
+      network: 'rupay', pool: { ticker: 'INDIANBANK_RP', programme: 'Indian Bank Rewards' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Indian Bank RuPay Select. ~1 pt/₹100 (community). Fee nil join / ₹250–500 (conflicting), waiver ₹50k. 2 domestic + 4 intl lounge/yr. ₹/pt undisclosed (~₹0.25 est; a lone source claims ₹1 — outlier). Very thin data.',
+    }],
+  },
+  {
+    card: {
+      slug: 'bom-rupay-platinum', bankSlug: 'bom', name: 'BoM Platinum RuPay', beancountName: 'PlatinumRupay',
+      network: 'rupay', pool: { ticker: 'BOM_RP', programme: 'BoM Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 1, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government'],
+      excludedMccs: PSU_EXCL,
+      verified: false,
+      notes: 'Bank of Maharashtra own-brand Platinum RuPay. 1 pt/₹100. Welcome 100 pts on ₹1k. Free yr1, waiver ₹30k. ₹/pt undisclosed (~₹0.25 est). Fuel waiver ₹500–4k. Community. (BOM also sells SBI co-brands on SBI_RP — not modelled.)',
     }],
   },
 ]
