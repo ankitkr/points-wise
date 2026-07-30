@@ -98,6 +98,11 @@ const KOTAK_EXCL = ['5541', '5542', '5983', '6513', '6540', '5816', '7995', '931
 const FEDERAL_EXCL = ['5541', '5542', '5983', '6513', '6540', '6050', '6051', '6012', '9311', '9399', '9222', '9402', '9405', '9211'] // fuel/rent/wallet/quasi-cash/govt (federal MITC)
 const RBL_EXCL = ['5541', '5542', '5983', '6513', '6540', '4900', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299', '9311', '9399', '9222', '9402'] // fuel/rent/wallet/utility/insurance/education/govt
 const EQUITAS_EXCL = ['5541', '5542', '5983', '6513', '6540', '8211', '8220', '8241', '8244', '8249', '8299', '9311', '9399', '9222', '9402'] // fuel/rent/wallet/education/govt
+// Tier-1 fintech / new banks (Jul-2026 onboarding).
+const YES_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222', '9402', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299', '5094', '5944'] // fuel/rent/wallet/govt/insurance/education/jewellery
+const IDBI_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222', '9402', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299', '6211'] // fuel/rent/wallet/govt/insurance/education/MF
+const ONECARD_EXCL = ['5541', '5542', '5983', '6513', '6540', '6050', '6051'] // fuel/rent/wallet/quasi-cash
+const SLICE_EXCL = ['5541', '5542', '5983', '6540', '6513', '5960', '6300', '9311', '9399', '9222', '9402', '8211', '8220', '8241', '8244', '8249', '8299'] // fuel/wallet/rent/insurance/govt/education
 
 export const CARDS: SeedCard[] = [
   // =========================================================================
@@ -1428,6 +1433,187 @@ export const CARDS: SeedCard[] = [
       excludedMccs: EQUITAS_EXCL,
       verified: false,
       notes: 'Premium travel. 3 RP/₹100 domestic, 9 RP/₹100 international (intl not MCC-modelled). Tier-linked value ₹0.50 → ₹1.00 (Diamond). Fee ₹5,000 (join waiver ₹1.2L/90d, annual waiver ₹4.8L). Forex 2% (0% net at Diamond via refund). 1:1 airline transfers (BA/United/Finnair/Aeroplan/Etihad/Air India/JAL/IHG/Wyndham) ANNOUNCED for Sep-2026, NOT yet live. Club Marriott + EazyDiner welcome. Network unconfirmed. Community.',
+    }],
+  },
+
+  // =========================================================================
+  // YES BANK (yesbank.in JS-rendered → community: cardinsider/cardmaven/pointsmath)
+  // =========================================================================
+  {
+    card: {
+      slug: 'yes-marquee', bankSlug: 'yes', name: 'YES Bank Marquee', beancountName: 'Marquee',
+      network: 'visa', pool: { ticker: 'YES_RP', programme: 'YES Rewardz Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 18, per: 200 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government', 'insurance', 'education'],
+      excludedMccs: YES_EXCL,
+      verified: false,
+      notes: 'YES flagship. Base modelled at OFFLINE 18 RP/₹200 (2.25%); ONLINE earns 36/₹200 (4.5%, not online/offline-modelled), select categories 10/₹200 — online-rate cap 1,00,000 RP/cycle (CARD_ACCEL_CAP). Fee ₹9,999 join / ₹4,999 renewal, waiver ₹10L. Welcome 40,000 RP. 1 RP = ₹0.25 travel. Forex 1% (community; some sources 2%). 36-mo expiry.',
+    }],
+  },
+  {
+    card: {
+      slug: 'yes-reserv', bankSlug: 'yes', name: 'YES Bank RESERV', beancountName: 'Reserv',
+      network: 'visa', pool: { ticker: 'YES_RP', programme: 'YES Rewardz Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 12, per: 200 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet', 'government', 'insurance', 'education'],
+      excludedMccs: YES_EXCL,
+      verified: false,
+      notes: 'Ex-"YES First Exclusive". Base OFFLINE 12 RP/₹200 (1.5%); ONLINE 24/₹200, select 6/₹200 (not modelled). Optional paid 3x/5x accelerator plans (₹3,500/₹5,000) not modelled. Base cap 36,000 RP/cycle. Fee ~₹2,499, waiver ₹3L (yr2+). 1 RP = ₹0.25 travel. Forex 1.75%. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'yes-pop-club', bankSlug: 'yes', name: 'YES Bank POP-CLUB', beancountName: 'PopClub',
+      network: 'rupay', pool: { ticker: 'POPCOINS', programme: 'POPcoins' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [{ category: 'shopping-online', label: 'Online shopping', multiplier: 5, notes: '10 POPcoins/₹100 online (2 offline); +5 on UPI via POP app (UPI not MCC-modelled).' }],
+      exclusions: ['rent', 'wallet', 'government'],
+      excludedMccs: ['6513', '6540', '9311', '9399'],
+      verified: false,
+      notes: 'RuPay fintech card (POP ecosystem). 10 POPcoins/₹100 online, 2/₹100 offline, +5 UPI. Lifetime-free through 31-Mar-2027 (then ₹399, waiver ₹1.5L). Welcome 500 POPcoins + vouchers. Milestone 1,500 POPcoins at ₹1.5L. POPcoin up to ₹1 in POP app. Forex 3.4%. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'yes-byoc', bankSlug: 'yes', name: 'YES Bank BYOC', beancountName: 'Byoc',
+      network: 'visa', pool: { ticker: 'YES_RP', programme: 'YES Rewardz Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-01',
+      base: { points: 8, per: 200 },
+      accelerators: [],
+      exclusions: ['fuel', 'wallet'],
+      excludedMccs: YES_EXCL,
+      verified: false,
+      notes: 'Build-Your-Own-Card: subscription model (₹49/mo rewards plan; ₹249 plastic / ₹3,499 metal one-time). Rewards mode 8 RP/₹200 (1%) OR cashback mode 1%; paid partner plans give up to 10% at Swiggy/Uber/BigBasket/PharmEasy/BMS (not modelled). 1 RP = ₹0.25. Forex 3.5%. No spend fee-waiver. Community.',
+    }],
+  },
+
+  // =========================================================================
+  // OneCard (FPL Technologies; issued via BoB/CSB/Federal/SBM/South Indian/Indian Bank)
+  // =========================================================================
+  {
+    card: {
+      slug: 'onecard', bankSlug: 'onecard', name: 'OneCard', beancountName: 'OneCard',
+      network: 'visa', pool: { ticker: 'ONECARD_RP', programme: 'OneCard Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-01-06',
+      base: { points: 1, per: 50 },
+      accelerators: [],
+      exclusions: ['fuel', 'rent', 'wallet'],
+      excludedMccs: ONECARD_EXCL,
+      verified: false,
+      notes: 'Metal fintech card (Visa Signature; issued via BoB/CSB/Federal/SBM/South Indian/Indian Bank — identical features). Base 1 RP/₹50 (0.2%). 5X (5 RP/₹50) on your top-2 spend categories/mo, UNLOCK: ≥₹750 in each of ≥3 categories that month; 5X capped 25,000 pts/mo for education/utility/insurance. Lifetime-free. 1 RP = ₹0.10 statement credit; no transfer; points never expire (forfeit if unused 365d). Forex 1%. Base/exclusions OFFICIAL (Federal MITC).',
+    }],
+  },
+
+  // =========================================================================
+  // Slice (North East / Slice Small Finance Bank; UPI credit card)
+  // =========================================================================
+  {
+    card: {
+      slug: 'slice', bankSlug: 'slice', name: 'Slice UPI Credit Card', beancountName: 'Slice',
+      network: 'rupay', pool: { ticker: 'SLICE_MONIES', programme: 'Slice Monies' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2025-07-01',
+      base: { points: 1, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'wallet', 'insurance', 'rent', 'government', 'education'],
+      excludedMccs: SLICE_EXCL,
+      verified: false,
+      notes: 'RuPay UPI-linked credit card (Slice SFB, post-merger Jul-2025). Cashback "monies" (₹1 each): 1% card / 2% UPI base, up to 3% at high Monies+₹5L savings balance (tiers not modelled). Slice Spark = rotating weekly boosts. Lifetime-free, 0% forex. Monies = statement credit only, no transfer. Community (credyfi/barristery; MITC 403).',
+    }],
+  },
+
+  // =========================================================================
+  // IDBI (idbi.bank.in — base/fees OFFICIAL; exclusions community)
+  // =========================================================================
+  {
+    card: {
+      slug: 'idbi-royale-signature', bankSlug: 'idbi', name: 'IDBI Royale Signature', beancountName: 'RoyaleSignature',
+      network: 'visa', pool: { ticker: 'IDBI_RP', programme: 'IDBI Delight Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 3, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'insurance', 'government', 'education'],
+      excludedMccs: IDBI_EXCL,
+      verified: false,
+      notes: 'Lifetime-free Visa Signature. 3 Delight Points/₹100. Welcome 750 pts. Milestones ₹2L→1,500, ₹4L→2,000. 1 pt = ₹0.25 (portal only), 3-yr expiry, ₹99+GST/redemption. Forex 3.5%; fuel waiver ₹400–5k cap ₹500/mo. 4 Visa lounge/yr. Base/fees OFFICIAL (idbi.bank.in); exclusions community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'idbi-euphoria-world', bankSlug: 'idbi', name: 'IDBI Euphoria World', beancountName: 'EuphoriaWorld',
+      network: 'mastercard', pool: { ticker: 'IDBI_RP', programme: 'IDBI Delight Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 3, per: 100 },
+      accelerators: [{ category: 'travel', label: 'Travel (hotels/airlines/IRCTC/bus)', multiplier: 2, notes: '6 Delight Points/₹100.' }],
+      exclusions: ['fuel', 'insurance', 'government', 'education'],
+      excludedMccs: IDBI_EXCL,
+      verified: false,
+      notes: 'Mastercard World. 3 Delight Points/₹100, 6/₹100 travel. Fee ₹1,499 (yr2), waiver ₹1.5L. Welcome 4,000 pts. Milestones ₹2L→1,500, ₹4L→2,000. 1 pt = ₹0.25, 3-yr expiry. 12 domestic lounge/yr. Forex 3.5%. Excludes MF/insurance/govt/education/fuel (community).',
+    }],
+  },
+  {
+    card: {
+      slug: 'idbi-winnings-select', bankSlug: 'idbi', name: 'IDBI Winnings RuPay Select', beancountName: 'WinningsSelect',
+      network: 'rupay', pool: { ticker: 'IDBI_RP', programme: 'IDBI Delight Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 100 },
+      accelerators: [],
+      exclusions: ['fuel', 'insurance', 'government', 'education'],
+      excludedMccs: IDBI_EXCL,
+      verified: false,
+      notes: 'RuPay Select (UPI-linkable). 2 Delight Points/₹100 (2x in birthday month; UPI rate unconfirmed). Fee ₹899, waiver ₹90k. Welcome 10% cashback (max ₹500)/90d + 500 pts. Monthly 500 pts on 5×₹1,000 txns. 1 pt = ₹0.25. 8 domestic + 4 intl lounge/yr. Forex 3.5%. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'idbi-aspire-platinum', bankSlug: 'idbi', name: 'IDBI Aspire Platinum', beancountName: 'AspirePlatinum',
+      network: 'visa', pool: { ticker: 'IDBI_RP', programme: 'IDBI Delight Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 150 },
+      accelerators: [],
+      exclusions: ['fuel', 'insurance', 'government', 'education'],
+      excludedMccs: IDBI_EXCL,
+      verified: false,
+      notes: 'Lifetime-free Visa Platinum. 2 Delight Points/₹150 (≈1.33/₹100). Welcome 500 activation + 500 on ₹1.5k/30d. Milestones ₹1L→1,000, ₹2L→1,500. 1 pt = ₹0.25, 3-yr expiry. Forex 3.5%. Community/official mix (idbi.bank.in).',
+    }],
+  },
+  {
+    card: {
+      slug: 'idbi-imperium-platinum', bankSlug: 'idbi', name: 'IDBI Imperium Platinum', beancountName: 'ImperiumPlatinum',
+      network: 'visa', pool: { ticker: 'IDBI_RP', programme: 'IDBI Delight Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 150 },
+      accelerators: [],
+      exclusions: ['fuel', 'insurance', 'government', 'education'],
+      excludedMccs: IDBI_EXCL,
+      verified: false,
+      notes: 'Visa Platinum, fee ₹499 (waiver ₹75k). 2 Delight Points/₹150. Welcome 500 activation + 500 on ₹1.5k/30d. Milestones ₹1L→1,000, ₹2L→1,500. 1 pt = ₹0.25, 3-yr expiry. Forex 3.5%. Official/community (idbi.bank.in).',
     }],
   },
 ]

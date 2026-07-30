@@ -681,6 +681,28 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'equitas-tiga': { methods: [{ method: 'gift-voucher', valuePerPoint: 0.35 }, { method: 'cashback', valuePerPoint: 0.15 }], transferPartners: [], pointExpiryMonths: 24, verified: false, notes: 'Xchange portal ₹0.35 voucher / ₹0.10–0.15 cashback; 2-yr expiry (cardinsider).' },
   'equitas-selfe': { methods: [{ method: 'gift-voucher', valuePerPoint: 0.35, notes: 'tier-linked ₹0.35 (Blue) → ₹1.00 (Diamond).' }, { method: 'cashback', valuePerPoint: 0.15 }], transferPartners: [], verified: false, notes: 'Tier-linked value ₹0.35→₹1.00 via Xchange portal (cardmaven).' },
   'equitas-powermiles': { methods: [{ method: 'travel-portal', valuePerPoint: 0.5, notes: 'tier-linked ₹0.50 → ₹1.00 (Diamond).' }, { method: 'cashback', valuePerPoint: 0.25 }], transferPartners: [], verified: false, notes: '₹0.50 base → ₹1.00 Diamond. 1:1 airline transfers (BA/United/Finnair/Aeroplan/Etihad/Air India/JAL/IHG/Wyndham) ANNOUNCED Sep-2026, NOT live (creditcardz/cardmaven).' },
+
+  // ---- Tier-1 (Jul-2026) ----
+  'yes-marquee': {
+    methods: [{ method: 'travel-portal', valuePerPoint: 0.25, notes: 'flights/hotels via YES Rewardz, ≤70% cart.' }, { method: 'gift-voucher', valuePerPoint: 0.1 }],
+    transferPartners: [
+      { partner: 'Club Vistara', kind: 'airline', ratio: '10:1', notes: 'Vistara merged into Air India Nov-2024 — verify.' },
+      { partner: 'InterMiles', kind: 'airline', ratio: '4:1' },
+    ],
+    pointExpiryMonths: 36,
+    verified: false,
+    notes: 'YES Rewardz ₹0.25 travel / ₹0.10 voucher; ₹100+GST/redemption; 36-mo expiry. Community.',
+  },
+  'yes-reserv': { methods: [{ method: 'travel-portal', valuePerPoint: 0.25 }, { method: 'catalog', valuePerPoint: 0.1 }], transferPartners: [{ partner: 'InterMiles', kind: 'airline', ratio: '10:1' }], pointExpiryMonths: 36, verified: false, notes: 'YES Rewardz ₹0.25 travel / ₹0.10 voucher; ≤70% cart. Community.' },
+  'yes-pop-club': { methods: [{ method: 'other', valuePerPoint: 0.75, notes: 'redeem at 500+ brands in POP app; up to ₹1 at full-value brands.' }], transferPartners: [], verified: false, notes: 'POPcoins ecosystem-locked; no transfer/cash-out. Community.' },
+  'yes-byoc': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }, { method: 'cashback', valuePerPoint: 0.25 }], transferPartners: [], verified: false, notes: 'YES Rewardz ₹0.25 (rewards mode) or flat 1% (cashback mode). Community.' },
+  'onecard': { methods: [{ method: 'statement-credit', valuePerPoint: 0.1, notes: 'in-app "swipe right" against a transaction; no minimum.' }], transferPartners: [], verified: false, notes: '1 RP = ₹0.10 statement credit only; no vouchers/transfer; points never expire (forfeit if unused 365d). OFFICIAL (getonecard.app/Federal MITC).' },
+  'slice': { methods: [{ method: 'cashback', valuePerPoint: 1.0, notes: 'monies = ₹1 statement credit at repayment.' }], transferPartners: [], verified: false, notes: 'Slice monies pure cashback ₹1; no transfer/vouchers. Community.' },
+  'idbi-royale-signature': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: 'IDBI Delight portal; min 1,000 pts, ₹99+GST/redemption.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
+  'idbi-euphoria-world': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: 'min 4,000 pts for cashback; ₹99+GST/redemption.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
+  'idbi-winnings-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
+  'idbi-aspire-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
+  'idbi-imperium-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
 }
 
 // Pure lookups (mirrors surcharges.ts / milestones.ts).

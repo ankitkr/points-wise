@@ -103,6 +103,18 @@ export const CARD_FEES: Record<string, Fees> = {
   'equitas-tiga': { joiningInr: 0, annualInr: 500 },
   'equitas-selfe': { joiningInr: 1000, annualInr: 1000 },
   'equitas-powermiles': { joiningInr: 5000, annualInr: 5000 },
+  // Tier-1 (Jul-2026)
+  'yes-marquee': { joiningInr: 9999, annualInr: 4999 },
+  'yes-reserv': { joiningInr: 2499, annualInr: 2499 },
+  'yes-pop-club': { joiningInr: 0, annualInr: 399 },
+  'yes-byoc': { joiningInr: 249, annualInr: 588 }, // subscription (~₹49/mo)
+  'onecard': { joiningInr: 0, annualInr: 0 },
+  'slice': { joiningInr: 0, annualInr: 0 },
+  'idbi-royale-signature': { joiningInr: 0, annualInr: 0 },
+  'idbi-euphoria-world': { joiningInr: 0, annualInr: 1499 },
+  'idbi-winnings-select': { joiningInr: 899, annualInr: 899 },
+  'idbi-aspire-platinum': { joiningInr: 0, annualInr: 0 },
+  'idbi-imperium-platinum': { joiningInr: 499, annualInr: 499 },
 }
 
 const fw = (spendThreshold: number, valueInr: number, notes: string): MilestoneInput => ({
@@ -415,6 +427,38 @@ export const CARD_MILESTONES: Record<string, MilestoneInput[]> = {
   'equitas-tiga': [fw(50000, 500, '₹50k/yr → waiver (cardinsider).')],
   'equitas-selfe': [fw(240000, 1000, '₹2.4L/yr → waiver (cardexpert).')],
   'equitas-powermiles': [fw(480000, 5000, '₹4.8L/yr → waiver; join fee waived on ₹1.2L/90d (cardmaven).')],
+  // ---- Tier-1 (Jul-2026; community unless noted) ----
+  'yes-marquee': [fw(1000000, 4999, '₹10L/yr → renewal waived (community).'), { period: 'welcome', kind: 'points', points: 40000, verified: false, label: '40,000 RP welcome', notes: 'cardinsider.' }],
+  'yes-reserv': [fw(300000, 2499, '₹3L/yr (yr2+) → waiver; yr1 ₹40k/30d (community).')],
+  'yes-pop-club': [
+    { period: 'welcome', kind: 'points', points: 500, verified: false, label: '500 POPcoins + vouchers welcome', notes: 'cardinsider.' },
+    { spendThreshold: 150000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 POPcoins at ₹1.5L (also fee-waiver threshold)', notes: 'cardinsider.' },
+  ],
+  'idbi-royale-signature': [
+    { period: 'welcome', kind: 'points', points: 750, verified: false, label: '750 pts on ₹1.5k/30d', notes: 'idbi.bank.in.' },
+    { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
+    { spendThreshold: 400000, period: 'anniversary-year', kind: 'points', points: 2000, verified: false, label: '2,000 pts at ₹4L', notes: 'idbi.bank.in.' },
+  ],
+  'idbi-euphoria-world': [
+    fw(150000, 1499, '₹1.5L/yr → waiver (idbi.bank.in).'),
+    { period: 'welcome', kind: 'points', points: 4000, verified: false, label: '4,000 pts on first ₹1.5k/60d', notes: 'idbi.bank.in.' },
+    { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
+    { spendThreshold: 400000, period: 'anniversary-year', kind: 'points', points: 2000, verified: false, label: '2,000 pts at ₹4L', notes: 'idbi.bank.in.' },
+  ],
+  'idbi-winnings-select': [
+    fw(90000, 899, '₹90k/yr → waiver (idbi.bank.in).'),
+    { spendThreshold: 100000, period: 'anniversary-year', kind: 'points', points: 1000, verified: false, label: '1,000 pts at ₹1L', notes: 'idbi.bank.in.' },
+    { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
+  ],
+  'idbi-aspire-platinum': [
+    { spendThreshold: 100000, period: 'anniversary-year', kind: 'points', points: 1000, verified: false, label: '1,000 pts at ₹1L', notes: 'idbi.bank.in.' },
+    { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
+  ],
+  'idbi-imperium-platinum': [
+    fw(75000, 499, '₹75k/yr → waiver (idbi.bank.in).'),
+    { spendThreshold: 100000, period: 'anniversary-year', kind: 'points', points: 1000, verified: false, label: '1,000 pts at ₹1L', notes: 'idbi.bank.in.' },
+    { spendThreshold: 200000, period: 'anniversary-year', kind: 'points', points: 1500, verified: false, label: '1,500 pts at ₹2L', notes: 'idbi.bank.in.' },
+  ],
 }
 
 // Overall monthly cap on ACCELERATED (bonus-over-base) points — the "umbrella"
@@ -448,6 +492,8 @@ export const CARD_ACCEL_CAP: Record<string, number> = {
   'bob-eterna': 5000, // 15X categories
   'bob-premier': 2000, // 5X categories
   'kotak-zen-signature': 6500, // overall Zen Points/cycle cap
+  'yes-marquee': 100000, // online-rate cap/cycle
+  'yes-reserv': 36000, // base online cap/cycle
 }
 
 // Pure lookups used by the seed generator and its test (mirrors surcharges.ts).
