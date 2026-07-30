@@ -138,7 +138,8 @@ export const FEE_KINDS = [
   'wallet',
   'government',
   'insurance',
-  'international',
+  'international', // forex markup on FOREIGN-currency transactions
+  'dcc', // Dynamic Currency Conversion markup — charged when a foreign merchant/site bills in INR (separate from, and often stacked with, the forex markup)
   'gaming',
   'other',
 ] as const
