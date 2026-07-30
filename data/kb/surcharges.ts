@@ -257,6 +257,20 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'idbi-winnings-select': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'IDBI Winnings 1% fuel waiver ₹400–4,000, cap ₹400/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
   'idbi-aspire-platinum': [fuelWaiver(300, { txnMin: 400, txnMax: 4000, notes: 'IDBI Aspire 1% fuel waiver ₹400–4,000, cap ₹300/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
   'idbi-imperium-platinum': [fuelWaiver(300, { txnMin: 400, txnMax: 4000, notes: 'IDBI Imperium 1% fuel waiver ₹400–4,000, cap ₹300/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
+
+  // --- Tier-2 PSU ---
+  'pnb-rupay-select': [fuelWaiver(350, { txnMin: 500, txnMax: 4000, notes: 'PNB 1% fuel waiver ₹500–4,000, cap ₹350/cycle (PNB SOFC).' }), forex(3.5, false, 'PNB 3.5% forex (OFFICIAL SOFC).')],
+  'pnb-visa-signature': [fuelWaiver(350, { txnMin: 500, txnMax: 4000, notes: 'PNB 1% fuel waiver, cap ₹350/cycle (PNB SOFC).' }), forex(3.5, false, 'PNB 3.5% forex (OFFICIAL SOFC).')],
+  'pnb-luxura': [fuelWaiver(350, { txnMin: 500, txnMax: 4000, notes: 'PNB Luxura 1% fuel waiver, cap ₹350/cycle (PNB SOFC).' }), forex(0, false, 'PNB Luxura NIL forex (OFFICIAL SOFC).')],
+  'canara-rupay-select': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'Canara 1% fuel reimbursed cap ₹100/mo (needs ≥₹2,500/mo retail).' }), forex(3, false, 'Canara ~3% forex (official "up to 3%").')],
+  'canara-mastercard-world': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'Canara 1% fuel reimbursed cap ₹100/mo.' }), forex(3, false, 'Canara 3% forex.')],
+  'canara-visa-signature': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'Canara 1% fuel reimbursed cap ₹100/mo.' }), forex(3, false, 'Canara ~3% forex.')],
+  'union-uni-carbon': [fuelWaiver(100, { txnMin: 200, txnMax: 5000, notes: 'Union HPCL 1% fuel waiver ≥₹200 at HPCL, cap ₹100/cycle (official).' }), forex(3, false, 'Union 3% forex (OFFICIAL fee schedule).')],
+  'union-rupay-select': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'Union 1% fuel reimbursed cap ₹100/mo.' }), forex(3, false, 'Union 3% forex (OFFICIAL).')],
+  'union-visa-signature': [fuelWaiver(100, { txnMin: 400, txnMax: 5000, notes: 'Union 1% fuel reimbursed cap ₹100/mo.' }), forex(3, false, 'Union 3% forex (OFFICIAL).')],
+  'boi-rupay-select': [forex(3, false, 'BOI ~3% forex (community; some sources 3.5%). Fuel waiver not documented.')],
+  'indian-bank-rupay-select': [forex(3, false, 'Indian Bank 3% forex (community). Fuel waiver undocumented.')],
+  'bom-rupay-platinum': [fuelWaiver(100, { txnMin: 500, txnMax: 4000, notes: 'BoM 1% fuel waiver ₹500–4,000 (community; cap est).' }), forex(3.5, false, 'BoM forex ~3.5% (estimate — undocumented).')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.

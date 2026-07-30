@@ -703,6 +703,20 @@ export const CARD_REDEMPTION: Record<string, RedemptionInput> = {
   'idbi-winnings-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
   'idbi-aspire-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
   'idbi-imperium-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Delight Point = ₹0.25, portal only, 3-yr expiry (idbi.bank.in).' },
+
+  // ---- Tier-2 PSU (flat ₹0.25 portal, no transfer partners) ----
+  'pnb-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: 'pnbrewardz.com; min 500 pts.' }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 RP = ₹0.25 (from 1-Sep-2024), portal only, 3-yr expiry.' },
+  'pnb-visa-signature': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 RP = ₹0.25, pnbrewardz.com, 3-yr expiry.' },
+  'pnb-luxura': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 RP = ₹0.25, pnbrewardz.com; no transfer despite premium tier.' },
+  'canara-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }, { method: 'cashback', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25 (canararewardz.com); no transfer. 3-yr expiry.' },
+  'canara-mastercard-world': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25; no transfer.' },
+  'canara-visa-signature': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25; no transfer. 3-yr expiry.' },
+  'union-uni-carbon': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25 (Union Rewardz portal); no transfer. 36-mo expiry.' },
+  'union-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25; no transfer. 36-mo expiry.' },
+  'union-visa-signature': { methods: [{ method: 'catalog', valuePerPoint: 0.25 }], transferPartners: [], pointExpiryMonths: 36, verified: false, notes: '1 Rewardz = ₹0.25; no transfer. 36-mo expiry.' },
+  'boi-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt not officially disclosed; ~₹0.25 estimate.' }], transferPartners: [], pointExpiryMonths: 12, verified: false, notes: 'BOI Star Rewardz portal; SHORT 1-yr point expiry; ₹/pt undisclosed. Community.' },
+  'indian-bank-rupay-select': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt undisclosed (~₹0.25 est; lone ₹1 claim treated as outlier).' }], transferPartners: [], verified: false, notes: 'Indian Bank rewards portal; ₹/pt undisclosed. Very thin data.' },
+  'bom-rupay-platinum': { methods: [{ method: 'catalog', valuePerPoint: 0.25, notes: '₹/pt undisclosed (~₹0.25 est).' }], transferPartners: [], verified: false, notes: 'BoM own-brand rewards; ₹/pt undisclosed. Community.' },
 }
 
 // Pure lookups (mirrors surcharges.ts / milestones.ts).

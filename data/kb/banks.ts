@@ -20,4 +20,10 @@ export const BANKS: Bank[] = [
   { slug: 'idbi', name: 'IDBI Bank', beancountName: 'IDBI' },
   { slug: 'onecard', name: 'OneCard (FPL Technologies)', beancountName: 'OneCard' },
   { slug: 'slice', name: 'Slice (North East SFB)', beancountName: 'Slice' },
+  { slug: 'pnb', name: 'Punjab National Bank', beancountName: 'PNB' },
+  { slug: 'canara', name: 'Canara Bank', beancountName: 'Canara' },
+  { slug: 'union', name: 'Union Bank of India', beancountName: 'UnionBank' },
+  { slug: 'boi', name: 'Bank of India', beancountName: 'BankOfIndia' },
+  { slug: 'indian-bank', name: 'Indian Bank', beancountName: 'IndianBank' },
+  { slug: 'bom', name: 'Bank of Maharashtra', beancountName: 'BankOfMaharashtra' },
 ]
