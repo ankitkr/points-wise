@@ -105,6 +105,10 @@ const ONECARD_EXCL = ['5541', '5542', '5983', '6513', '6540', '6050', '6051'] //
 const SLICE_EXCL = ['5541', '5542', '5983', '6540', '6513', '5960', '6300', '9311', '9399', '9222', '9402', '8211', '8220', '8241', '8244', '8249', '8299'] // fuel/wallet/rent/insurance/govt/education
 // PSU issuers — standard exclusions (fuel/rent/wallet/govt); most don't publish detailed lists.
 const PSU_EXCL = ['5541', '5542', '5983', '6513', '6540', '9311', '9399', '9222', '9402']
+// Tier-3
+const DBS_EXCL = ['5541', '5542', '5983', '6540', '6513', '9311', '9399', '9222', '9402'] // fuel/wallet/rent/govt
+const KVB_EXCL = ['6513', '6540', '9311', '9399', '9222', '9402'] // rent/wallet/govt (KVB Honour earns on fuel)
+const JUPITER_EXCL = ['6540', '6513', '5960', '6300', '8211', '8220', '8241', '8244', '8249', '8299'] // wallet/rent/insurance/education
 
 export const CARDS: SeedCard[] = [
   // =========================================================================
@@ -1807,6 +1811,91 @@ export const CARDS: SeedCard[] = [
       excludedMccs: PSU_EXCL,
       verified: false,
       notes: 'Bank of Maharashtra own-brand Platinum RuPay. 1 pt/₹100. Welcome 100 pts on ₹1k. Free yr1, waiver ₹30k. ₹/pt undisclosed (~₹0.25 est). Fuel waiver ₹500–4k. Community. (BOM also sells SBI co-brands on SBI_RP — not modelled.)',
+    }],
+  },
+
+  // =========================================================================
+  // TIER-3 (DBS + genuine small-bank cards + Jupiter Edge; community — dbs 403)
+  // =========================================================================
+  {
+    card: {
+      slug: 'dbs-vantage', bankSlug: 'dbs', name: 'DBS Vantage', beancountName: 'Vantage',
+      network: 'visa', pool: { ticker: 'DBS_VP', programme: 'DBS Vantage Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 4, per: 200 },
+      accelerators: [],
+      exclusions: ['fuel', 'wallet', 'rent', 'government'],
+      excludedMccs: DBS_EXCL,
+      verified: false,
+      notes: 'Invite-only Visa Infinite metal. 4 VP/₹200 (2%) domestic; 8 VP/₹200 (4%) international (not modelled). 1 VP = ₹1 (DBS Delights/statement). Fee ₹10k–50k tiered, waiver ₹10L. Welcome 10,000 VP + hotel membership. Milestones ₹3L/qtr→5k, ₹5L/qtr→10k, ₹20L/yr→40k VP. Forex 0% SG / 1.75% else. 2-yr expiry. Unlimited lounge + golf. Community (dbs.bank.in 403). T&C revised 10-Jul-2026.',
+    }],
+  },
+  {
+    card: {
+      slug: 'dbs-spark', bankSlug: 'dbs', name: 'DBS Spark', beancountName: 'Spark',
+      network: 'visa', pool: { ticker: 'DBS_CP', programme: 'DBS Cash Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 2, per: 200 },
+      accelerators: [],
+      exclusions: ['fuel', 'wallet', 'rent', 'government'],
+      excludedMccs: DBS_EXCL,
+      verified: false,
+      notes: 'DBS Spark family (Spark5/10/20; modelled on Spark10). Base 2 CP/₹200 (1 CP=₹0.20 → 0.2%); accelerated 5x/10x/20x by variant on spend-threshold-triggered online/offline/dining-util-grocery (not modelled). Fee ₹499/₹999/₹1,499 by tier (Spark10 ₹999, waiver ₹2L). Quarterly milestone bonus. 1 CP = ₹0.20; ₹99+GST/redemption. Forex 3.5%. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'kvb-honour', bankSlug: 'kvb', name: 'KVB Honour', beancountName: 'Honour',
+      network: 'visa', pool: { ticker: 'KVB_RP', programme: 'KVB Reward Points' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2024-01-01',
+      base: { points: 3, per: 150 },
+      accelerators: [
+        { category: 'dining', label: 'Dining/medical/movies/rail', multiplier: 2, notes: '2x (community).' },
+        { category: 'travel', label: 'Travel/hotels/air', multiplier: 4, notes: '4x (community).' },
+      ],
+      exclusions: ['rent', 'wallet', 'government'],
+      excludedMccs: KVB_EXCL,
+      verified: false,
+      notes: 'Karur Vysya Bank flagship (Visa). 3 RP/₹150 base, 2x dining/medical/movies/rail, 4x travel/hotels/air. Welcome 700 pts. Fee nil join / ₹999 (waiver ₹3L). ₹/pt NOT disclosed (~₹0.25 est). ₹99/redemption, 3-yr expiry. Fuel earns (1% surcharge waived ₹500–4k cap ₹200/cycle). Forex 3.5%. Community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'jupiter-edge', bankSlug: 'jupiter', name: 'Jupiter Edge (CSB)', beancountName: 'Edge',
+      network: 'rupay', pool: { ticker: 'JUPITER_JEWELS', programme: 'Jupiter Jewels' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-06-01',
+      base: { points: 5, per: 100 },
+      accelerators: [],
+      exclusions: ['wallet', 'rent', 'insurance', 'education'],
+      excludedMccs: JUPITER_EXCL,
+      verified: false,
+      notes: 'Jupiter Edge (standard), CSB Bank RuPay, lifetime-free. 5 Jewels/₹100 base incl. UPI. Jewel = ₹0.14 statement / ₹0.20 vouchers-gold-flights (devalued 1-Jun-2026); Air India 6:1. Forex 3.5%. Non-expiring. Official KFS + community.',
+    }],
+  },
+  {
+    card: {
+      slug: 'jupiter-edge-plus', bankSlug: 'jupiter', name: 'Jupiter Edge+ (CSB)', beancountName: 'EdgePlus',
+      network: 'rupay', pool: { ticker: 'JUPITER_JEWELS', programme: 'Jupiter Jewels' }, active: true,
+    },
+    rules: [{
+      effectiveFrom: '2026-06-01',
+      base: { points: 5, per: 100 },
+      accelerators: [
+        { category: 'shopping-online', label: 'Partner brands (Amazon/Flipkart/Myntra/…)', multiplier: 10, monthlyCapPoints: 10000, notes: '50 Jewels/₹100; cap 10,000/mo (3,000/merchant, 1,000/txn).' },
+        { category: 'travel-portal', label: 'Jupiter Flights', multiplier: 5, monthlyCapPoints: 5000, notes: '25 Jewels/₹100; cap 5,000/mo.' },
+      ],
+      exclusions: ['wallet', 'rent', 'insurance', 'education'],
+      excludedMccs: JUPITER_EXCL,
+      verified: false,
+      notes: 'Jupiter Edge+ (premium), CSB Bank RuPay. Fee ₹999 join / ₹0 annual (LTF). 5 Jewels/₹100 base; 50/₹100 partner shopping (cap 10k/mo), 25/₹100 Jupiter Flights (cap 5k/mo) — external OTA accel removed 1-Jun-2026. Jewel ₹0.14 statement / ₹0.20 voucher; Air India 6:1. Forex 3.5%. Community + official KFS.',
     }],
   },
 ]

@@ -271,6 +271,13 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'boi-rupay-select': [forex(3, false, 'BOI ~3% forex (community; some sources 3.5%). Fuel waiver not documented.')],
   'indian-bank-rupay-select': [forex(3, false, 'Indian Bank 3% forex (community). Fuel waiver undocumented.')],
   'bom-rupay-platinum': [fuelWaiver(100, { txnMin: 500, txnMax: 4000, notes: 'BoM 1% fuel waiver ₹500–4,000 (community; cap est).' }), forex(3.5, false, 'BoM forex ~3.5% (estimate — undocumented).')],
+
+  // --- Tier-3 ---
+  'dbs-vantage': [fuelWaiver(200, { txnMin: 500, txnMax: 5000, notes: 'DBS Vantage 1% fuel waiver, cap ₹200/cycle (community).' }), forex(1.75, false, 'DBS Vantage 1.75% forex (0% on Singapore) — community.')],
+  'dbs-spark': [fuelWaiver(150, { txnMin: 500, txnMax: 5000, notes: 'DBS Spark 1% fuel waiver ₹500–5,000, cap ₹150/mo (Spark10; community).' }), forex(3.5, false, 'DBS Spark 3.5% forex (community).')],
+  'kvb-honour': [fuelWaiver(200, { txnMin: 500, txnMax: 4000, notes: 'KVB Honour 1% fuel waiver ₹500–4,000, cap ₹200/cycle (KVB).' }), forex(3.5, false, 'KVB 3.5% forex.')],
+  'jupiter-edge': [fuelWaiver(100, { txnMin: 400, txnMax: 3000, notes: 'Jupiter Edge 1% fuel waiver ₹400–3,000, cap ₹100/mo (official KFS).' }), forex(3.5, false, 'Jupiter Edge 3.5% forex (OFFICIAL KFS).')],
+  'jupiter-edge-plus': [fuelWaiver(100, { txnMin: 400, txnMax: 3000, notes: 'Jupiter Edge+ 1% fuel waiver ₹400–3,000, cap ₹100/mo (official KFS).' }), forex(3.5, false, 'Jupiter Edge+ 3.5% forex (OFFICIAL KFS).')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.

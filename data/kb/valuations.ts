@@ -249,6 +249,30 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
     bestInr: 0.25,
     notes: 'Bank of Maharashtra (own-brand RuPay) Reward Points: ₹/point undisclosed (~₹0.25 estimate); portal only, no transfer. Community. (BOM also sells SBI co-brands — those use SBI_RP, not modelled here.)',
   },
+  DBS_VP: {
+    floorInr: 1.0,
+    realisticInr: 1.0,
+    bestInr: 1.0,
+    notes: 'DBS Vantage Points: flat 1 VP = ₹1 via DBS Delights portal / statement credit. No India airline transfer partners confirmed. 2-yr expiry. Community (dbs.bank.in 403).',
+  },
+  DBS_CP: {
+    floorInr: 0.2,
+    realisticInr: 0.2,
+    bestInr: 0.2,
+    notes: 'DBS Spark Cash Points: flat 1 CP = ₹0.20 via DBS Delights; ₹99+GST/redemption; no transfer. Community.',
+  },
+  KVB_RP: {
+    floorInr: 0.2,
+    realisticInr: 0.25,
+    bestInr: 0.33,
+    notes: 'Karur Vysya Bank Reward Points: ₹/point NOT disclosed for the proprietary Honour card (~₹0.25 est by analogy with KVB-SBI co-brand); ₹99/redemption, 3-yr expiry. Community/thin.',
+  },
+  JUPITER_JEWELS: {
+    floorInr: 0.14,
+    realisticInr: 0.2,
+    bestInr: 0.2,
+    notes: 'Jupiter Jewels (Edge/Edge+, CSB-issued): ₹0.14 statement credit (devalued 1-Jun-2026) / ₹0.20 vouchers/gold/flights. Air India Maharaja 6:1 transfer. Non-expiring. Community + official KFS.',
+  },
 
   // ---- Airline / hotel currencies earned DIRECTLY by co-brand cards ----
   MAHARAJA_PTS: {
