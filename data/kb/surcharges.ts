@@ -239,6 +239,24 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'equitas-tiga': [fuelWaiver(3000, { txnMin: 500, txnMax: 3000, notes: 'Equitas Tiga 1% fuel waiver ₹500–3,000, cap ₹3,000/cycle (cardinsider).' }), forex(3.4, false, 'Equitas Tiga 3.4% forex (cardinsider).')],
   'equitas-selfe': [fuelWaiver(250, { txnMin: 500, txnMax: 3000, notes: 'Equitas Selfe 1% fuel waiver ₹500–3,000, cap ₹250/mo (cardmaven).' }), forex(3.5, false, 'Selfe forex 3.5% at Blue → 0% at Diamond tier (community).')],
   'equitas-powermiles': [fuelWaiver(450, { txnMin: 500, txnMax: 3000, notes: 'Equitas PowerMiles 1% fuel waiver ₹500–3,000, cap ₹450/cycle (cardmaven).' }), forex(2, false, 'PowerMiles 2% forex, net 0% at Diamond via 90-day refund (community).')],
+
+  // --- Tier-1 (Jul-2026) -----------------------------------------------------
+  'yes-marquee': [fuelWaiver(1000, { txnMin: 400, txnMax: 5000, notes: 'YES Marquee 1% fuel waiver ₹400–5,000, cap ₹1,000/cycle (cardinsider).' }), forex(1, false, 'YES Marquee 1% forex (community; some sources 2%).')],
+  'yes-reserv': [fuelWaiver(500, { txnMin: 400, txnMax: 5000, notes: 'YES RESERV 1% fuel waiver ₹400–5,000, cap ₹500/cycle (cardmaven).' }), forex(1.75, false, 'YES RESERV 1.75% forex (community).')],
+  'yes-pop-club': [forex(3.4, false, 'POP-CLUB 3.4% forex (cardinsider); 1% fuel surcharge on txns > ₹10k, waiver up to ₹5k/mo.')],
+  'yes-byoc': [forex(3.5, false, 'YES BYOC 3.5% forex (cardinsider); 1% fuel-surcharge waiver ₹400–5,000.')],
+  'onecard': [fuelWaiver(400, { txnMin: 400, txnMax: 5000, notes: 'OneCard 1% fuel-surcharge waiver, cap ₹400/mo (getonecard.app).' }), forex(1, false, 'OneCard 1% forex (OFFICIAL getonecard.app).')],
+  'slice': [
+    { kind: 'fuel', category: 'fuel', percent: 2, threshold: 25000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Slice: 2% (min ₹10) on fuel > ₹25k/cycle (community).' },
+    { kind: 'utilities', category: 'utilities', percent: 1, threshold: 25000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Slice: 1% on utilities > ₹25k/cycle (community).' },
+    { kind: 'rent', category: 'rent', mccs: ['6513'], percent: 1, threshold: 10000, thresholdBasis: 'monthly', applies: 'above-threshold', plusGst: true, verified: false, notes: 'Slice: 1% on rent > ₹10k/cycle (community).' },
+    forex(0, false, 'Slice 0% forex (community; MITC 403).'),
+  ],
+  'idbi-royale-signature': [fuelWaiver(500, { txnMin: 400, txnMax: 5000, notes: 'IDBI 1% fuel waiver ₹400–5,000, cap ₹500/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
+  'idbi-euphoria-world': [fuelWaiver(500, { txnMin: 400, txnMax: 5000, notes: 'IDBI 1% fuel waiver ₹400–5,000, cap ₹500/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
+  'idbi-winnings-select': [fuelWaiver(400, { txnMin: 400, txnMax: 4000, notes: 'IDBI Winnings 1% fuel waiver ₹400–4,000, cap ₹400/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
+  'idbi-aspire-platinum': [fuelWaiver(300, { txnMin: 400, txnMax: 4000, notes: 'IDBI Aspire 1% fuel waiver ₹400–4,000, cap ₹300/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
+  'idbi-imperium-platinum': [fuelWaiver(300, { txnMin: 400, txnMax: 4000, notes: 'IDBI Imperium 1% fuel waiver ₹400–4,000, cap ₹300/mo (idbi.bank.in).' }), forex(3.5, false, 'IDBI 3.5% forex.')],
 }
 
 // Pure composition — bank-wide THEN card-specific surcharges for one card.

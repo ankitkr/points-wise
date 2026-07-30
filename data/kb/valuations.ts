@@ -182,6 +182,36 @@ export const COMMODITY_VALUES: Record<string, CommodityValueInput> = {
     bestInr: 1.0,
     notes: 'Equitas Reward Points (Tiga/Selfe/PowerMiles) via Xchange portal: tier-linked ₹0.15 cashback → ₹0.35 base voucher → ₹1.0 at Diamond tier (₹1L/mo × 3 mo). PowerMiles 1:1 airline transfers announced but not live (Sep-2026). Community (cardinsider/cardmaven).',
   },
+  YES_RP: {
+    floorInr: 0.1,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'YES Rewardz Points (Marquee/RESERV/BYOC): ₹0.25 flights/hotels via portal, ₹0.10–0.15 vouchers. Transfers 10:1 to Club Vistara (merged into Air India — verify) / ~4:1 InterMiles. 36-mo expiry. Community (cardinsider/cardmaven/pointsmath).',
+  },
+  POPCOINS: {
+    floorInr: 0.5,
+    realisticInr: 0.75,
+    bestInr: 1.0,
+    notes: 'YES POP-CLUB POPcoins: redeemable at 500+ brands in the POP app; up to ₹1/coin at full-value brands. Ecosystem-locked, no transfer. Community (cardinsider/gokiwi).',
+  },
+  ONECARD_RP: {
+    floorInr: 0.1,
+    realisticInr: 0.1,
+    bestInr: 0.1,
+    notes: 'OneCard Reward Points: flat 1 RP = ₹0.10 statement credit (in-app "swipe right"); no vouchers/transfers. Points never expire (forfeit if unused 365d). Official (Federal MITC / getonecard.app).',
+  },
+  SLICE_MONIES: {
+    floorInr: 1.0,
+    realisticInr: 1.0,
+    bestInr: 1.0,
+    notes: 'Slice "monies" = ₹1 statement credit (pure cashback, no transfer). 1–2% base (UPI 2%), up to 3% at high Monies+savings balance. Community (credyfi/barristery; MITC 403).',
+  },
+  IDBI_RP: {
+    floorInr: 0.25,
+    realisticInr: 0.25,
+    bestInr: 0.25,
+    notes: 'IDBI Delight Points: flat 1 pt = ₹0.25 (portal only, no transfer partners); min 1,000 pts, ₹99+GST/redemption, 3-yr expiry. Official (idbi.bank.in).',
+  },
 
   // ---- Airline / hotel currencies earned DIRECTLY by co-brand cards ----
   MAHARAJA_PTS: {
