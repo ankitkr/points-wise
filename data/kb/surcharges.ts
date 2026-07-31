@@ -212,6 +212,8 @@ export const CARD_SURCHARGES: Record<string, SurchargeInput[]> = {
   'hdfc-neu-infinity': [HDFC_UTIL_50K, ...hdfcFuel(15000, 250), forex(2, true, 'Confirmed Jul-2026 (cardinsider/search): Tata Neu Infinity 2%.')],
   'hdfc-neu-plus': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): non-premium HDFC 3.5%.')],
   'hdfc-swiggy': [HDFC_UTIL_50K, ...hdfcFuel(15000), forex(3.5, true, 'Confirmed Jul-2026 (cardinsider forex page): Swiggy HDFC 3.5%.')],
+  // HDFC BizPower (business): utility surcharge threshold is ₹75k/txn (vs ₹50k personal), cap ₹3,000.
+  'hdfc-bizpower': [{ kind: 'utilities', category: 'utilities', mccs: ['4900'], percent: 1, threshold: 75000, thresholdBasis: 'per-transaction', applies: 'above-threshold', perTxnCap: 3000, plusGst: true, effectiveFrom: '2024-08-01', verified: true, notes: 'OFFICIAL BizPower RP-program PDF: 1% on a utility txn > ₹75,000 (business threshold), cap ₹3,000/txn; insurance NOT treated as utility (no charge). Also note: utility RP capped 2,000/calendar-month (fair-use).' }],
 
   // --- IndusInd: fuel (tier threshold) + forex (rent/util/edu/wallet/transport bank-wide)
   'indusind-qatar-avios': [indusindFuel(50000), forex(3.5, true, 'Confirmed Jul-2026 (cardexpert/cardinsider): Avios 3.5% forex; 1.5% at the preferred destination.'), dcc(1, false, 'IndusInd DCC (eff 15-Jun-2026): premium tier (Avios Visa Infinite) 1% + GST. Official DCC FAQ (PDF binary); community-corroborated.', '2026-06-15')],

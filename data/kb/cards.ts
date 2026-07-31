@@ -1033,12 +1033,12 @@ export const CARDS: SeedCard[] = [
       effectiveFrom: '2026-05-15',
       base: { points: 5, per: 200 },
       accelerators: [
-        { mccs: ['9311'], label: 'Income Tax & GST + bill-pay/ads/Reliance/travel (5X)', multiplier: 5, monthlyCapPoints: 7500, notes: '25 RP/₹200 on IT/GST (MCC 9311) + bill payments, Google/Meta Ads, Reliance Digital, hotel/flight. Unlocks only with ≥₹25k non-IT/GST retail/cycle; 5X cap 7,500 RP/cycle; tax limited to first 2 IT + 2 GST txns/cycle (post-15-May-2026 fair use).' },
+        { mccs: ['9311'], label: 'Income Tax & GST + bill-pay/ads/Reliance/travel (5X)', multiplier: 5, monthlyCapPoints: 7500, notes: '25 RP/₹200 on IT/GST (MCC 9311) + bill payments (via SmartPay/PayZapp), Google/Meta Ads, Reliance Digital, hotel/flight (MMT MyBiz). Unlocks only with ≥₹25k non-IT/GST retail/cycle; 5X cap 7,500 RP/cycle (an older RP-program PDF shows 5,000 — pre-revision; current 7,500 per cardinsider/@rhoeshan); tax limited to first 2 IT + 2 GST txns/cycle (post-15-May-2026 fair use).' },
       ],
       exclusions: ['fuel', 'rent', 'wallet', 'education'],
       excludedMccs: HDFC_BIZ_EXCL,
       verified: true,
-      notes: 'OFFICIAL HDFC BizPower Product-Feature-change PDF (post-15-May-2026): base 5 RP/₹200; 5X (25 RP/₹200) on IT/GST + business categories (unlock ≥₹25k non-tax/cycle); 5X cap 7,500 RP/cycle. Only the first 2 IT + 2 GST txns/cycle earn. Milestone ₹5k voucher on ₹2.5L/qtr — IT/GST/fuel/EMI EXCLUDED. Fee ₹2,500, waiver ₹4L; RP 2-yr expiry.',
+      notes: 'OFFICIAL HDFC BizPower Product-Feature-change PDF (post-15-May-2026): base 5 RP/₹200; 5X (25 RP/₹200) on IT/GST + business categories (unlock ≥₹25k non-tax/cycle); 5X cap 7,500 RP/cycle. Only the first 2 IT + 2 GST txns/cycle earn. PER-CATEGORY FAIR-USE RP CAPS (OFFICIAL BizPower RP-program PDF, eff 1-Sep-2024): utility (MCC 4900), telecom/cable (4812/4814/4899), insurance and grocery are EACH capped 2,000 RP per CALENDAR MONTH; hotel/flight (MMT MyBiz) capped 50,000 RP/mo — so utility maxes at 2,000 RP/mo (≈₹16k spend), NOT the 7,500 accel cap. PayZapp 5X excludes clubs/housing/rent/hospital/education/donation/FASTag/municipal-tax/MF/loans/CC-pay/wallet. Milestone ₹5k voucher on ₹2.5L/qtr — IT/GST/fuel/EMI EXCLUDED. Fee ₹2,500, waiver ₹4L; RP 2-yr expiry.',
     }],
   },
   {
