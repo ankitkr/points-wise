@@ -39,6 +39,14 @@ export const CARD_TAX_TREATMENT: Record<string, TaxPaymentsInput> = {
     notes:
       'Tax earns 0; counts toward the ₹1.5L quarterly milestone (₹1.5K GV) — consistent with HDFC\'s "counts as spend" framework, but NOT explicitly confirmed on issuer T&C. community/unconfirmed.',
   },
+  // HDFC Marriott co-brand: tax neither earns NOR counts to the FNA milestones.
+  'hdfc-marriott': {
+    earns: false,
+    countsToMilestone: false,
+    verified: true,
+    notes:
+      'OFFICIAL (HDFC Marriott Bonvoy T&C PDF, publ. 06-Oct-2025): the FNA spend milestones (₹6L/₹9L/₹15L) are based on "Eligible Spends", and the T&C defines Eligible Spends to EXCLUDE "Government related transactions" (income tax MCC 9311 / govt 9399) — so tax/govt neither earns Bonvoy points NOR counts toward the milestones. Stricter than HDFC Infinia/Diners (where tax earns 0 but counts).',
+  },
   // ---- HDFC business: tax/GST NOT excluded → earns AND counts to milestone ----
   'hdfc-bizblack': {
     earns: true,
